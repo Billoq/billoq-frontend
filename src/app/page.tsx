@@ -1,9 +1,13 @@
+import { FeaturesSection } from "@/components/features-section"
 import { HeroSection } from "@/components/hero-section"
+import { ServicesSection } from "@/components/services-section"
 
 export default function Home() {
   return (
-    <main>
+    <main className="bg-[#161E28] text-white">
       <HeroSection />
+      <FeaturesSection/>
+      <ServicesSection/>
     </main>
   )
 }

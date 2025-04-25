@@ -18,7 +18,7 @@ export function HeroSection() {
       </div> */}
 
       {/* Content */}
-      <div className="relative z-10">
+      <div className="relative z-10 max-w-7xl mx-auto">
         <Navbar />
 
         <div className="container mx-auto px-6 pt-16 md:pt-24 pb-20 text-center">
@@ -32,9 +32,9 @@ export function HeroSection() {
             Cryptocurrency
           </p>
 
-          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center mx-6  gap-4">
             <Button className="bg-blue-600 hover:bg-blue-700 text-white w-[230px] py-6 text-lg">Get Started</Button>
-            <Button variant="outline" className=" text-white hover:bg-gray-800 w-[230px] py-6 text-lg">
+            <Button variant="outline" className=" bg-transparent text-white hover:bg-gray-800 w-[230px] py-6 text-lg">
               Learn more
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -54,8 +54,8 @@ export function HeroSection() {
             </Button>
           </div>
 
-          <div className="mt-16 grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl">
-          <div className="flex items-center gap-4">
+          <div className="mt-16 px-6 grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl">
+          <div className="flex items-center  gap-4">
   <div className="flex-shrink-0 bg-[#42556CCC] p-2 rounded-full">
     <Image 
       src="/fast.png"

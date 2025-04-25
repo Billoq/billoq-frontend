@@ -20,7 +20,7 @@ const navItems: NavItem[] = [
 
 export function Navbar() {
   return (
-    <nav className="flex items-center justify-between pt-[16px] px-6 md:px-12 w-full">
+    <nav className="flex items-center justify-between pt-[16px] px-6 md:px-12 w-full ">
       <div className="flex items-center">
         <Link href="/" className="flex items-center">
           <div className="text-blue-500 font-bold text-2xl flex gap-2 items-center">
