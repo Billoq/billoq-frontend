@@ -12,13 +12,13 @@ export function HeroSection() {
         <div className="absolute inset-0 bg-black/30"></div>
       </div>
       {/* Background effects */}
-      {/* <div className="absolute inset-0 z-0">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/20 rounded-full filter blur-3xl"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full filter blur-3xl"></div>
-      </div> */}
+      <div className="absolute inset-0 z-10">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/30 rounded-full filter blur-3xl"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/20 rounded-full filter blur-3xl"></div>
+      </div>
 
       {/* Content */}
-      <div className="relative z-10 max-w-7xl mx-auto">
+      <div className="relative z-20 max-w-7xl mx-auto">
         <Navbar />
 
         <div className="container mx-auto px-6 pt-16 md:pt-24 pb-20 text-center">

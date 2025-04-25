@@ -47,7 +47,7 @@ export function FeaturesSection() {
       ></div>
 
       {/* Content with Background */}
-      <div className="relative z-10 bg-[#161E28] py-16 mb-5">
+      <div className="relative z-10 bg-[#161E28] py-16 mb-5 mx-auto px-6 max-w-7xl">
         <div className="container mx-auto px-6">
           <div className="text-left mb-12">
             <span className="text-[#60A5FA] text-[18px] leading-[100%] font-semibold uppercase tracking-wide px-2 py-1.5 rounded-l-full rounded-r-full bg-[#1D4ED840]" >

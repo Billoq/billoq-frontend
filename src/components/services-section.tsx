@@ -30,8 +30,8 @@ export function ServicesSection() {
 
   return (
     <section className="bg-[#1A2A44] py-16">
-      <div className="container mx-auto px-6">
-        <div className="flex flex-col lg:flex-row items-center gap-12">
+      <div className="mx-auto w-full px-12 max-w-7xl ">
+        <div className="  flex flex-col lg:flex-row items-center gap-12">
           {/* Left Side: Text and Services */}
           <div className="flex-1">
             <span className="text-[#60A5FA] text-[18px] leading-[100%] mb-8 font-semibold uppercase tracking-wide px-2 py-1.5 rounded-l-full rounded-r-full bg-[#1D4ED840]">
