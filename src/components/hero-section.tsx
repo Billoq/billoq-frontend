@@ -95,8 +95,6 @@
 "use client";
 
 import { Button } from "./ui/button"
-import { FeatureBadge } from "./feature-badge"
-import { Check, Shield } from "lucide-react"
 import { Navbar } from "./navbar"
 import Image from "next/image"
 import { motion, useAnimation } from 'framer-motion';

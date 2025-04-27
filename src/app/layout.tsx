@@ -5,10 +5,12 @@ import "./globals.css";
 import { headers } from "next/headers"; 
 import ContextProvider from '@/context'
 import ClientInitializer from "@/components/ClientInitializer";
+import { AppKit } from "../context/appkit";
+import { Providers } from "../context/providers";
 
 export const metadata: Metadata = {
-  title: "Billoq - Web3 Payment Solution",
-  description: "Powered by WalletConnect"
+  title: "Billoq",
+  description: "Billoq Application"
 };
 
 export default async function RootLayout({
@@ -25,7 +27,9 @@ export default async function RootLayout({
       <body>
         <ContextProvider cookies={cookies}>
           <ClientInitializer>
-            {children}
+          <AppKit>
+            <Providers>{children}</Providers>
+          </AppKit>
           </ClientInitializer>
         </ContextProvider>
       </body>
