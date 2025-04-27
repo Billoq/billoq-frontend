@@ -1,6 +1,4 @@
 import { Button } from "./ui/button"
-import { FeatureBadge } from "./feature-badge"
-import { Check, Shield } from "lucide-react"
 import { Navbar } from "./navbar"
 import Image from "next/image"
 

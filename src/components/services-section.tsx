@@ -1,6 +1,5 @@
 "use client"
-import Image from "next/image";
-import { ServiceCard } from "./service-card";
+import Image from "next/image";;
 import { Button } from "./ui/button";
 import { useState } from "react";
 
@@ -8,14 +7,7 @@ export function ServicesSection() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const services = [
-    { iconSrc: "/icons/electricity.png", title: "ELECTRICITY" },
-    { iconSrc: "/icons/cable-tv.png", title: "CABLE TV" },
-    { iconSrc: "/icons/internet.png", title: "INTERNET" },
-    { iconSrc: "/icons/airtime.png", title: "AIRTIME" },
-    { iconSrc: "/icons/cable-tv.png", title: "CABLE TV" },
-    { iconSrc: "/icons/more.png", title: "SEE MORE" },
-  ];
+
 
   const handleGiftNow = () => {
     setIsLoading(true);
