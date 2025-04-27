@@ -1,4 +1,5 @@
 "use client";
+import { useState } from "react";
 import { FAQItem } from "./faq-item";
 
 export function FAQSection() {
@@ -29,6 +30,12 @@ export function FAQSection() {
     }
   ];
 
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+
+  const handleToggle = (index: number) => {
+    setOpenIndex(prevIndex => (prevIndex === index ? null : index));
+  };
+
   return (
     <section className="py-20 bg-[#0F172A]">
       <div className="container mx-auto px-6">
@@ -43,13 +50,15 @@ export function FAQSection() {
             Find answers to common questions about Billoq and Web3 bill payments.
           </p>
         </div>
-        
+
         <div className="max-w-3xl bg-[#0F1620] mx-auto px-9 pb-16 pt-6 rounded-lg shadow-lg">
           {faqs.map((faq, index) => (
             <FAQItem
               key={index}
               question={faq.question}
               answer={faq.answer}
+              isOpen={openIndex === index}
+              onClick={() => handleToggle(index)}
             />
           ))}
         </div>

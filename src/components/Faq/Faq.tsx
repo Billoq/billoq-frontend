@@ -1,10 +1,13 @@
-import React from 'react'
+import { FAQSection } from "@/components/faq-section";
+import { Footer } from "@/components/footer";
+import { Navbar } from "@/components/navbar";
 
-function page() {
+export default function FAQPage() {
   return (
-    //start here
-    <div>for geoffrey</div>
-  )
+    <main className="bg-[#161E28] min-h-screen text-white">
+      <Navbar />
+      <FAQSection />
+      <Footer />
+    </main>
+  );
 }
-
-export default page
