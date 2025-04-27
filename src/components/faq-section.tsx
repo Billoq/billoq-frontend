@@ -40,7 +40,8 @@ export function FAQSection() {
     <section className="py-20 bg-[#0F172A]">
       <div className="container mx-auto px-6">
         <div className="text-center mb-12">
-          <span className="text-blue-500 text-sm font-semibold uppercase tracking-wider">
+          
+        <span className="inline-block text-[#60A5FA] text-sm md:text-[18px] font-semibold uppercase tracking-wide px-3 py-1 rounded-full bg-[#1D4ED840]">
             FAQ
           </span>
           <h2 className="text-4xl md:text-5xl font-bold text-white mt-3 mb-4">

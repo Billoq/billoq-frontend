@@ -1,5 +1,4 @@
 import { Button } from "./ui/button";
-import { Footer } from "./footer";
 
 export function CommunitySection() {
   return (
