@@ -2,7 +2,8 @@ import React from 'react'
 
 function FeaturesSection() {
   return (
-    <div>feature-section</div>
+    //start from here
+    <div>for lynda </div>
   )
 }
 
