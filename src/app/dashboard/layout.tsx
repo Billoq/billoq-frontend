@@ -1,6 +1,8 @@
 "use client"
-import Header from "@/components/Header"
-import Sidebar from "@/components/Sidebar"
+
+import { AppSidebar } from "@/components/Dashboard/Sidebar/AppSidebar"
+import { SidebarProvider } from "@/context/sidebar-context"
+
 import type React from "react"
 
 interface DashboardLayoutProps {
@@ -11,20 +13,15 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
 
 
   return (
-    <div className="bg-colors-OffWhite">
-      <div className="flex h-screen overflow-hidden">
-        
-          <Sidebar/>
-        
+    
+        <SidebarProvider>
+          <div className="flex min-h-screen bg-[#161E28]">
+            <AppSidebar />
+            
+            {children}
 
-            <div className="relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden">
-                <Header />
-                <main>
-            <div>{children}</div>
-            </main>
-        </div>
-      </div>
-    </div>
+          </div>
+        </SidebarProvider>
   )
 }
 
