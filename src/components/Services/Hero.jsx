@@ -5,9 +5,9 @@ import Image from "next/image";
 export function HeroSection() {
   return (
     <div className="relative min-h-screen w-full overflow-hidden">
-      <div className="absolute inset-0 z-0 bg-[url('/service-background-image.png')] bg-cover bg-center">
+     <div className="absolute inset-0 z-0 bg-[url('/service-background-image.png')] bg-cover bg-center">
         {/* Dark overlay to make text more readable */}
-        <div className="absolute backdrop-blur-md inset-0 bg-black/60"></div>
+        <div className="absolute inset-0 bg-black/30 backdrop-blur-[15px]"></div>
       </div>
       {/* Background effects */}
       <div className="absolute inset-0 z-10">
