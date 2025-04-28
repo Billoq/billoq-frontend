@@ -1,10 +1,12 @@
-import { FeaturesSection } from '@/components/features-section'
-import React from 'react'
+
+import FeaturesSection from "@/components/Features/featureSection"
+
 
 function page() {
   return (
-    <FeaturesSection/>
+    <main className="bg-[#161E28] text-white">
+      <FeaturesSection/>
+    </main>
   )
 }
-
 export default page
