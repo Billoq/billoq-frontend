@@ -1,8 +1,6 @@
 // app/layout.tsx
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import type { Metadata } from "next";;
 import "./globals.css";
-import { headers } from "next/headers"; 
 // import ContextProvider from '@/context'
 import ClientInitializer from "@/components/ClientInitializer";
 import { AppKit } from "../context/appkit";
@@ -19,8 +17,8 @@ export default async function RootLayout({
   children: React.ReactNode
 }>) {
   // This function runs on the server
-  const headersList = headers();
-  const cookies = (await headersList).get('cookie');
+  
+
 
   return (
     <html lang="en">
