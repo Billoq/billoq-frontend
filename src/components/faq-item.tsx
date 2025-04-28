@@ -12,7 +12,7 @@ export function FAQItem({ question, answer, isOpen, onClick }: FAQItemProps) {
   return (
     <div className="border-b border-[#0E478D] py-4">
       <button
-        className="flex justify-between items-center w-full text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+        className="flex justify-between items-center w-full text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 cursor-pointer"
         onClick={onClick}
         aria-controls={`faq-answer-${question.replace(/\s+/g, "-").toLowerCase()}`}
         id={`faq-question-${question.replace(/\s+/g, "-").toLowerCase()}`}

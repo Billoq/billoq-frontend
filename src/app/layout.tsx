@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { headers } from "next/headers"; 
-import ContextProvider from '@/context'
+// import ContextProvider from '@/context'
 import ClientInitializer from "@/components/ClientInitializer";
 import { AppKit } from "../context/appkit";
 import { Providers } from "../context/providers";
@@ -25,13 +25,13 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body>
-        <ContextProvider cookies={cookies}>
+        
           <ClientInitializer>
           <AppKit>
             <Providers>{children}</Providers>
           </AppKit>
           </ClientInitializer>
-        </ContextProvider>
+        
       </body>
     </html>
   )
