@@ -4,6 +4,7 @@ import { Button } from "../ui/button";
 import { Navbar } from "../navbar";
 import Image from "next/image";
 import  {AnimatedSection}  from "../../components/AnimatedSection";
+import { RollingBall } from "../RollingBall";
 
 export function HeroSection() {
   return (
@@ -38,6 +39,9 @@ export function HeroSection() {
               </p>
             </AnimatedSection>
           </div>
+
+                
+
 
           <div className="mt-12 md:mt-16 px-4 sm:px-6 grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
             <AnimatedSection direction="right" delay={0.7}>
