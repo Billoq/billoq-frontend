@@ -1,13 +1,13 @@
-import { Button } from "./ui/button";
-import { Navbar } from "./navbar";
+import { Button } from "../ui/button";
+import { Navbar } from "../navbar";
 import Image from "next/image";
 
 export function HeroSection() {
   return (
     <div className="relative min-h-screen w-full overflow-hidden">
-      <div className="absolute inset-0 z-0 bg-[url('/herobg.png')] bg-cover bg-center">
+      <div className="absolute inset-0 z-0 bg-[url('/service-background-image.png')] bg-cover bg-center">
         {/* Dark overlay to make text more readable */}
-        <div className="absolute inset-0 bg-black/30"></div>
+        <div className="absolute backdrop-blur-md inset-0 bg-black/60"></div>
       </div>
       {/* Background effects */}
       <div className="absolute inset-0 z-10">
@@ -20,45 +20,17 @@ export function HeroSection() {
         <Navbar />
 
         <div className="container mx-auto px-6 pt-16 md:pt-24 pb-20 text-center">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white max-w-4xl mx-auto leading-tight">
-            A Comprehensive <span className="text-blue-500">Web3 Payment</span>,
-            Designed To Ease Your Subscription{" "}
-            <span className="text-blue-500">Services</span>.
+          <h1 className="text-[56px] md:text-5xl lg:text-6xl font-bold text-white max-w-6xl mx-auto leading-tight">
+            Pay For Any <span className="text-blue-500">Service</span> With Your{" "}
+            <span className="text-blue-500">Crypto</span>.
           </h1>
 
           <p className="mt-6 text-gray-300 max-w-2xl mx-auto text-lg">
-            Billoq Make It Easy To Pay For Electricity, Cable Tv, Internet
-            Subscription And Lots More Using Cryptocurrency
+            Choose From A Wide Range Of Services And Pay Your Bills Using <br />
+            Cryptocurrency Fast, Secure, Transparent And Convenient.
           </p>
 
-          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center mx-6  gap-4">
-            <Button className="bg-blue-600 hover:bg-blue-700 text-white w-[230px] py-6 text-lg">
-              Get Started
-            </Button>
-            <Button
-              variant="outline"
-              className=" bg-transparent text-white hover:bg-gray-800 w-[230px] py-6 text-lg"
-            >
-              Learn more
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="ml-2"
-              >
-                <path d="M5 12h14" />
-                <path d="m12 5 7 7-7 7" />
-              </svg>
-            </Button>
-          </div>
-
-          <div className="mt-16 px-6 grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl">
+          <div className="mt-60 px-6 grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl ">
             <div className="flex items-center  gap-4">
               <div className="flex-shrink-0 bg-[#42556CCC] p-2 rounded-full">
                 <Image

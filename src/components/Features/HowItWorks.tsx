@@ -3,7 +3,7 @@ import Image from "next/image";
 
 export function HowItWorks() {
   return (
-    <div className="bg-[#121520] min-h-screen flex flex-col items-center py-16 px-4">
+    <div className="bg-[#121520]  flex flex-col items-center py-16 px-4">
       <div className="text-center mb-12">
         <div className="inline-block bg-[#243880] text-blue-300 text-sm font-medium px-4 py-1 rounded-full mb-4">
           KEY STEPS
@@ -27,8 +27,9 @@ export function HowItWorks() {
           </div>
           <h3 className="text-white text-xl font-semibold mb-2">Connect Wallet</h3>
           <p className="text-gray-400 text-sm">
-            To interact with our decentralized platform, you'll securely connect your Web3 wallet (e.g. MetaMask, Trust Wallet, WalletConnect, compatible wallets).
-          </p>
+  To interact with our decentralized platform, you&apos;ll securely connect your Web3 wallet (e.g. MetaMask, Trust Wallet, WalletConnect, compatible wallets).
+</p>
+
         </div>
 
         {/* Card 2 */}
@@ -59,8 +60,9 @@ export function HowItWorks() {
           </div>
           <h3 className="text-white text-xl font-semibold mb-2">Approve The Token Transaction</h3>
           <p className="text-gray-400 text-sm">
-            Carefully review the transaction details in your wallet and click "Approve." Transaction gas network fee (gwei) may apply, as a standard for blockchain transactions.
-          </p>
+  Carefully review the transaction details in your wallet and click &quot;Approve.&quot; Transaction gas network fee (gwei) may apply, as a standard for blockchain transactions.
+</p>
+
         </div>
 
         {/* Card 4 */}
@@ -75,8 +77,9 @@ export function HowItWorks() {
           </div>
           <h3 className="text-white text-xl font-semibold mb-2">Subscription Confirmed</h3>
           <p className="text-gray-400 text-sm">
-            Once your transaction is confirmed on the blockchain, your subscription is activated. You'll receive an on-chain confirmation within our DApp, along with a transaction ID.
-          </p>
+  Once your transaction is confirmed on the blockchain, your subscription is activated. You&apos;ll receive an on-chain confirmation within our DApp, along with a transaction ID.
+</p>
+
         </div>
       </div>
     </div>
