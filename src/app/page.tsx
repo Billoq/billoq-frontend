@@ -5,9 +5,7 @@ import { FeaturesSection } from "@/components/features-section"
 import { Footer } from "@/components/footer"
 import { HeroSection } from "@/components/hero-section"
 import { ServicesSection } from "@/components/services-section"
-import { ParallaxSection } from "../components/ParallaxSection"
-import { FloatingElement } from "../components/FloatingElements"
-import { AnimatedSection } from "../components/AnimatedSection"
+
 
 export default function Home() {
   return (

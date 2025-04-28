@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState, useEffect, Key } from "react";
+import { useState, useEffect } from "react";
 
 interface FeatureCardProps {
   iconSrc: string;
@@ -18,7 +18,6 @@ export function FeatureCard({
   description, 
   className = "",
   isActive = false,
-  index = 0
 }: FeatureCardProps) {
   return (
     <div 
