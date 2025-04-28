@@ -7,7 +7,7 @@ export function FeatureSection() {
     <div className="relative min-h-screen w-full overflow-hidden">
              <div className="absolute inset-0 z-0 bg-[url('/features-bg.svg')] bg-cover bg-center">
         {/* Dark overlay to make text more readable */}
-        <div className="absolute inset-0 bg-black/30"></div>
+        <div className="absolute inset-0 bg-black/30 backdrop-blur-lg"></div>
       </div>
       {/* Background effects */}
       <div className="absolute inset-0 z-10">

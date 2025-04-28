@@ -5,7 +5,7 @@ import { FAQSection } from '../faq-section'
 import { Footer } from '../footer'
 function FeaturesSection() {
   return (
-    //start from here
+    //start from here44
     <>
     <FeatureSection/>
       <HowItWorks/>
