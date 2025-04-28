@@ -1,4 +1,80 @@
-import { FeatureCard } from "./feature-card";
+"use client";
+
+import { motion, useAnimation } from 'framer-motion';
+import { useInView } from 'react-intersection-observer';
+import { useEffect, ReactNode } from 'react';
+import { AutoHighlightFeatureCards } from "./feature-card";
+
+// AnimatedSection component (same as before)
+interface AnimatedSectionProps {
+  children: ReactNode;
+  delay?: number;
+  direction?: 'up' | 'down' | 'left' | 'right';
+  className?: string;
+  distance?: number;
+}
+
+export const AnimatedSection = ({ 
+  children, 
+  delay = 0.2,
+  direction = 'up',
+  className = '',
+  distance = 100 
+}: AnimatedSectionProps) => {
+  const controls = useAnimation();
+  const [ref, inView] = useInView({
+    triggerOnce: false,
+    threshold: 0.1
+  });
+
+  const getInitialState = () => {
+    switch (direction) {
+      case 'up': return { y: distance, opacity: 0 };
+      case 'down': return { y: -distance, opacity: 0 };
+      case 'left': return { x: distance, opacity: 0 };
+      case 'right': return { x: -distance, opacity: 0 };
+      default: return { y: distance, opacity: 0 };
+    }
+  };
+
+  const getAnimateState = () => {
+    switch (direction) {
+      case 'up':
+      case 'down':
+        return { y: 0, opacity: 1 };
+      case 'left':
+      case 'right':
+        return { x: 0, opacity: 1 };
+      default:
+        return { y: 0, opacity: 1 };
+    }
+  };
+
+  useEffect(() => {
+    if (inView) {
+      controls.start(getAnimateState());
+    } else {
+      controls.start(getInitialState());
+    }
+  }, [controls, inView]);
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={getInitialState()}
+      animate={controls}
+      transition={{ 
+        duration: 0.8, 
+        delay,
+        type: "spring", 
+        stiffness: 50 
+      }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+};
 
 export function FeaturesSection() {
   const features = [
@@ -47,26 +123,24 @@ export function FeaturesSection() {
         <div className="container mx-auto">
           {/* Header Section */}
           <div className="text-center md:text-left mb-8 md:mb-12 px-2">
-            <span className="inline-block text-[#60A5FA] text-sm md:text-[18px] font-semibold uppercase tracking-wide px-3 py-1 rounded-full bg-[#1D4ED840]">
-              KEY FEATURES
-            </span>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mt-6 md:mt-10 leading-snug">
-              POWERFUL FEATURES FOR{" "}
-              <span className="text-[#1D4ED8]">WEB3</span> BILL PAYMENTS
-            </h2>
+            <AnimatedSection direction="down" delay={0.2}>
+              <span className="inline-block text-[#60A5FA] text-sm md:text-[18px] font-semibold uppercase tracking-wide px-3 py-1 rounded-full bg-[#1D4ED840]">
+                KEY FEATURES
+              </span>
+            </AnimatedSection>
+            
+            <AnimatedSection direction="up" delay={0.3}>
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mt-6 md:mt-10 leading-snug">
+                POWERFUL FEATURES FOR{" "}
+                <span className="text-[#1D4ED8]">WEB3</span> BILL PAYMENTS
+              </h2>
+            </AnimatedSection>
           </div>
 
-          {/* Features Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8 px-2 sm:px-0">
-            {features.map((feature, index) => (
-              <FeatureCard
-                key={index}
-                iconSrc={feature.iconSrc}
-                title={feature.title}
-                description={feature.description}
-              />
-            ))}
-          </div>
+          {/* Features Grid with Auto-Highlighting Cards */}
+          <AnimatedSection direction="up" delay={0.4}>
+            <AutoHighlightFeatureCards features={features} />
+          </AnimatedSection>
         </div>
       </div>
     </section>

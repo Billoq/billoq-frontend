@@ -38,7 +38,7 @@ export function FAQSection() {
 
   return (
     <section className="py-20 bg-[#0F172A]">
-      <div className="container mx-auto px-6">
+      <div className="container mx-auto px-6 ">
         <div className="text-center mb-12">
           
         <span className="inline-block text-[#60A5FA] text-sm md:text-[18px] font-semibold uppercase tracking-wide px-3 py-1 rounded-full bg-[#1D4ED840]">
@@ -52,7 +52,7 @@ export function FAQSection() {
           </p>
         </div>
 
-        <div className="max-w-3xl bg-[#0F1620] mx-auto px-9 pb-16 pt-6 rounded-lg shadow-lg">
+        <div className="max-w-3xl bg-[#0F1620] mx-auto px-9 pb-16 pt-6 rounded-lg shadow-lg cursor-pointer">
           {faqs.map((faq, index) => (
             <FAQItem
               key={index}

@@ -1,6 +1,82 @@
-import { Button } from "./ui/button";
-import { Navbar } from "./navbar";
-import Image from "next/image";
+"use client";
+
+import { Button } from "./ui/button"
+import { Navbar } from "./navbar"
+import Image from "next/image"
+import { motion, useAnimation } from 'framer-motion';
+import { useInView } from 'react-intersection-observer';
+import { useEffect, ReactNode } from 'react';
+
+// Define the AnimatedSection component
+interface AnimatedSectionProps {
+  children: ReactNode;
+  delay?: number;
+  direction?: 'up' | 'down' | 'left' | 'right';
+  className?: string;
+  distance?: number;
+}
+
+export const AnimatedSection = ({ 
+  children, 
+  delay = 0.2,
+  direction = 'up',
+  className = '',
+  distance = 100 
+}: AnimatedSectionProps) => {
+  const controls = useAnimation();
+  const [ref, inView] = useInView({
+    triggerOnce: false,
+    threshold: 0.1
+  });
+
+  const getInitialState = () => {
+    switch (direction) {
+      case 'up': return { y: distance, opacity: 0 };
+      case 'down': return { y: -distance, opacity: 0 };
+      case 'left': return { x: distance, opacity: 0 };
+      case 'right': return { x: -distance, opacity: 0 };
+      default: return { y: distance, opacity: 0 };
+    }
+  };
+
+  const getAnimateState = () => {
+    switch (direction) {
+      case 'up':
+      case 'down':
+        return { y: 0, opacity: 1 };
+      case 'left':
+      case 'right':
+        return { x: 0, opacity: 1 };
+      default:
+        return { y: 0, opacity: 1 };
+    }
+  };
+
+  useEffect(() => {
+    if (inView) {
+      controls.start(getAnimateState());
+    } else {
+      controls.start(getInitialState());
+    }
+  }, [controls, inView]);
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={getInitialState()}
+      animate={controls}
+      transition={{ 
+        duration: 0.8, 
+        delay,
+        type: "spring", 
+        stiffness: 50 
+      }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+};
 
 export function HeroSection() {
   return (
@@ -20,79 +96,80 @@ export function HeroSection() {
         <Navbar />
 
         <div className="container mx-auto px-6 pt-16 md:pt-24 pb-20 text-center">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white max-w-4xl mx-auto leading-tight">
-            A Comprehensive <span className="text-blue-500">Web3 Payment</span>,
-            Designed To Ease Your Subscription{" "}
-            <span className="text-blue-500">Services</span>.
-          </h1>
+          <AnimatedSection direction="down" delay={0.3}>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white max-w-4xl mx-auto leading-tight">
+              A Comprehensive <span className="text-blue-500">Web3 Payment</span>, Designed To Ease Your Subscription{" "}
+              <span className="text-blue-500">Services</span>.
+            </h1>
+          </AnimatedSection>
 
-          <p className="mt-6 text-gray-300 max-w-2xl mx-auto text-lg">
-            Billoq Make It Easy To Pay For Electricity, Cable Tv, Internet
-            Subscription And Lots More Using Cryptocurrency
-          </p>
+          <AnimatedSection direction="up" delay={0.5}>
+            <p className="mt-6 text-gray-300 max-w-2xl mx-auto text-lg">
+              Billoq Make It Easy To Pay For Electricity, Cable Tv, Internet Subscription And Lots More Using
+              Cryptocurrency
+            </p>
+          </AnimatedSection>
 
-          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center mx-6  gap-4">
-            <Button className="bg-blue-600 hover:bg-blue-700 text-white w-[230px] py-6 text-lg">
-              Get Started
-            </Button>
-            <Button
-              variant="outline"
-              className=" bg-transparent text-white hover:bg-gray-800 w-[230px] py-6 text-lg"
-            >
-              Learn more
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="ml-2"
-              >
-                <path d="M5 12h14" />
-                <path d="m12 5 7 7-7 7" />
-              </svg>
-            </Button>
-          </div>
+          <AnimatedSection direction="up" delay={0.7}>
+            <div className="mt-10 flex flex-col sm:flex-row items-center justify-center mx-6 gap-4">
+              <Button className="bg-blue-600 hover:bg-blue-700 text-white w-[230px] py-6 text-lg">Get Started</Button>
+              <Button variant="outline" className="bg-transparent text-white hover:bg-gray-800 w-[230px] py-6 text-lg">
+                Learn more
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="ml-2"
+                >
+                  <path d="M5 12h14" />
+                  <path d="m12 5 7 7-7 7" />
+                </svg>
+              </Button>
+            </div>
+          </AnimatedSection>
 
           <div className="mt-16 px-6 grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl">
-            <div className="flex items-center  gap-4">
-              <div className="flex-shrink-0 bg-[#42556CCC] p-2 rounded-full">
-                <Image
-                  src="/fast.png"
-                  alt="Fast & secured"
-                  width={27}
-                  height={27}
-                  className="w-7 h-7"
-                />
+            <AnimatedSection direction="left" delay={0.9}>
+              <div className="flex items-center gap-4">
+                <div className="flex-shrink-0 bg-[#42556CCC] p-2 rounded-full">
+                  <Image 
+                    src="/fast.png"
+                    alt="Fast & secured"
+                    width={27}
+                    height={27}
+                    className="w-7 h-7"
+                  />
+                </div>
+                <div>
+                  <h3 className="text-lg font-medium text-white">Fast & secured</h3>
+                  <p className="text-gray-400">Blockchain-powered</p>
+                </div>
               </div>
-              <div>
-                <h3 className="text-lg font-medium text-white">
-                  Fast & secured
-                </h3>
-                <p className="text-gray-400">Blockchain-powered</p>
+            </AnimatedSection>
+            
+            <AnimatedSection direction="right" delay={1.1}>
+              <div className="flex items-center gap-4">
+                <div className="flex-shrink-0 bg-[#42556CCC] p-2 rounded-full" >
+                  <Image 
+                    src="/fully.png"
+                    alt="Fully Protected"
+                    width={27}
+                    height={27}
+                    className="w-7 h-7"
+                  />
+                </div>
+                <div>
+                  <h3 className="text-lg font-medium text-white">Fully Protected</h3>
+                  <p className="text-gray-400">Smart contracts</p>
+                </div>
               </div>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="flex-shrink-0 bg-[#42556CCC] p-2 rounded-full">
-                <Image
-                  src="/fully.png"
-                  alt="Fully Protected"
-                  width={27}
-                  height={27}
-                  className="w-7 h-7"
-                />
-              </div>
-              <div>
-                <h3 className="text-lg font-medium text-white">
-                  Fully Protected
-                </h3>
-                <p className="text-gray-400">Smart contracts</p>
-              </div>
-            </div>
+            </AnimatedSection>
           </div>
         </div>
       </div>
