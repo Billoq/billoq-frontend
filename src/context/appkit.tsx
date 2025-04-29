@@ -3,7 +3,7 @@
 
 import { createAppKit } from "@reown/appkit/react";
 import { EthersAdapter } from "@reown/appkit-adapter-ethers";
-import { mainnet, arbitrum, polygon, base } from "@reown/appkit/networks";
+import { mainnet, arbitrum, polygon, base, sepolia, liskSepolia } from "@reown/appkit/networks";
 import { ReactNode } from "react";
 
 // 1. Get projectId at https://cloud.reown.com
@@ -21,7 +21,7 @@ const metadata = {
 createAppKit({
   adapters: [new EthersAdapter()],
   metadata,
-  networks: [mainnet, arbitrum, polygon, base],
+  networks: [mainnet, arbitrum, polygon, base, liskSepolia, sepolia],
   projectId,
   features: {
     analytics: true,

@@ -1,8 +1,7 @@
-
 "use client"
 import React, { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
-import { Search } from 'lucide-react';
+import { Search, CheckCircle, XCircle, Clock } from 'lucide-react';
 import { LuArrowDownUp } from "react-icons/lu";
 import { GiSettingsKnobs } from "react-icons/gi";
 import {
@@ -88,17 +87,31 @@ function DashboardTransactions() {
   const [statusFilter, setStatusFilter] = useState("All");
   const [showStatusMenu, setShowStatusMenu] = useState(false);
 
-  // Function to get appropriate style for each status
-  const getStatusStyle = (status: string) => {
+  // Function to get appropriate icon for each status
+  const getStatusIcon = (status: string) => {
     switch (status) {
       case "Successful":
-        return "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400";
+        return <CheckCircle className="h-5 w-5 text-green-500" />;
       case "Failed":
-        return "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400";
+        return <XCircle className="h-5 w-5 text-red-500" />;
       case "Pending":
-        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400";
+        return <Clock className="h-5 w-5 text-yellow-500" />;
       default:
-        return "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400";
+        return null;
+    }
+  };
+
+  // Get text color for status
+  const getStatusTextColor = (status: string) => {
+    switch (status) {
+      case "Successful":
+        return "text-green-500";
+      case "Failed":
+        return "text-red-500";
+      case "Pending":
+        return "text-yellow-500";
+      default:
+        return "text-gray-500";
     }
   };
 
@@ -141,7 +154,6 @@ function DashboardTransactions() {
     setFilteredInvoices(statusFiltered);
   };
 
-  // Apply filters based on current state
   const applyFilters = (status: string, direction: string) => {
     let results = [...invoices];
     
@@ -258,7 +270,8 @@ function DashboardTransactions() {
         {statusFilter !== "All" && (
           <div className="flex items-center gap-1">
             <span>Status: </span>
-            <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusStyle(statusFilter)}`}>
+            <span className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusTextColor(statusFilter)}`}>
+              {getStatusIcon(statusFilter)}
               {statusFilter}
             </span>
           </div>
@@ -291,9 +304,10 @@ function DashboardTransactions() {
                 <TableCell className='text-slate-300 border-gray-300'>{invoice.Description}</TableCell>
                 <TableCell className='text-slate-300 border-gray-300'>{invoice.Amount}</TableCell>
                 <TableCell className="border-gray-300">
-                  <span className={`px-2 py-1 rounded-full text-xs font-bold ${getStatusStyle(invoice.Status)}`}>
-                    {invoice.Status}
-                  </span>
+                  <div className={`flex items-center gap-2 ${getStatusTextColor(invoice.Status)}`}>
+                    {getStatusIcon(invoice.Status)}
+                    <span className="font-bold">{invoice.Status}</span>
+                  </div>
                 </TableCell>
                 <TableCell className="hidden md:table-cell text-slate-300 border-gray-300">
                   {invoice.TransactionID}
@@ -308,4 +322,3 @@ function DashboardTransactions() {
 }
 
 export default DashboardTransactions;
-
