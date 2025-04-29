@@ -141,7 +141,6 @@ function DashboardTransactions() {
     setFilteredInvoices(statusFiltered);
   };
 
-  // Apply filters based on current state
   const applyFilters = (status: string, direction: string) => {
     let results = [...invoices];
     
