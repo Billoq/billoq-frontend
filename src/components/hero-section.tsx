@@ -6,6 +6,7 @@ import Image from "next/image"
 import { motion, useAnimation } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { useEffect, ReactNode } from 'react';
+import { RollingBall } from "./RollingBall";
 
 // Define the AnimatedSection component
 interface AnimatedSectionProps {
@@ -109,6 +110,19 @@ export function HeroSection() {
               Cryptocurrency
             </p>
           </AnimatedSection>
+
+                          <RollingBall size={40} color="#3B82F6" duration={7} yPosition="30%" />
+                          <RollingBall size={60} color="#26303f" duration={10} delay={2} yPosition="50%" />
+                          <RollingBall size={30} color="#104ca5" duration={5} delay={1} yPosition="70%" />
+                          <RollingBall size={40} color="#3B82F6" duration={7} yPosition="30%" />
+                          <RollingBall size={60} color="#3e5cad" duration={10} delay={2} yPosition="50%" />
+                          <RollingBall size={30} color="#0f8ef7" duration={5} delay={1} yPosition="70%" />
+                          <RollingBall size={40} color="#3B82F6" duration={7} yPosition="30%" />
+                          <RollingBall size={60} color="#8B5CF6" duration={10} delay={2} yPosition="50%" />
+                          <RollingBall size={30} color="#808bf5" duration={5} delay={1} yPosition="70%" />
+                          <RollingBall size={40} color="#3B82F6" duration={7} yPosition="30%" />
+                          <RollingBall size={60} color="#223185" duration={10} delay={2} yPosition="50%" />
+                          <RollingBall size={30} color="#2d5e9c" duration={5} delay={1} yPosition="70%" />
 
           <AnimatedSection direction="up" delay={0.7}>
             <div className="mt-10 flex flex-col sm:flex-row items-center justify-center mx-6 gap-4">

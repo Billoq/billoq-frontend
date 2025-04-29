@@ -1,9 +1,13 @@
+import { DashboardHeader } from '@/components/Dashboard/dashboard-header'
+import DashboardSettings from '@/components/Dashboard/Settings/DashboardSettings'
 import React from 'react'
 
 const page = () => {
   return (
-    <div>
-      here is the settings page
+    <div  className="flex-1 bg-[#0f172a]">
+      <DashboardHeader/>
+      <DashboardSettings/>
+    
     </div>
   )
 }
