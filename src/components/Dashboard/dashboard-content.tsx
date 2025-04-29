@@ -7,7 +7,7 @@ import { StableAssets } from "./stable-assets";
 export function DashboardContent() {
   return (
     <div className="p-4 md:p-6 space-y-6">
-      {/* <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <BalanceCard />
         <StableAssets />
       </div>
@@ -18,7 +18,7 @@ export function DashboardContent() {
           <OverviewChart/>
           <GiftCard/>
         </div>
-      </div> */}
+      </div>
     </div>
   )
 }
