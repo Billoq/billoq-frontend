@@ -1,6 +1,6 @@
 import { BalanceCard } from "./balance-card";
 import { GiftCard } from "./gift-card";
-import { OverviewChart } from "./overview-chart";
+import { OverviewChart } from "./overview-chart/overview-chart";
 import { RecentTransactions } from "./recent-Transaction";
 import { StableAssets } from "./stable-assets";
 
