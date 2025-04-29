@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect } from "react";
+import { useEffect, useCallback } from "react";
 import { motion, useAnimation } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 
@@ -12,20 +12,57 @@ export function HowItWorks() {
     threshold: 0.2,
   });
 
+  const animateCards = useCallback(async () => {
+    // Reset all cards
+    await controls.start(() => ({
+      scale: 1,
+      transition: { duration: 0.3 },
+    }));
+
+    // Animate each card sequentially
+    for (let i = 0; i < 4; i++) {
+      await controls.start((index) => ({
+        scale: index === i ? 1.1 : 1,
+        transition: {
+          duration: 0.5,
+          type: "spring",
+          stiffness: 300,
+        },
+      }));
+
+      // Hold for a moment
+      await new Promise((resolve) => setTimeout(resolve, 600));
+
+      // Return to normal
+      await controls.start(() => ({
+        scale: 1,
+        transition: {
+          duration: 0.3,
+          type: "spring",
+          stiffness: 300,
+        },
+      }));
+
+      // Small pause between cards
+      await new Promise((resolve) => setTimeout(resolve, 200));
+    }
+  }, [controls]);
+
   // Animation to repeat every 5 seconds
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     let interval: string | number | NodeJS.Timeout | undefined;
-    
+
     if (inView) {
       // Start the animation cycle when section is in view
       interval = setInterval(() => {
         animateCards();
       }, 5000);
-      
+
       // Initial animation
       animateCards();
     }
-    
+
     return () => {
       if (interval) clearInterval(interval);
     };
@@ -72,30 +109,37 @@ export function HowItWorks() {
       image: "./cw.svg",
       alt: "Connect Wallet",
       title: "Connect Wallet",
-      description: "To interact with our decentralized platform, you'll securely connect your Web3 wallet (e.g. MetaMask, Trust Wallet, WalletConnect, compatible wallets)."
+      description:
+        "To interact with our decentralized platform, you'll securely connect your Web3 wallet (e.g. MetaMask, Trust Wallet, WalletConnect, compatible wallets).",
     },
     {
       image: "./explore.svg",
       alt: "Explore Available Services",
       title: "Explore Available Services",
-      description: "Once your wallet is connected, you can browse a diverse range of digital services available on our platform. Each listing provides clear information about its service."
+      description:
+        "Once your wallet is connected, you can browse a diverse range of digital services available on our platform. Each listing provides clear information about its service.",
     },
     {
       image: "./approve.svg",
       alt: "Approve The Token Transaction",
       title: "Approve The Token Transaction",
-      description: "Carefully review the transaction details in your wallet and click \"Approve.\" Transaction gas network fee (gwei) may apply, as a standard for blockchain transactions."
+      description:
+        'Carefully review the transaction details in your wallet and click "Approve." Transaction gas network fee (gwei) may apply, as a standard for blockchain transactions.',
     },
     {
       image: "./sub.svg",
       alt: "Subscription Confirmed",
       title: "Subscription Confirmed",
-      description: "Once your transaction is confirmed on the blockchain, your subscription is activated. You'll receive an on-chain confirmation within our DApp, along with a transaction ID."
-    }
+      description:
+        "Once your transaction is confirmed on the blockchain, your subscription is activated. You'll receive an on-chain confirmation within our DApp, along with a transaction ID.",
+    },
   ];
 
   return (
-    <div ref={ref} className="bg-[#121520] flex flex-col items-center py-16 px-4">
+    <div
+      ref={ref}
+      className="bg-[#121520] flex flex-col items-center py-16 px-4"
+    >
       <div className="text-center mb-12">
         <div className="inline-block bg-[#243880] text-blue-300 text-sm font-medium px-4 py-1 rounded-full mb-4">
           KEY STEPS
@@ -116,17 +160,12 @@ export function HowItWorks() {
             className="bg-[#1e2130] rounded-lg p-6 flex flex-col items-center text-center cursor-pointer transition-shadow duration-300 hover:shadow-lg hover:shadow-blue-500/20"
           >
             <div className="mb-4">
-              <Image 
-                src={card.image} 
-                alt={card.alt} 
-                width={64} 
-                height={64}
-              />
+              <Image src={card.image} alt={card.alt} width={64} height={64} />
             </div>
-            <h3 className="text-white text-xl font-semibold mb-2">{card.title}</h3>
-            <p className="text-gray-400 text-sm">
-              {card.description}
-            </p>
+            <h3 className="text-white text-xl font-semibold mb-2">
+              {card.title}
+            </h3>
+            <p className="text-gray-400 text-sm">{card.description}</p>
           </motion.div>
         ))}
       </div>
