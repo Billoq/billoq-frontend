@@ -1,48 +1,98 @@
 "use client"
 
-import { Bell, ChevronDown, Menu, Search } from "lucide-react"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { useSidebar } from "@/context/sidebar-context"
+import { useState, useEffect } from "react"
+import { usePathname } from "next/navigation"
+import { SearchInput } from "./search-input"
+import { NotificationBell } from "./notification-bell"
+import { UserProfile } from "./user-profile"
+import { Skeleton } from "@/components/ui/skeleton"
 
-export function DashboardHeader() {
-  const { toggle } = useSidebar()
+interface DashboardHeaderProps {
+  username?: string
+  avatarUrl?: string
+  onSearch?: (query: string) => void
+  notificationCount?: number
+}
+
+export function DashboardHeader({
+  username = "0a1xxx251",
+  avatarUrl,
+  onSearch,
+  notificationCount = 0,
+}: DashboardHeaderProps) {
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<Error | null>(null)
+  const pathname = usePathname()
+
+  // Simulate loading state for demonstration
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false)
+    }, 1000)
+
+    return () => clearTimeout(timer)
+  }, [])
+
+  // Get the current page title from the pathname
+  const getPageTitle = () => {
+    if (pathname === "/dashboard") return "Dashboard"
+
+    const path = pathname.split("/dashboard/").filter(Boolean)
+    if (path.length === 0) return "Dashboard"
+
+    // Capitalize the first letter of the last segment
+    const title = path[path.length - 1]
+    return title.charAt(0).toUpperCase() + title.slice(1)
+  }
+
+  // Handle search input
+  const handleSearch = (query: string) => {
+    if (onSearch) {
+      onSearch(query)
+    }
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="flex h-16 items-center justify-between bg-red-900/20 px-4 md:px-6">
+        <h1 className="text-2xl font-bold">Error</h1>
+        <p className="text-red-400">Failed to load header: {error.message}</p>
+      </div>
+    )
+  }
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="flex h-16 items-center justify-between bg-[#0f172a] px-4 md:px-6">
+        <Skeleton className="h-8 w-32" />
+        
+        <div className="flex items-center gap-4">
+        <Skeleton className="h-10 w-64 rounded-full" />
+          <Skeleton className="h-8 w-8 rounded-full" />
+          <Skeleton className="h-8 w-24" />
+        </div>
+      </div>
+    )
+  }
 
   return (
-    <header className="flex items-center justify-between p-4 md:p-6">
+    <header className="flex h-16 items-center justify-between bg-[#0f172a] px-4 md:px-6">
+      <h1 className="text-2xl font-bold text-white">{getPageTitle()}</h1>
+
+      <div className="lg:flex  hidden md:block">
+        <SearchInput onSearch={handleSearch} />
+
+
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" className="hidden lg:flex" onClick={toggle}>
-          <Menu className="h-5 w-5" />
-          <span className="sr-only">Toggle sidebar</span>
-        </Button>
-        <h1 className="text-2xl font-bold">Dashboard</h1>
+     
+        <UserProfile username={username} avatarUrl={avatarUrl} />
+        <NotificationBell count={notificationCount} />
       </div>
-      <div className="flex items-center gap-4">
-        <div className="relative hidden md:block">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-          <Input
-            placeholder="Search for..."
-            className="w-64 rounded-full bg-slate-800 pl-10 text-sm text-white border-slate-700 focus-visible:ring-slate-600"
-          />
-        </div>
-        <Button variant="ghost" size="icon" className="text-slate-400">
-          <Bell className="h-5 w-5" />
-        </Button>
-        <div className="flex items-center gap-2">
-          <Avatar className="h-8 w-8 border border-slate-700">
-            <AvatarImage src="/placeholder-user.jpg" alt="User" />
-            <AvatarFallback className="bg-slate-700">0x</AvatarFallback>
-          </Avatar>
-          <div className="hidden md:block">
-            <div className="flex items-center gap-1">
-              <span className="text-sm font-medium">0a1xxx251</span>
-              <ChevronDown className="h-4 w-4 text-slate-400" />
-            </div>
-            <p className="text-xs text-slate-400">0a1xxx251</p>
-          </div>
-        </div>
+     
       </div>
+
     </header>
   )
 }
