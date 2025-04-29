@@ -4,18 +4,14 @@ import { useAppKitAccount, useDisconnect as useAppKitDisconnect, useAppKit } fro
 import { useAccount, useDisconnect as useWagmiDisconnect } from "wagmi";
 
 const SettingsPage: React.FC = () => {
-  // Get wallet address from AppKit and Wagmi
   const { address: appkitAddress, isConnected: appkitIsConnected } = useAppKitAccount();
   const { address: wagmiAddress, isConnected: wagmiIsConnected } = useAccount();
   
-  // AppKit disconnect
   const { disconnect: appkitDisconnect } = useAppKitDisconnect();
   const { close } = useAppKit();
   
-  // Wagmi disconnect
   const { disconnect: wagmiDisconnect } = useWagmiDisconnect();
   
-  // Use the first available address
   const walletAddress = appkitAddress || wagmiAddress;
   const isConnected = appkitIsConnected || wagmiIsConnected;
   
@@ -44,12 +40,11 @@ const SettingsPage: React.FC = () => {
   // Update userData when wallet address changes
   useEffect(() => {
     if (walletAddress) {
-      // Format the wallet address for display username if none exists
       const formattedAddress = walletAddress ? 
         `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}` : '';
       
       setUserData({
-        username: formattedAddress, // Default to formatted address
+        username: formattedAddress,
         walletAddress: walletAddress,
         email: '',
       });
@@ -84,7 +79,7 @@ const SettingsPage: React.FC = () => {
   const handleSaveChanges = () => {
     setIsSaving(true);
     
-    // Simulate API call to save changes
+    // Simulate API call to save changes----I should change this when i get the backend api
     setTimeout(() => {
       // Update the user data
       setUserData(prev => ({
