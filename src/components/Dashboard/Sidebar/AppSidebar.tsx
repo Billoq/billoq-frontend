@@ -5,11 +5,12 @@ import { usePathname } from "next/navigation"
 import { LayoutGrid, Settings, HelpCircle, BarChart3, ArrowLeftRight, Menu } from "lucide-react"
 import { useSidebar } from "@/context/sidebar-context"
 import { Button } from "@/components/ui/button"
+import Image from "next/image"
 
 const navItems = [
   {
     name: "Dashboard",
-    href: "/",
+    href: "/dashboard",
     icon: LayoutGrid,
   },
   {
@@ -52,26 +53,34 @@ export function AppSidebar() {
         }`}
       >
         {/* Sidebar header */}
-        <div className="flex h-16 items-center bg-[#111C2F] border-b border-slate-800 px-4">
+        <div className="flex h-16 items-center bg-[#111C2F]  border-slate-800 px-4">
           <Link href="/" className="flex items-center text-2xl font-bold text-blue-500">
-            <span className="flex h-8 w-8 items-center justify-center rounded bg-blue-500 text-white mr-2">B</span>
+          <div className="text-blue-500 font-bold text-2xl flex gap-2 items-center">
+            <Image
+              src="/logo.png"
+              alt="Billoq Logo"
+              width={40}
+              height={40}
+              className="w-10 h-10"
+            />
             Billoq
+          </div>
           </Link>
         </div>
 
         {/* Sidebar navigation */}
-        <nav className="flex-1 space-y-1 px-2 py-8">
+        <nav className="flex-1 space-y-3 px-2 py-12">
           {navItems.map((item) => {
             const isActive = pathname === item.href
             return (
               <Link
                 key={item.name}
                 href={item.href}
-                className={`flex items-center rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+                className={`flex items-center rounded-md px-3 py-3 text-md font-medium transition-colors ${
                   isActive ? "bg-slate-800 text-white" : "text-slate-300 hover:bg-slate-800/50 hover:text-white"
                 }`}
               >
-                <item.icon className={`mr-3 h-5 w-5 ${isActive ? "text-blue-500" : "text-slate-400"}`} />
+                <item.icon className={`mr-3 h-6 w-6 ${isActive ? "text-blue-500" : "text-slate-400"}`} />
                 {item.name}
               </Link>
             )
