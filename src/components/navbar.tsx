@@ -1,3 +1,4 @@
+// components/Navbar.tsx
 "use client";
 
 import Link from "next/link";
@@ -8,7 +9,7 @@ import { useWalletInfo } from "@reown/appkit/react";
 import { useAccount, useDisconnect as useWagmiDisconnect } from "wagmi";
 import { ChevronDown, ExternalLink, LogOut, Menu, Settings, Wallet, X } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 interface NavItem {
   label: string;
@@ -26,28 +27,35 @@ const navItems: NavItem[] = [
 export function Navbar() {
   const [mounted, setMounted] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
-  
+  const router = useRouter(); // Add router for navigation
+
   // AppKit hooks
   const { address: appkitAddress, isConnected: appkitIsConnected } = useAppKitAccount();
   const { open, close } = useAppKit();
   const { walletInfo } = useWalletInfo();
   const { disconnect: appkitDisconnect } = useDisconnect();
-  
+
   // Wagmi hooks
   const { address: wagmiAddress, isConnected: wagmiIsConnected, connector } = useAccount();
   const { disconnect: wagmiDisconnect } = useWagmiDisconnect();
-  
+
   const address = appkitAddress || wagmiAddress;
   const isConnected = appkitIsConnected || wagmiIsConnected;
-  
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  // Redirect to dashboard on wallet connection
+  useEffect(() => {
+    if (isConnected && pathname !== "/dashboard") {
+      router.push("/dashboard");
+    }
+  }, [isConnected, pathname, router]);
 
   useEffect(() => setMounted(true), []);
 
-  const truncateAddress = (addr: string | undefined) => 
+  const truncateAddress = (addr: string | undefined) =>
     addr ? `${addr.slice(0, 6)}...${addr.slice(-4)}` : "";
 
   const getWalletIcon = () => {
@@ -74,8 +82,7 @@ export function Navbar() {
     return <Wallet className="w-6 h-6 text-blue-500" />;
   };
 
-  const getWalletName = () => 
-    walletInfo?.name || connector?.name || "Connected Wallet";
+  const getWalletName = () => walletInfo?.name || connector?.name || "Connected Wallet";
 
   const handleConnect = async () => {
     try {
@@ -88,7 +95,6 @@ export function Navbar() {
   const handleDisconnect = () => {
     console.log("Disconnect initiated");
     setIsDropdownOpen(false);
-    
     try {
       if (appkitIsConnected) {
         console.log("Disconnecting AppKit");
@@ -99,15 +105,13 @@ export function Navbar() {
         wagmiDisconnect();
       }
       close();
+      router.push("/"); // Redirect to home after disconnect
     } catch (error) {
       console.error("Disconnect error:", error);
     }
   };
 
-  // Check if a navigation item is active
-  const isActive = (href: string) => {
-    return pathname === href;
-  };
+  const isActive = (href: string) => pathname === href;
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -115,19 +119,17 @@ export function Navbar() {
         setIsDropdownOpen(false);
       }
       if (
-        mobileMenuRef.current && 
+        mobileMenuRef.current &&
         !mobileMenuRef.current.contains(event.target as Node) &&
-        !(event.target as Element).closest('[data-menu-toggle]')
+        !(event.target as Element).closest("[data-menu-toggle]")
       ) {
         setIsMobileMenuOpen(false);
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Close mobile menu when route changes
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [pathname]);
@@ -137,28 +139,19 @@ export function Navbar() {
       <div className="flex items-center">
         <Link href="/" className="flex items-center">
           <div className="text-blue-500 font-bold text-2xl flex gap-2 items-center">
-            <Image
-              src="/logo.png"
-              alt="Billoq Logo"
-              width={40}
-              height={40}
-              className="w-10 h-10"
-            />
+            <Image src="/logo.png" alt="Billoq Logo" width={40} height={40} className="w-10 h-10" />
             Billoq
           </div>
         </Link>
       </div>
 
-      {/* Desktop Navigation */}
       <div className="hidden md:flex items-center space-x-8">
         {navItems.map((item) => (
           <Link
             key={item.label}
             href={item.href}
             className={`transition-colors ${
-              isActive(item.href)
-                ? "text-blue-500 font-medium"
-                : "text-gray-200 hover:text-blue-400"
+              isActive(item.href) ? "text-blue-500 font-medium" : "text-gray-200 hover:text-blue-400"
             }`}
           >
             {item.label}
@@ -166,9 +159,8 @@ export function Navbar() {
         ))}
       </div>
 
-      {/* Mobile Navigation Menu */}
       {isMobileMenuOpen && (
-        <div 
+        <div
           ref={mobileMenuRef}
           className="absolute top-full left-0 right-0 bg-[#1a2234] mt-2 py-4 px-6 rounded-lg shadow-lg z-40 md:hidden flex flex-col space-y-4"
         >
@@ -177,9 +169,7 @@ export function Navbar() {
               key={item.label}
               href={item.href}
               className={`transition-colors ${
-                isActive(item.href)
-                  ? "text-blue-500 font-medium"
-                  : "text-gray-200 hover:text-blue-400"
+                isActive(item.href) ? "text-blue-500 font-medium" : "text-gray-200 hover:text-blue-400"
               }`}
             >
               {item.label}
@@ -200,9 +190,7 @@ export function Navbar() {
               className="flex items-center gap-2 bg-[#2A3B5A] rounded-full px-2 py-1 md:px-4 md:py-2 hover:bg-[#374d6e] transition-colors text-sm md:text-base"
             >
               <span className="text-white font-medium hidden sm:inline">{truncateAddress(address)}</span>
-              <span className="text-white font-medium sm:hidden">
-                {address ? `${address.slice(0, 4)}...` : ""}
-              </span>
+              <span className="text-white font-medium sm:hidden">{address ? `${address.slice(0, 4)}...` : ""}</span>
               {getWalletIcon()}
               <ChevronDown className="w-4 h-4 md:w-5 md:h-5 text-white" />
             </button>
@@ -218,7 +206,6 @@ export function Navbar() {
                     </div>
                   </div>
                 </div>
-
                 <div className="p-2">
                   <a
                     href={`https://etherscan.io/address/${address}`}
@@ -253,17 +240,12 @@ export function Navbar() {
           </button>
         )}
 
-        {/* Mobile Menu Toggle Button - Now positioned after wallet button */}
-        <button 
+        <button
           className="md:hidden text-white"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           data-menu-toggle
         >
-          {isMobileMenuOpen ? (
-            <X className="w-6 h-6" />
-          ) : (
-            <Menu className="w-6 h-6" />
-          )}
+          {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
       </div>
     </nav>

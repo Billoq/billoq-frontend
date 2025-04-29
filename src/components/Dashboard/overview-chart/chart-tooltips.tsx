@@ -2,7 +2,12 @@ import { formatCurrency } from "@/lib/utils"
 
 interface ChartTooltipProps {
   active?: boolean
-  payload?: any[]
+  payload?: {
+    value: number
+    name?: string
+    payload?: Record<string, unknown>
+    // Add other properties you expect in the payload items
+  }[]
   label?: string
 }
 
