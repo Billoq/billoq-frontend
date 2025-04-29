@@ -7,6 +7,7 @@ import { useAppKitAccount } from "@reown/appkit/react";
 import { useAccount } from "wagmi";
 import { DashboardContent } from "@/components/Dashboard/dashboard-content";
 import { DashboardHeader } from "@/components/Dashboard/dashboard-header";
+import { BalanceProvider } from "@/context/balance-context"; // Updated import
 
 export default function Dashboard() {
   const router = useRouter();
@@ -23,7 +24,9 @@ export default function Dashboard() {
   return (
     <div className="flex-1 bg-[#0f172a]">
       <DashboardHeader />
-      <DashboardContent />
+      <BalanceProvider>
+        <DashboardContent />
+      </BalanceProvider>
     </div>
   );
 }
