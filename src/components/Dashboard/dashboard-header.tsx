@@ -1,48 +1,220 @@
-"use client"
+"use client";
 
-import { Bell, ChevronDown, Menu, Search } from "lucide-react"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { useSidebar } from "@/context/sidebar-context"
+import { useState, useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
+import { SearchInput } from "./search-input";
+import { NotificationBell } from "./notification-bell";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useAppKitAccount, useAppKit } from "@reown/appkit/react";
+import { useDisconnect } from "@reown/appkit/react";
+import { useWalletInfo } from "@reown/appkit/react";
+import { useAccount, useDisconnect as useWagmiDisconnect } from "wagmi";
+import { ChevronDown, ExternalLink, LogOut, Settings, Wallet } from "lucide-react";
+import { useRouter } from "next/navigation";
 
-export function DashboardHeader() {
-  const { toggle } = useSidebar()
+interface DashboardHeaderProps {
+  username?: string;
+  avatarUrl?: string;
+  onSearch?: (query: string) => void;
+  notificationCount?: number;
+}
+
+export function DashboardHeader({
+  onSearch,
+  notificationCount = 0,
+}: DashboardHeaderProps) {
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(true);
+  const [error] = useState<Error | null>(null);
+  const pathname = usePathname();
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  
+  // AppKit hooks
+  const { address: appkitAddress, isConnected: appkitIsConnected } = useAppKitAccount();
+  const {  close } = useAppKit();
+  const { walletInfo } = useWalletInfo();
+  const { disconnect: appkitDisconnect } = useDisconnect();
+  
+  // Wagmi hooks
+  const { address: wagmiAddress, isConnected: wagmiIsConnected, connector } = useAccount();
+  const { disconnect: wagmiDisconnect } = useWagmiDisconnect();
+  
+  const address = appkitAddress || wagmiAddress;
+  const isConnected = appkitIsConnected || wagmiIsConnected;
+
+  const truncateAddress = (addr: string | undefined) => 
+    addr ? `${addr.slice(0, 6)}...${addr.slice(-4)}` : "";
+
+  const getWalletIcon = () => {
+    if (walletInfo?.icon) {
+      return (
+        <img
+          src={walletInfo.icon}
+          alt={walletInfo.name}
+          className="w-6 h-6 rounded-full"
+          onError={(e) => (e.currentTarget.style.display = "none")}
+        />
+      );
+    }
+    if (connector?.icon) {
+      return (
+        <img
+          src={connector.icon}
+          alt={connector.name}
+          className="w-6 h-6 rounded-full"
+          onError={(e) => (e.currentTarget.style.display = "none")}
+        />
+      );
+    }
+    return <Wallet className="w-6 h-6 text-blue-500" />;
+  };
+
+  const getWalletName = () => 
+    walletInfo?.name || connector?.name || "Connected Wallet";
+
+  const handleDisconnect = () => {
+    setIsDropdownOpen(false);
+    
+    try {
+      if (appkitIsConnected) {
+        appkitDisconnect();
+      }
+      if (wagmiIsConnected) {
+        wagmiDisconnect();
+      }
+      close();
+      router.push('/');
+    } catch (error) {
+      console.error("Disconnect error:", error);
+    }
+  };
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const getPageTitle = () => {
+    if (pathname === "/dashboard") return "Dashboard";
+
+    const path = pathname.split("/dashboard/").filter(Boolean);
+    if (path.length === 0) return "Dashboard";
+
+    const title = path[path.length - 1];
+    return title.charAt(0).toUpperCase() + title.slice(1);
+  };
+
+  const handleSearch = (query: string) => {
+    if (onSearch) {
+      onSearch(query);
+    }
+  };
+
+  if (error) {
+    return (
+      <div className="flex h-16 items-center justify-between bg-red-900/20 px-4 md:px-6">
+        <h1 className="text-2xl font-bold">Error</h1>
+        <p className="text-red-400">Failed to load header: {error.message}</p>
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex h-16 items-center justify-between bg-[#0f172a] px-4 md:px-6">
+        <Skeleton className="h-8 w-32" />
+        <div className="flex items-center gap-4">
+          <Skeleton className="h-10 w-64 rounded-full" />
+          <Skeleton className="h-8 w-8 rounded-full" />
+          <Skeleton className="h-8 w-24" />
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <header className="flex items-center justify-between p-4 md:p-6">
+    <header className="flex h-16 items-center justify-between bg-[#0f172a] px-4 md:px-6">
+      <h1 className="text-2xl font-bold text-white">{getPageTitle()}</h1>
+
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" className="hidden lg:flex" onClick={toggle}>
-          <Menu className="h-5 w-5" />
-          <span className="sr-only">Toggle sidebar</span>
-        </Button>
-        <h1 className="text-2xl font-bold">Dashboard</h1>
-      </div>
-      <div className="flex items-center gap-4">
-        <div className="relative hidden md:block">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-          <Input
-            placeholder="Search for..."
-            className="w-64 rounded-full bg-slate-800 pl-10 text-sm text-white border-slate-700 focus-visible:ring-slate-600"
-          />
+        <div className="lg:flex hidden md:block">
+          <SearchInput onSearch={handleSearch} />
         </div>
-        <Button variant="ghost" size="icon" className="text-slate-400">
-          <Bell className="h-5 w-5" />
-        </Button>
-        <div className="flex items-center gap-2">
-          <Avatar className="h-8 w-8 border border-slate-700">
-            <AvatarImage src="/placeholder-user.jpg" alt="User" />
-            <AvatarFallback className="bg-slate-700">0x</AvatarFallback>
-          </Avatar>
-          <div className="hidden md:block">
-            <div className="flex items-center gap-1">
-              <span className="text-sm font-medium">0a1xxx251</span>
-              <ChevronDown className="h-4 w-4 text-slate-400" />
-            </div>
-            <p className="text-xs text-slate-400">0a1xxx251</p>
+
+        {isConnected ? (
+          <div className="relative" ref={dropdownRef}>
+            <button
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              className="flex items-center gap-2 bg-[#2A3B5A] rounded-full px-4 py-2 hover:bg-[#374d6e] transition-colors"
+            >
+              <span className="text-white font-medium">{truncateAddress(address)}</span>
+              {getWalletIcon()}
+              <ChevronDown className="w-4 h-4 text-white" />
+            </button>
+
+            {isDropdownOpen && (
+              <div className="absolute right-0 mt-2 w-64 bg-[#2A3B5A] rounded-lg shadow-lg z-50 border border-gray-700">
+                <div className="p-4 border-b border-gray-700">
+                  <div className="flex items-center gap-3">
+                    {getWalletIcon()}
+                    <div>
+                      <p className="font-medium text-white">{getWalletName()}</p>
+                      <p className="text-sm text-gray-400">{truncateAddress(address)}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-2">
+                  <a
+                    href={`https://etherscan.io/address/${address}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 px-3 py-2 text-gray-300 hover:bg-gray-700 rounded-md"
+                  >
+                    <ExternalLink className="w-5 h-5" />
+                    View on Explorer
+                  </a>
+                  <button className="w-full flex items-center gap-3 px-3 py-2 text-gray-300 hover:bg-gray-700 rounded-md">
+                    <Settings className="w-5 h-5" />
+                    Settings
+                  </button>
+                  <button
+                    onClick={handleDisconnect}
+                    className="w-full flex items-center gap-3 px-3 py-2 text-red-400 hover:bg-gray-700 rounded-md"
+                  >
+                    <LogOut className="w-5 h-5" />
+                    Disconnect
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
-        </div>
+        ) : (
+          <button
+            onClick={() => router.push('/')}
+            className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md transition-colors"
+          >
+            Connect Wallet
+          </button>
+        )}
+
+        <NotificationBell count={notificationCount} />
       </div>
     </header>
-  )
+  );
 }

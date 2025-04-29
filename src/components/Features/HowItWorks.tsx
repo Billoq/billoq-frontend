@@ -33,7 +33,7 @@ export function HowItWorks() {
   
   const animateCards = async () => {
     // Reset all cards
-    await controls.start(i => ({
+    await controls.start(() => ({
       scale: 1,
       transition: { duration: 0.3 }
     }));
@@ -53,7 +53,7 @@ export function HowItWorks() {
       await new Promise(resolve => setTimeout(resolve, 600));
       
       // Return to normal
-      await controls.start(index => ({
+      await controls.start(() => ({
         scale: 1,
         transition: { 
           duration: 0.3,
