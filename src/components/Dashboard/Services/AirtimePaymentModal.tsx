@@ -15,9 +15,23 @@ interface AirtimePaymentProps {
     token: string;
     source: "airtime" | "data" | "electricity" | "cable";
   }) => void;
+  state: {
+    selectedNetwork: string;
+    phoneNumber: string;
+    amount: string;
+    billPlan: string;
+    paymentOption: "USDT" | "USDC";
+  };
+  onStateChange: (newState: {
+    selectedNetwork: string;
+    phoneNumber: string;
+    amount: string;
+    billPlan: string;
+    paymentOption: "USDT" | "USDC";
+  }) => void;
 }
 
-const AirtimePaymentModal = ({ onClose, onShowPayment  }: AirtimePaymentProps) => {
+const AirtimePaymentModal = ({ onClose, onShowPayment, state, onStateChange }: AirtimePaymentProps) => {
   const [selectedNetwork, setSelectedNetwork] = useState<string | null>(null);
   const [phoneNumber, setPhoneNumber] = useState("");
   const [billItems, setBillItems] = useState<any[]>([]);
@@ -28,27 +42,12 @@ const AirtimePaymentModal = ({ onClose, onShowPayment  }: AirtimePaymentProps) =
 
   const { getBillersByCategory, getBillItems, validateCustomerDetails } = useBilloq();
 
-  state: {
-    selectedNetwork: string;
-    phoneNumber: string;
-    amount: string;
-    paymentOption: "USDT" | "USDC";
-  };
-  onStateChange: (newState: {
-    selectedNetwork: string;
-    phoneNumber: string;
-    amount: string;
-    paymentOption: "USDT" | "USDC";
-  }) => void;
-}
-
-const AirtimePaymentModal = ({ onClose, onShowPayment, state, onStateChange }: AirtimePaymentProps) => {
   const handlePayment = () => {
     if (!state.selectedNetwork || !state.phoneNumber || !state.amount) return;
 
     onShowPayment({
       provider: state.selectedNetwork.toUpperCase(),
-      billPlan: billPlan,
+      billPlan: state.billPlan,
       subscriberId: state.phoneNumber,
       amountInNaira: state.amount,
       token: state.paymentOption,
@@ -75,16 +74,16 @@ const AirtimePaymentModal = ({ onClose, onShowPayment, state, onStateChange }: A
   useEffect(() => {
     // Fetch bill items when the provider changes
     const fetchBillItems = async () => {
-      if (selectedNetwork) {
+      if (state.selectedNetwork) {
         try {
-          const currentBiller = billers.find((biller) => biller.name === selectedNetwork);
+          const currentBiller = billers.find((biller) => biller.name === state.selectedNetwork);
           const items = await getBillItems("AIRTIME", currentBiller.biller_code);
           console.log("Fetched bill items:", items);
           setBillItems(items.data);
           if (items.data.length < 2) {
-          setBillPlan(items.data[0].name || "");
+            onStateChange({ ...state, billPlan: items.data[0].name })
           } else {
-            setBillPlan(items.data[2].name || "");
+            onStateChange({ ...state, billPlan: items.data[2].name })
           }
         } catch (error) {
           console.error("Error fetching bill items:", error);
@@ -94,7 +93,7 @@ const AirtimePaymentModal = ({ onClose, onShowPayment, state, onStateChange }: A
 
     fetchBillItems();
   }
-  , [selectedNetwork]);
+  , [state.selectedNetwork]);
 
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) onClose();

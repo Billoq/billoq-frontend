@@ -41,6 +41,7 @@ const DashboardServices = () => {
     selectedNetwork: "",
     phoneNumber: "",
     amount: "",
+    billPlan: "",
     paymentOption: "USDT" as "USDT" | "USDC",
   });
 
@@ -49,7 +50,7 @@ const DashboardServices = () => {
     phoneNumber: "",
     amount: "",
     paymentOption: "USDT" as "USDT" | "USDC",
-    selectedProduct: "",
+    billPlan: "",
   });
 
   const [electricityState, setElectricityState] = useState({
@@ -130,13 +131,13 @@ const DashboardServices = () => {
   const handleClosePaymentModal = () => {
     setShowPaymentModal(false);
     // Reset modal states when fully closing the payment modal
-    setAirtimeState({ selectedNetwork: "", phoneNumber: "", amount: "", paymentOption: "USDT" });
+    setAirtimeState({ selectedNetwork: "", phoneNumber: "", amount: "", billPlan: "", paymentOption: "USDT" });
     setDataState({
       selectedNetwork: "",
       phoneNumber: "",
       amount: "",
       paymentOption: "USDT",
-      selectedProduct: "",
+      billPlan: "",
     });
     setElectricityState({
       provider: "",
@@ -267,7 +268,6 @@ const DashboardServices = () => {
           subscriberId={paymentData.subscriberId}
           amountInNaira={paymentData.amountInNaira}
           token={paymentData.token}
-          source={paymentData.source}
         />
       )}
     </div>

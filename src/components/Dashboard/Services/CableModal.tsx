@@ -74,7 +74,7 @@ const CableModal: React.FC<CableModalProps> = ({ onClose, onShowPayment, state, 
     };
 
     fetchBillers();
-  }, [getBillersByCategory]);
+  }, []);
 
   useEffect(() => {
     const fetchBillItems = async () => {
@@ -92,7 +92,7 @@ const CableModal: React.FC<CableModalProps> = ({ onClose, onShowPayment, state, 
     };
 
     fetchBillItems();
-  }, [state.provider, billers, getBillItems]);
+  }, [state.provider, billers]);
 
   useEffect(() => {
     const selectedBillItem = billItems.find((item) => item.name === state.billItem);

@@ -78,7 +78,7 @@ const ElectricityModal: React.FC<ElectricityModalProps> = ({
     };
 
     fetchBillers();
-  }, [getBillersByCategory]);
+  }, []);
 
   useEffect(() => {
     const fetchBillItems = async () => {
@@ -96,7 +96,7 @@ const ElectricityModal: React.FC<ElectricityModalProps> = ({
     };
 
     fetchBillItems();
-  }, [state.provider, billers, getBillItems]);
+  }, [state.provider, billers]);
 
   useEffect(() => {
     document.body.classList.add("overflow-hidden");

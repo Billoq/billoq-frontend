@@ -22,7 +22,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
   billPlan,
   subscriberId, 
   amountInNaira, 
-  token 
+  token
 }) => {
   const [showConfirmation, setShowConfirmation] = useState(false)
 

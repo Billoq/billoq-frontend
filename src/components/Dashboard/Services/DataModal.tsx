@@ -22,7 +22,6 @@ interface DataModalProps {
     phoneNumber: string;
     amount: string;
     paymentOption: "USDT" | "USDC";
-    selectedProduct: string;
   };
   onStateChange: (newState: {
     selectedNetwork: string;
@@ -61,9 +60,9 @@ const DataModal = ({ onClose, onShowPayment, state, onStateChange }: DataModalPr
 
   useEffect(() => {
     const fetchBillItems = async () => {
-      if (selectedNetwork) {
+      if (state.selectedNetwork) {
           try {
-            const selectedBiller = billers.find((biller) => biller.name === selectedNetwork);
+            const selectedBiller = billers.find((biller) => biller.name === state.selectedNetwork);
             const currentBillItems = await getBillItems("MOBILE", selectedBiller.biller_code)
             console.log("Fetched Bill items:", currentBillItems)
             setBillItems(currentBillItems.data);
@@ -74,15 +73,15 @@ const DataModal = ({ onClose, onShowPayment, state, onStateChange }: DataModalPr
     };
 
     fetchBillItems();
-  }, [selectedNetwork, billers]);
+  }, [state.selectedNetwork, billers]);
 
   useEffect(() => {
     //set the amount based on the selected bill item
-    const selectedBillItem = billItems.find((item) => item.name === billPlan);
+    const selectedBillItem = billItems.find((item) => item.name === state.billPlan);
     if (selectedBillItem) {
-      setAmount(selectedBillItem.amount);
+      onStateChange({ ...state, amount: selectedBillItem.amount })
     }
-  }, [billPlan, billItems, billers]);
+  }, [state.billPlan, billItems, billers]);
 
   const handlePayment = () => {
     if (!state.selectedNetwork || !state.phoneNumber || !state.amount || !state.billPlan) return;
