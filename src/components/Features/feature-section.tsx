@@ -4,7 +4,7 @@ import { Navbar } from "../navbar";
 import Image from "next/image";
 import { motion, useAnimation } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 import { ReactNode } from 'react';
 
 interface AnimatedSectionProps {
@@ -28,8 +28,8 @@ const AnimatedSection = ({
     threshold: 0.1
   });
 
-  // Set initial animation states based on direction
-  const getInitialState = () => {
+  // Store animation states in refs or state to avoid dependency issues
+  const getInitialState = useCallback(() => {
     switch (direction) {
       case 'up': return { y: distance, opacity: 0 };
       case 'down': return { y: -distance, opacity: 0 };
@@ -37,9 +37,9 @@ const AnimatedSection = ({
       case 'right': return { x: -distance, opacity: 0 };
       default: return { y: distance, opacity: 0 };
     }
-  };
+  }, [direction, distance]);
 
-  const getAnimateState = () => {
+  const getAnimateState = useCallback(() => {
     switch (direction) {
       case 'up':
       case 'down':
@@ -50,15 +50,32 @@ const AnimatedSection = ({
       default:
         return { y: 0, opacity: 1 };
     }
-  };
+  }, [direction]);
 
+  // Solution 1: Using ESLint comment to disable the warning
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (inView) {
       controls.start(getAnimateState());
     } else {
-      controls.start(getInitialState()); // Reset animation when out of view
+      controls.start(getInitialState());
     }
-  }, [controls, inView]);
+  }, [controls, inView, getAnimateState, getInitialState]);
+
+  /* 
+  // Solution 2: Alternative approach - move functions inside useEffect
+  useEffect(() => {
+    const applyAnimations = () => {
+      if (inView) {
+        controls.start(getAnimateState());
+      } else {
+        controls.start(getInitialState());
+      }
+    };
+    
+    applyAnimations();
+  }, [controls, inView, getAnimateState, getInitialState]);
+  */
 
   return (
     <motion.div
