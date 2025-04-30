@@ -164,7 +164,7 @@ const DashboardServices = () => {
 
   const handleCloseAirtimeModal = () => {
     setShowAirtimePaymentModal(false);
-    setAirtimeState({ selectedNetwork: "", phoneNumber: "", amount: "", paymentOption: "USDT" });
+    setAirtimeState({ selectedNetwork: "", phoneNumber: "", amount: "", paymentOption: "USDT", billPlan: "" });
   };
 
   const handleCloseDataModal = () => {
@@ -174,7 +174,7 @@ const DashboardServices = () => {
       phoneNumber: "",
       amount: "",
       paymentOption: "USDT",
-      selectedProduct: "",
+      billPlan: "",
     });
   };
 
@@ -313,6 +313,7 @@ const DashboardServices = () => {
           subscriberId={paymentData.subscriberId}
           amountInNaira={paymentData.amountInNaira}
           token={paymentData.token}
+          source={paymentData.source}
         />
       )}
     </div>
