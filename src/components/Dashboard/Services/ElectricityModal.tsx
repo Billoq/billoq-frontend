@@ -24,6 +24,7 @@ interface ElectricityModalProps {
     amountInNaira: string;
     token: string;
     source: "airtime" | "data" | "electricity" | "cable";
+    quoteId: string;
   }) => void;
   state: {
     provider: string;
@@ -54,6 +55,7 @@ const ElectricityModal: React.FC<ElectricityModalProps> = ({
 }) => {
   const [billers, setBillers] = useState<Biller[]>([]);
   const [billItems, setBillItems] = useState<any[]>([]);
+  const [quoteId, setQuoteId] = useState("");
   const [totalAmount, setTotalAmount] = useState("");
 
   const { getBillersByCategory, getBillItems, getQuote } = useBilloq();
@@ -109,20 +111,21 @@ const ElectricityModal: React.FC<ElectricityModalProps> = ({
     try{
       const quote = await getQuote({amount: parseFloat(state.amount) , item_code: billItem.item_code, customer: state.accountNumber});
       console.log("Quote response:", quote);
-      setTotalAmount(quote.data.totalAmount);
+      const quoteId = quote.data._id;
+      const totalAmount = quote.data.totalAmount.toString();
+
+      onShowPayment({
+        provider: state.provider,
+        billPlan: state.billPlan,
+        subscriberId: state.accountNumber,
+        amountInNaira: totalAmount,
+        token: state.paymentOption,
+        source: "electricity",
+        quoteId: quoteId,
+      });
     } catch (error) {
       console.error("Error fetching quote:", error);
-    }
-
-    onShowPayment({
-      provider: state.provider,
-      billPlan: state.billPlan,
-      subscriberId: state.accountNumber,
-      amountInNaira: totalAmount,
-      token: state.paymentOption,
-      source: "electricity",
-    });
-  };
+    }};
 
   return (
     <div

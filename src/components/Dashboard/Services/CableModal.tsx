@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { DollarSign, X } from "lucide-react";
+import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -24,6 +24,7 @@ interface CableModalProps {
     amountInNaira: string;
     token: string;
     source: "airtime" | "data" | "electricity" | "cable";
+    quoteId: string;
   }) => void;
   state: {
     provider: string;
@@ -50,7 +51,6 @@ interface Biller {
 const CableModal: React.FC<CableModalProps> = ({ onClose, onShowPayment, state, onStateChange }) => {
   const [billers, setBillers] = useState<Biller[]>([]);
   const [billItems, setBillItems] = useState<any[]>([]);
-  const [totalAmount, setTotalAmount] = useState("");
   const { getBillersByCategory, getBillItems, getQuote } = useBilloq();
 
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -110,20 +110,21 @@ const CableModal: React.FC<CableModalProps> = ({ onClose, onShowPayment, state, 
     try{
       const quote = await getQuote({amount: parseFloat(state.amount) , item_code: billItem.item_code, customer: state.accountNumber});
       console.log("Quote response:", quote);
-      setTotalAmount(quote.data.totalAmount);
+      const totalAmount = quote.data.totalAmount.toString();
+      const quoteId = quote.data._id;
+
+      onShowPayment({
+        provider: state.provider,
+        billPlan: state.billItem,
+        subscriberId: state.accountNumber,
+        amountInNaira: totalAmount,
+        token: state.paymentOption,
+        source: "cable",
+        quoteId: quoteId,
+      });
     } catch (error) {
       console.error("Error fetching quote:", error);
     }
-
-
-    onShowPayment({
-      provider: state.provider,
-      billPlan: state.billItem,
-      subscriberId: state.accountNumber,
-      amountInNaira: totalAmount,
-      token: state.paymentOption,
-      source: "cable",
-    });
   };
 
   return (

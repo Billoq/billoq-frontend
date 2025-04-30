@@ -3,7 +3,13 @@
 import { ChevronLeft, Info, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useAccount, useWalletClient, useConfig } from "wagmi";
+import { useBilloq } from "@/hooks/useBilloq";
+import { contractConfig } from "@/config/contract";
+import { erc20Abi } from "viem";
+import {ethers} from "ethers";
+import { getEthersSigner } from "@/config/adapter";
 
 interface PaymentModalProps {
   onClose: () => void;
@@ -14,6 +20,20 @@ interface PaymentModalProps {
   amountInNaira: string;
   token: string;
   source: "airtime" | "data" | "electricity" | "cable";
+  quoteId: string;
+}
+
+const BillType = {
+  "airtime": 0,
+  "data": 1,
+  "cable": 2,
+  "electricity": 3,
+  "others": 4
+}
+
+const tokenAddresses = {
+  "USDT": process.env.NEXT_PUBLIC_SEPOLIA_USDT_ADDRESS as `0x${string}`,
+  "USDC": process.env.NEXT_PUBLIC_SEPOLIA_USDC_ADDRESS as `0x${string}`
 }
 
 const PaymentModal: React.FC<PaymentModalProps> = ({
@@ -23,12 +43,186 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
   billPlan,
   subscriberId, 
   amountInNaira, 
-  token
+  token,
+  source,
+  quoteId
 }) => {
-  const [showConfirmation, setShowConfirmation] = useState(false);
 
   // Simulated conversion (replace with real conversion logic if needed)
-  const convertedAmount = (parseFloat(amountInNaira || "0") / 1155).toFixed(2);
+  const convertedAmount = (parseFloat(amountInNaira || "0") / 1612).toFixed(6);
+
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [paymentToken, setPaymentToken] = useState(tokenAddresses[token as keyof typeof tokenAddresses]);
+  const [billType, setBillType] = useState(BillType[source as keyof typeof BillType]);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [txHash, setTxHash] = useState<`0x${string}` | undefined>(undefined);
+  const [transactionId, setTransactionId] = useState<string>("");
+  const [userAddress, setUserAddress] = useState<string>("");
+  const [txStatus, setTxStatus] = useState<boolean>(false);
+  const { address } = useAccount();
+  const { data: walletClient } = useWalletClient();
+  const [billContract, setBillContract] = useState<ethers.Contract | null>(null);
+  const [tokenContract, setTokenContract] = useState<ethers.Contract | null>(null);
+  const { initiatePayment } = useBilloq();
+  const config = useConfig();
+
+  // Convert Naira to token amount (using a fixed rate for example)
+  
+  const tokenAmount = BigInt(Math.floor(parseFloat(convertedAmount) * 1e18));
+  const billContractInterface = new ethers.Interface(contractConfig.abi);
+ 
+  const initializeContracts = useCallback(async () => {
+    if (!walletClient || !address) {
+      setBillContract(null);
+      setTokenContract(null);
+      return;
+    }
+
+    try {
+      const signer = await getEthersSigner(config);
+      
+      // Initialize bill payment contract
+      const billInstance = new ethers.Contract(
+        contractConfig.address,
+        contractConfig.abi,
+        signer
+      );
+      setBillContract(billInstance);
+
+      // Initialize token contract
+      const tokenInstance = new ethers.Contract(
+        paymentToken,
+        erc20Abi,
+        signer
+      );
+      setTokenContract(tokenInstance);
+    } catch (error) {
+      console.error("Contract initialization failed:", error);
+      setBillContract(null);
+      setTokenContract(null);
+    }
+  }, [walletClient, address, config, paymentToken]);
+
+  useEffect(() => {
+    initializeContracts();
+  }, [initializeContracts]);
+
+  const payBill = async () => {
+    if (!billContract || !tokenContract) {
+      console.error("Contract not initialized");
+      return;
+    }
+    try {
+      console.log('Processing bill payment:');
+      const tx = await billContract.payBill(
+        billType,
+        subscriberId,
+        BigInt(Math.floor(parseFloat(amountInNaira))),
+        tokenAmount,
+        provider,
+        paymentToken
+      );
+      console.log('Bill Transaction hash:', tx.hash);
+      const receipt = await tx.wait();
+      console.log('Bill Transaction confirmed:', receipt.hash);
+      setTxHash(receipt.transactionHash);
+      console.log("Receipt:", receipt);
+
+      let transactionId: bigint | null = null;
+
+      setUserAddress(receipt.from);
+
+      for (const log of receipt.logs) {
+        try {
+          // Try to parse the log as a BillPaid event
+          const parsedLog = billContractInterface.parseLog(log);
+          
+          if (parsedLog && parsedLog.name === "BillPaid") {
+            // The first indexed argument is transactionId
+            transactionId = parsedLog.args[0];
+            setTransactionId(transactionId?.toString() || "");
+            console.log('Found transactionId:', transactionId?.toString());
+            break;
+          }
+        } catch (e) {
+          // This log wasn't a BillPaid event, continue checking
+          continue;
+        }
+      }
+  
+      if (!transactionId) {
+        throw new Error("Could not find transactionId in event logs");
+      }
+
+      if (receipt.status === 1) {
+        await initiatePayment({
+          quoteId: quoteId,
+          transaction_hash: receipt.hash,
+          transactionid: transactionId.toString(), // Use the extracted transactionId
+          userAddress: receipt.from,
+          cryptocurrency: token,
+          cryptoAmount: convertedAmount
+        });
+      }
+
+    } catch (error) {
+      console.error('Error processing bill payment:', error);
+    }
+  }
+
+  const approveToken = async () => {
+    if (!tokenContract) {
+      console.error("Token contract not initialized");
+      return
+    }
+    try {
+      console.log('Approving token transfer...');
+      const tx = await tokenContract.approve(
+        contractConfig.address,
+        tokenAmount
+      );
+      console.log('Approval transaction hash:', tx.hash);
+      const receipt = await tx.wait();
+      console.log('Approval transaction confirmed:', receipt.hash);
+    } catch (error) {
+      console.error('Error approving token transfer:', error);
+    }
+  }
+  // const handleSuccessfulPayment = async () => {
+
+  //   // if (!txStatus){
+  //   //   console.error("Bill Transaction failed");
+  //   //   return;}
+  //   try {
+  //     console.log('Payment successful, sending data to backend...');
+  //     await initiatePayment({
+  //       quoteId: quoteId,
+  //       transaction_hash: txHash!,
+  //       transactionid: transactionId, // Using transaction ID from events
+  //       userAddress: userAddress, // Sender address from receipt
+  //       cryptocurrency: paymentToken,
+  //       cryptoAmount: convertedAmount
+  //     });
+
+  //     console.log('Payment completed successfully!');
+  //     onClose(); // Close modal on success
+  //   } catch (error) {
+  //     console.error('Backend integration failed:', error);
+  //     console.error('Payment completed but backend integration failed');
+  //   } finally {
+  //     setIsProcessing(false);
+  //   }
+  // };
+  
+
+  const handlePayBill = async () => {
+    if (!provider || !subscriberId || !amountInNaira) return;
+    setIsProcessing(true);
+    await approveToken();
+    await payBill();
+    // await handleSuccessfulPayment();
+  };
+      
 
   const handleBackClick = () => {
     onBack();
@@ -125,8 +319,14 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                 <p>Total amounts include fees for electricity and TV payments</p>
               </div>
 
-              <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-5">
-                Confirm Payment
+              <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-5" onClick={handlePayBill} disabled={isProcessing}>
+                {isProcessing ? (
+                  <span className="flex items-center justify-center">
+                    Processing...
+                  </span>
+                ) : (
+                  "Confirm Payment"
+                )}
               </Button>
 
               <div className="text-center text-sm">

@@ -15,6 +15,7 @@ interface DataModalProps {
     amountInNaira: string;
     token: string;
     source: "airtime" | "data" | "electricity" | "cable";
+    quoteId: string;
   }) => void;
   state: {
     selectedNetwork: string;
@@ -35,7 +36,6 @@ interface DataModalProps {
 const DataModal = ({ onClose, onShowPayment, state, onStateChange }: DataModalProps) => {
   const [selectedNetwork, setSelectedNetwork] = useState<string | null>(null);
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [totalAmount, setTotalAmount] = useState("");
   const [paymentOption, setPaymentOption] = useState<"USDT" | "USDC">("USDT");
   const [billers, setBillers] = useState<any[]>([]); // Adjust type as needed
   const [billItems, setBillItems] = useState<any[]>([]); // Adjust type as needed
@@ -90,10 +90,8 @@ const DataModal = ({ onClose, onShowPayment, state, onStateChange }: DataModalPr
     try{
       const quote = await getQuote({amount: parseFloat(state.amount) , item_code: billItem.item_code, customer: state.phoneNumber});
       console.log("Quote response:", quote);
-      setTotalAmount(quote.data.totalAmount);
-    } catch (error) {
-      console.error("Error fetching quote:", error);
-    }
+      const totalAmount = quote.data.totalAmount.toString();
+      const quoteId = quote.data._id;
 
     onShowPayment({
       provider: `${state.selectedNetwork.toUpperCase()}`,
@@ -101,8 +99,12 @@ const DataModal = ({ onClose, onShowPayment, state, onStateChange }: DataModalPr
       subscriberId: state.phoneNumber,
       amountInNaira: totalAmount,
       token: state.paymentOption,
-      source: "data"
+      source: "data",
+      quoteId: quoteId,
     });
+    } catch (error) {
+      console.error("Error fetching quote:", error);
+    }
   };
 
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {

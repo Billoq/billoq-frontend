@@ -14,11 +14,13 @@ interface AirtimePaymentProps {
     amountInNaira: string;
     token: string;
     source: "airtime" | "data" | "electricity" | "cable";
+    quoteId: string;
   }) => void;
   state: {
     selectedNetwork: string;
     phoneNumber: string;
     amount: string;
+    totalAmount: string;
     billPlan: string;
     paymentOption: "USDT" | "USDC";
   };
@@ -26,6 +28,7 @@ interface AirtimePaymentProps {
     selectedNetwork: string;
     phoneNumber: string;
     amount: string;
+    totalAmount: string;
     billPlan: string;
     paymentOption: "USDT" | "USDC";
   }) => void;
@@ -37,21 +40,19 @@ const AirtimePaymentModal = ({ onClose, onShowPayment, state, onStateChange }: A
   const [billItems, setBillItems] = useState<any[]>([]);
   const [billPlan, setBillPlan] = useState("");
   const [billers, setBillers] = useState<any[]>([]); // Adjust type as needed
-  const [totalAmount, setTotalAmount] = useState("");
   const [paymentOption, setPaymentOption] = useState<"USDT" | "USDC">("USDT");
 
-  const { getBillersByCategory, getBillItems, validateCustomerDetails, getQuote } = useBilloq();
+  const { getBillersByCategory, getBillItems, validateCustomerDetails, getQuote} = useBilloq();
 
   const handlePayment = async () => {
     if (!state.selectedNetwork || !state.phoneNumber || !state.amount) return;
+
     const billItem = billItems.find((item) => item.name === state.billPlan);
     try{
       const quote = await getQuote({amount: parseFloat(state.amount) , item_code: billItem.item_code, customer: state.phoneNumber});
       console.log("Quote response:", quote);
-      setTotalAmount(quote.data.totalAmount);
-    } catch (error) {
-      console.error("Error fetching quote:", error);
-    }
+      const quoteId = quote.data._id;
+      const totalAmount = quote.data.totalAmount.toString();
 
     onShowPayment({
       provider: state.selectedNetwork.toUpperCase(),
@@ -60,8 +61,12 @@ const AirtimePaymentModal = ({ onClose, onShowPayment, state, onStateChange }: A
       amountInNaira: totalAmount,
       token: state.paymentOption,
       source: "airtime",
+      quoteId: quoteId,
     });
-  };
+    } catch (error) {
+      console.error("Error fetching quote:", error);
+    };
+  }
 
   useEffect(() => {
     // Fetch billers by category when the component mounts
