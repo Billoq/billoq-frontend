@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import { ChevronLeft, Info, X } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { useState } from "react"
+import { ChevronLeft, Info, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { useState } from "react";
 
 interface PaymentModalProps {
   onClose: () => void;
@@ -13,10 +13,11 @@ interface PaymentModalProps {
   subscriberId: string;
   amountInNaira: string;
   token: string;
+  source: "airtime" | "data" | "electricity" | "cable";
 }
 
-const PaymentModal: React.FC<PaymentModalProps> = ({ 
-  onClose, 
+const PaymentModal: React.FC<PaymentModalProps> = ({
+  onClose,
   onBack,
   provider,
   billPlan,
@@ -24,33 +25,33 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
   amountInNaira, 
   token
 }) => {
-  const [showConfirmation, setShowConfirmation] = useState(false)
+  const [showConfirmation, setShowConfirmation] = useState(false);
 
   // Simulated conversion (replace with real conversion logic if needed)
-  const convertedAmount = (parseFloat(amountInNaira || "0") / 1155).toFixed(2)
+  const convertedAmount = (parseFloat(amountInNaira || "0") / 1155).toFixed(2);
 
   const handleBackClick = () => {
     onBack();
   };
 
   const handleCloseAttempt = () => {
-    setShowConfirmation(true)
-  }
+    setShowConfirmation(true);
+  };
 
   const handleConfirmClose = () => {
-    setShowConfirmation(false)
-    onClose()
-  }
+    setShowConfirmation(false);
+    onClose(); // Triggers handleClosePaymentModal, resetting all modal states
+  };
 
   const handleCancelClose = () => {
-    setShowConfirmation(false)
-  }
+    setShowConfirmation(false);
+  };
 
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) {
-      handleCloseAttempt()
+      handleCloseAttempt();
     }
-  }
+  };
 
   // Enhanced bill type detection
   const getBillType = () => {
@@ -66,16 +67,16 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
 
   return (
     <>
-      <div 
+      <div
         className="fixed inset-0 flex items-center justify-center bg-slate-800/80 p-4 z-50"
         onClick={handleOverlayClick}
       >
         <Card className="w-full max-w-md mx-auto overflow-hidden bg-transparent border-0 text-blue-400">
           <Card className="bg-gray-900 border-0 shadow-xl">
             <div className="flex items-center justify-between p-4 border-b border-gray-800">
-              <Button 
-                variant="ghost" 
-                size="icon" 
+              <Button
+                variant="ghost"
+                size="icon"
                 className="text-gray-400 hover:text-white hover:bg-gray-800"
                 onClick={handleBackClick}
               >
@@ -124,7 +125,9 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                 <p>Total amounts include fees for electricity and TV payments</p>
               </div>
 
-              <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-5">Confirm Payment</Button>
+              <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-5">
+                Confirm Payment
+              </Button>
 
               <div className="text-center text-sm">
                 <span className="text-gray-400">Need help?</span>{" "}
@@ -166,7 +169,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
         </div>
       )}
     </>
-  )
-}
+  );
+};
 
-export default PaymentModal
+export default PaymentModal;

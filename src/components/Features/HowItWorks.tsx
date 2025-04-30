@@ -68,41 +68,7 @@ export function HowItWorks() {
     };
   }, [inView]);
   
-  const animateCards = async () => {
-    // Reset all cards
-    await controls.start(() => ({
-      scale: 1,
-      transition: { duration: 0.3 }
-    }));
-    
-    // Animate each card sequentially
-    for (let i = 0; i < 4; i++) {
-      await controls.start(index => ({
-        scale: index === i ? 1.1 : 1,
-        transition: { 
-          duration: 0.5,
-          type: "spring",
-          stiffness: 300
-        }
-      }));
-      
-      // Hold for a moment
-      await new Promise(resolve => setTimeout(resolve, 600));
-      
-      // Return to normal
-      await controls.start(() => ({
-        scale: 1,
-        transition: { 
-          duration: 0.3,
-          type: "spring",
-          stiffness: 300
-        }
-      }));
-      
-      // Small pause between cards
-      await new Promise(resolve => setTimeout(resolve, 200));
-    }
-  };
+  // Removed duplicate declaration of animateCards
 
   const cardItems = [
     {
