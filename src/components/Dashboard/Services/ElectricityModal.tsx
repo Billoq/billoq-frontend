@@ -19,7 +19,8 @@ interface ElectricityModalProps {
   onClose: () => void;
   onShowPayment: (paymentData: {
     provider: string;
-    accountType: string;
+    billPlan: string;
+    subscriberId: string;
     amountInNaira: string;
     token: string;
     source: "airtime" | "data" | "electricity" | "cable";
@@ -29,7 +30,7 @@ interface ElectricityModalProps {
 const ElectricityModal: React.FC<ElectricityModalProps> = ({ onClose, onShowPayment }) => {
   const [provider, setProvider] = useState("");
   const [accountNumber, setAccountNumber] = useState("");
-  const [accountType, setAccountType] = useState("National Grid");
+  const [billPlan, setBillPlan] = useState("");
   const [amount, setAmount] = useState("");
   const [paymentOption, setPaymentOption] = useState("USDT");
   const [billers, setBillers] = useState<any[]>([]); // Adjust type as needed
@@ -88,7 +89,8 @@ const ElectricityModal: React.FC<ElectricityModalProps> = ({ onClose, onShowPaym
     // Pass the payment data to the parent component with source information
     onShowPayment({
       provider,
-      accountType,
+      billPlan,
+      subscriberId: accountNumber,
       amountInNaira: amount,
       token: paymentOption,
       source: "electricity" // Add source to identify this modal
@@ -146,7 +148,7 @@ const ElectricityModal: React.FC<ElectricityModalProps> = ({ onClose, onShowPaym
 
             <div className="w-full">
               <p className="text-white mb-3">Account Type</p>
-              <Select value={accountType} onValueChange={setAccountType}>
+              <Select value={billPlan} onValueChange={setBillPlan}>
                 <SelectTrigger className="w-full bg-[#1a2236] border-[#3A414A] text-gray-300">
                   <SelectValue placeholder="Select account type" />
                 </SelectTrigger>

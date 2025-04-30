@@ -8,7 +8,8 @@ interface PaymentModalProps {
   onClose: () => void;
   onBack: () => void;
   provider: string;
-  accountType: string;
+  billPlan: string;
+  subscriberId: string;
   amountInNaira: string;
   token: string;
 }
@@ -17,7 +18,8 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
   onClose, 
   onBack,
   provider,
-  accountType, 
+  billPlan,
+  subscriberId, 
   amountInNaira, 
   token 
 }) => {
@@ -72,8 +74,11 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
               <div className="text-gray-400">Provider</div>
               <div className="text-white text-right">{provider}</div>
 
+              <div className="text-gray-400">Bill Plan</div>
+              <div className="text-white text-right">{billPlan}</div>
+
               <div className="text-gray-400">Subscriber ID</div>
-              <div className="text-white text-right">{accountType}</div>
+              <div className="text-white text-right">{subscriberId}</div>
 
               <div className="text-gray-400">Amount in Naira</div>
               <div className="text-white text-right">₦{amountInNaira}</div>
@@ -86,8 +91,8 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                 <p>{token}</p>
               </div>
 
-              <div className="text-gray-400">Date</div>
-              <div className="text-white text-right">{new Date().toLocaleDateString()}</div>
+              {/* <div className="text-gray-400">Date</div>
+              <div className="text-white text-right">{new Date().toLocaleDateString()}</div> */}
             </div>
 
             <div className="flex items-start gap-2 text-xs text-gray-400 bg-gray-800/50 p-3 rounded">

@@ -8,7 +8,8 @@ interface AirtimePaymentProps {
   onClose: () => void;
   onShowPayment: (data: {
     provider: string;
-    accountType: string;
+    billPlan: string;
+    subscriberId: string;
     amountInNaira: string;
     token: string;
     source: "airtime" | "data" | "electricity" | "cable";
@@ -18,6 +19,7 @@ interface AirtimePaymentProps {
 const AirtimePaymentModal = ({ onClose, onShowPayment  }: AirtimePaymentProps) => {
   const [selectedNetwork, setSelectedNetwork] = useState<string | null>(null);
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [billItem, setBillItem] = useState("");
   const [amount, setAmount] = useState("");
   const [paymentOption, setPaymentOption] = useState<"USDT" | "USDC">("USDT");
 
@@ -26,11 +28,13 @@ const AirtimePaymentModal = ({ onClose, onShowPayment  }: AirtimePaymentProps) =
     
     onShowPayment({
       provider: selectedNetwork.toUpperCase(),
-      accountType: phoneNumber,
+      billPlan: "MOBILE TOPUP",
+      subscriberId: phoneNumber,
       amountInNaira: amount,
       token: paymentOption,
       source: "airtime"
     });
+    onClose()
   };
 
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
