@@ -35,13 +35,13 @@ interface DataModalProps {
 const DataModal = ({ onClose, onShowPayment, state, onStateChange }: DataModalProps) => {
   const [selectedNetwork, setSelectedNetwork] = useState<string | null>(null);
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [amount, setAmount] = useState("");
+  const [totalAmount, setTotalAmount] = useState("");
   const [paymentOption, setPaymentOption] = useState<"USDT" | "USDC">("USDT");
   const [billers, setBillers] = useState<any[]>([]); // Adjust type as needed
   const [billItems, setBillItems] = useState<any[]>([]); // Adjust type as needed
   const [billPlan, setBillPlan] = useState("");
 
-  const { getBillersByCategory, getBillItems, validateCustomerDetails } = useBilloq();
+  const { getBillersByCategory, getBillItems, validateCustomerDetails, getQuote } = useBilloq();
 
   useEffect(() => {
     // Fetch billers by category when the component mounts
@@ -83,14 +83,23 @@ const DataModal = ({ onClose, onShowPayment, state, onStateChange }: DataModalPr
     }
   }, [state.billPlan, billItems, billers]);
 
-  const handlePayment = () => {
+  const handlePayment = async () => {
     if (!state.selectedNetwork || !state.phoneNumber || !state.amount || !state.billPlan) return;
+
+    const billItem = billItems.find((item) => item.name === state.billPlan);
+    try{
+      const quote = await getQuote({amount: parseFloat(state.amount) , item_code: billItem.item_code, customer: state.phoneNumber});
+      console.log("Quote response:", quote);
+      setTotalAmount(quote.data.totalAmount);
+    } catch (error) {
+      console.error("Error fetching quote:", error);
+    }
 
     onShowPayment({
       provider: `${state.selectedNetwork.toUpperCase()}`,
       billPlan: state.billPlan,
       subscriberId: state.phoneNumber,
-      amountInNaira: state.amount,
+      amountInNaira: totalAmount,
       token: state.paymentOption,
       source: "data"
     });

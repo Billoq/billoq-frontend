@@ -46,11 +46,6 @@ interface Biller {
   name: string;
 }
 
-interface BillItem {
-  item_code: string;
-  name: string;
-}
-
 const ElectricityModal: React.FC<ElectricityModalProps> = ({
   onClose,
   onShowPayment,
@@ -58,8 +53,10 @@ const ElectricityModal: React.FC<ElectricityModalProps> = ({
   onStateChange,
 }) => {
   const [billers, setBillers] = useState<Biller[]>([]);
-  const [billItems, setBillItems] = useState<BillItem[]>([]);
-  const { getBillersByCategory, getBillItems } = useBilloq();
+  const [billItems, setBillItems] = useState<any[]>([]);
+  const [totalAmount, setTotalAmount] = useState("");
+
+  const { getBillersByCategory, getBillItems, getQuote } = useBilloq();
 
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) {
@@ -105,14 +102,23 @@ const ElectricityModal: React.FC<ElectricityModalProps> = ({
     };
   }, []);
 
-  const handleMakePayment = () => {
+  const handleMakePayment = async () => {
     if (!state.provider || !state.accountNumber || !state.billPlan || !state.amount) return;
+
+    const billItem = billItems.find((item) => item.name === state.billPlan);
+    try{
+      const quote = await getQuote({amount: parseFloat(state.amount) , item_code: billItem.item_code, customer: state.accountNumber});
+      console.log("Quote response:", quote);
+      setTotalAmount(quote.data.totalAmount);
+    } catch (error) {
+      console.error("Error fetching quote:", error);
+    }
 
     onShowPayment({
       provider: state.provider,
       billPlan: state.billPlan,
       subscriberId: state.accountNumber,
-      amountInNaira: state.amount,
+      amountInNaira: totalAmount,
       token: state.paymentOption,
       source: "electricity",
     });

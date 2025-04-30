@@ -106,10 +106,10 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                 <div className="text-gray-400">Subscriber ID</div>
                 <div className="text-white text-right">{subscriberId}</div>
 
-                <div className="text-gray-400">Amount in Naira</div>
+                <div className="text-gray-400">Total Amount in Naira</div>
                 <div className="text-white text-right">₦{amountInNaira}</div>
 
-                <div className="text-gray-400">Amount in USD</div>
+                <div className="text-gray-400">Total Amount in USD</div>
                 <div className="text-white text-right">${convertedAmount}</div>
 
                 <div className="text-gray-400">Payment Token</div>
@@ -121,6 +121,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
               <div className="flex items-start gap-2 text-xs text-gray-400 bg-gray-800/50 p-3 rounded">
                 <Info className="h-4 w-4 flex-shrink-0 mt-0.5" />
                 <p>All payments are routed through secure smart contracts, and will be recorded onchain.</p>
+                <p>Total amounts include fees for electricity and TV payments</p>
               </div>
 
               <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-5">Confirm Payment</Button>
