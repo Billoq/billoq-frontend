@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import { DollarSign, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useBilloq } from "@/hooks/useBilloq";
 
 interface CableModalProps {
   onClose: () => void;
@@ -26,18 +27,62 @@ interface CableModalProps {
 }
 
 const CableModal: React.FC<CableModalProps> = ({ onClose, onShowPayment }) => {
-  const [provider, setProvider] = useState("DSTV");
+  const [provider, setProvider] = useState("");
   const [accountNumber, setAccountNumber] = useState("");
-  const [accountType, setAccountType] = useState("DSTV BOLD");
+  const [billItem, setBillItem] = useState("");
   const [amount, setAmount] = useState("");
   const [paymentOption, setPaymentOption] = useState("USDT");
+  const [billers, setBillers] = useState<any[]>([]);
+  const [billItems, setBillItems] = useState<any[]>([]);
 
+  const { getBillersByCategory, getBillItems, validateCustomerDetails } = useBilloq();
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
     // Only close if the click is directly on the overlay, not its children
     if (e.target === e.currentTarget) {
       onClose();
     }
   };
+
+  useEffect(() => {
+    // Fetch billers by category when the component mounts
+    const fetchBillers = async () => {
+      try {
+        const billers = await getBillersByCategory("CABLEBILLS");
+        console.log("Fetched billers:", billers);
+        setBillers(billers.data);
+      } catch (error) {
+        console.error("Error fetching billers:", error);
+      }
+    };
+
+    fetchBillers();
+  }, []);
+
+  useEffect(() => {
+    // Fetch bill items when the provider changes
+    const fetchBillItems = async () => {
+      if (provider) {
+        try {
+          const currentBiller = billers.find((biller) => biller.name === provider);
+          const items = await getBillItems("CABLE", currentBiller.biller_code);
+          console.log("Fetched bill items:", items);
+          setBillItems(items.data);
+        } catch (error) {
+          console.error("Error fetching bill items:", error);
+        }
+      }
+    };
+
+    fetchBillItems();
+  }, [provider]);
+
+  useEffect(() => {
+    //set the amount based on the selected bill item
+    const selectedBillItem = billItems.find((item) => item.name === billItem);
+    if (selectedBillItem) {
+      setAmount(selectedBillItem.amount);
+    }
+  }, [billItem, billItems]);
 
   useEffect(() => {
     document.body.classList.add("overflow-hidden");
@@ -50,7 +95,7 @@ const CableModal: React.FC<CableModalProps> = ({ onClose, onShowPayment }) => {
     // Pass the payment data to the parent component with source information
     onShowPayment({
       provider,
-      accountType,
+      accountType: billItem,
       amountInNaira: amount,
       token: paymentOption,
       source: "cable" // Add source to identify this modal
@@ -87,9 +132,11 @@ const CableModal: React.FC<CableModalProps> = ({ onClose, onShowPayment }) => {
                   <SelectValue placeholder="Select provider" />
                 </SelectTrigger>
                 <SelectContent className="bg-[#1a2236] border-[#2a3349] text-gray-300">
-                  <SelectItem value="DSTV">DSTV</SelectItem>
-                  <SelectItem value="GOTV">GOTV</SelectItem>
-                  <SelectItem value="STARTIMES">STARTIMES</SelectItem>
+                  {billers.map((item) => (
+                    <SelectItem key={item.biller_code} value={item.name}>
+                      {item.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -106,21 +153,22 @@ const CableModal: React.FC<CableModalProps> = ({ onClose, onShowPayment }) => {
 
             <div className="w-full">
               <p className="text-white mb-3">Plan</p>
-              <Select value={accountType} onValueChange={setAccountType}>
+              <Select value={billItem} onValueChange={setBillItem}>
                 <SelectTrigger className="w-full bg-[#1a2236] border-[#3A414A] text-gray-300">
                   <SelectValue placeholder="Select plan" />
                 </SelectTrigger>
                 <SelectContent className="bg-[#1a2236] border-[#2a3349] text-gray-300">
-                  <SelectItem value="DSTV BOLD">DSTV BOLD</SelectItem>
-                  <SelectItem value="DSTV BIG">DSTV BIG</SelectItem>
-                  <SelectItem value="GOTV MAX">GOTV MAX</SelectItem>
-                  <SelectItem value="GOTV SUPA">GOTV SUPA</SelectItem>
+                  {billItems.map((item) => (
+                    <SelectItem key={item.id} value={item.name}>
+                      {item.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
 
             <div className="w-full">
-              <p className="text-white mb-3">Enter the amount you want</p>
+              <p className="text-white mb-3">Amount</p>
               <div className="relative">
                 <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
                   <DollarSign className="h-4 w-4" />
@@ -128,8 +176,9 @@ const CableModal: React.FC<CableModalProps> = ({ onClose, onShowPayment }) => {
                 <Input
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
+                  disabled
                   className="w-full p-4 pl-10 bg-[#1a2236] border border-[#3A414A] rounded-md text-white"
-                  placeholder="Enter amount"
+                  placeholder="Bill Amount"
                 />
               </div>
             </div>

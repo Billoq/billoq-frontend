@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import { DollarSign, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useBilloq } from "@/hooks/useBilloq";
 
 interface ElectricityModalProps {
   onClose: () => void;
@@ -26,11 +27,15 @@ interface ElectricityModalProps {
 }
 
 const ElectricityModal: React.FC<ElectricityModalProps> = ({ onClose, onShowPayment }) => {
-  const [provider, setProvider] = useState("National Grid");
+  const [provider, setProvider] = useState("");
   const [accountNumber, setAccountNumber] = useState("");
   const [accountType, setAccountType] = useState("National Grid");
   const [amount, setAmount] = useState("");
   const [paymentOption, setPaymentOption] = useState("USDT");
+  const [billers, setBillers] = useState<any[]>([]); // Adjust type as needed
+  const [billItems, setBillItems] = useState<any[]>([]); // Adjust type as needed
+
+  const { getBillersByCategory, getBillItems, validateCustomerDetails } = useBilloq();
 
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
     // Only close if the click is directly on the overlay, not its children
@@ -38,6 +43,39 @@ const ElectricityModal: React.FC<ElectricityModalProps> = ({ onClose, onShowPaym
       onClose();
     }
   };
+
+  useEffect(() => {
+    // Fetch billers by category when the component mounts
+    const fetchBillers = async () => {
+      try {
+        const billers = await getBillersByCategory("UTILITYBILLS");
+        console.log("Fetched billers:", billers);
+        setBillers(billers.data);
+      } catch (error) {
+        console.error("Error fetching billers:", error);
+      }
+    };
+
+    fetchBillers();
+  }, []);
+
+  useEffect(() => {
+    // Fetch bill items when the provider changes
+    const fetchBillItems = async () => {
+      if (provider) {
+        try {
+          const biller = billers.find((b) => b.name === provider);
+          const items = await getBillItems("ELECTRICITY", biller.biller_code);
+          console.log("Fetched bill items:", items);
+          setBillItems(items.data);
+        } catch (error) {
+          console.error("Error fetching bill items:", error);
+        }
+      }
+    };
+
+    fetchBillItems();
+  }, [provider]);
 
   useEffect(() => {
     document.body.classList.add("overflow-hidden");
@@ -82,16 +120,18 @@ const ElectricityModal: React.FC<ElectricityModalProps> = ({ onClose, onShowPaym
           <div className="w-full space-y-6">
             <div className="w-full">
               <p className="text-white mb-3">Provider</p>
-              <Select value={provider} onValueChange={setProvider}>
+                <Select value={provider} onValueChange={setProvider}>
                 <SelectTrigger className="w-full bg-[#1a2236] border-[#3A414A] text-gray-300">
-                  <SelectValue placeholder="Select provider" />
+                  <SelectValue placeholder="Select Provider" />
                 </SelectTrigger>
                 <SelectContent className="bg-[#1a2236] border-[#2a3349] text-gray-300">
-                  <SelectItem value="National Grid">National Grid</SelectItem>
-                  <SelectItem value="EDF Energy">EDF Energy</SelectItem>
-                  <SelectItem value="British Gas">British Gas</SelectItem>
+                  {billers.map((biller) => (
+                  <SelectItem key={biller.biller_code} value={biller.name}>
+                    {biller.name}
+                  </SelectItem>
+                  ))}
                 </SelectContent>
-              </Select>
+                </Select>
             </div>
 
             <div className="w-full">
@@ -111,8 +151,11 @@ const ElectricityModal: React.FC<ElectricityModalProps> = ({ onClose, onShowPaym
                   <SelectValue placeholder="Select account type" />
                 </SelectTrigger>
                 <SelectContent className="bg-[#1a2236] border-[#2a3349] text-gray-300">
-                  <SelectItem value="National Grid">Standard</SelectItem>
-                  <SelectItem value="Prepayment">Prepayment</SelectItem>
+                  {billItems.map((item) => (
+                    <SelectItem key={item.item_code} value={item.name}>
+                      {item.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
