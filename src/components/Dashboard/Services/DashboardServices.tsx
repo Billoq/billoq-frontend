@@ -92,7 +92,6 @@ const DashboardServices = () => {
         setShowCableModal(true);
         break;
       default:
-        // Other services (Water bill, Gas bill, etc.) do nothing for now
         console.log(`Service ${service} not implemented`);
     }
   };
@@ -145,6 +144,52 @@ const DashboardServices = () => {
       amount: "",
       paymentOption: "USDT",
     });
+    setCableState({
+      provider: "",
+      accountNumber: "",
+      billItem: "",
+      amount: "",
+      paymentOption: "USDT",
+    });
+    setPaymentData({
+      provider: "",
+      billPlan: "",
+      subscriberId: "",
+      amountInNaira: "",
+      token: "",
+      source: "airtime",
+    });
+  };
+
+  const handleCloseAirtimeModal = () => {
+    setShowAirtimePaymentModal(false);
+    setAirtimeState({ selectedNetwork: "", phoneNumber: "", amount: "", paymentOption: "USDT" });
+  };
+
+  const handleCloseDataModal = () => {
+    setShowDataModal(false);
+    setDataState({
+      selectedNetwork: "",
+      phoneNumber: "",
+      amount: "",
+      paymentOption: "USDT",
+      selectedProduct: "",
+    });
+  };
+
+  const handleCloseElectricityModal = () => {
+    setShowElectricityModal(false);
+    setElectricityState({
+      provider: "",
+      accountNumber: "",
+      billPlan: "",
+      amount: "",
+      paymentOption: "USDT",
+    });
+  };
+
+  const handleCloseCableModal = () => {
+    setShowCableModal(false);
     setCableState({
       provider: "",
       accountNumber: "",
@@ -228,7 +273,7 @@ const DashboardServices = () => {
       {/* Modals */}
       {showAirtimePaymentModal && (
         <AirtimePaymentModal
-          onClose={() => setShowAirtimePaymentModal(false)}
+          onClose={handleCloseAirtimeModal}
           onShowPayment={handleShowPayment}
           state={airtimeState}
           onStateChange={setAirtimeState}
@@ -236,7 +281,7 @@ const DashboardServices = () => {
       )}
       {showDataModal && (
         <DataModal
-          onClose={() => setShowDataModal(false)}
+          onClose={handleCloseDataModal}
           onShowPayment={handleShowPayment}
           state={dataState}
           onStateChange={setDataState}
@@ -244,7 +289,7 @@ const DashboardServices = () => {
       )}
       {showElectricityModal && (
         <ElectricityModal
-          onClose={() => setShowElectricityModal(false)}
+          onClose={handleCloseElectricityModal}
           onShowPayment={handleShowPayment}
           state={electricityState}
           onStateChange={setElectricityState}
@@ -252,7 +297,7 @@ const DashboardServices = () => {
       )}
       {showCableModal && (
         <CableModal
-          onClose={() => setShowCableModal(false)}
+          onClose={handleCloseCableModal}
           onShowPayment={handleShowPayment}
           state={cableState}
           onStateChange={setCableState}
