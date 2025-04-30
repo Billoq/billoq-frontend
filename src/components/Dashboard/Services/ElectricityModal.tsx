@@ -166,7 +166,7 @@ const ElectricityModal: React.FC<ElectricityModalProps> = ({ onClose, onShowPaym
               <p className="text-white mb-3">Enter the amount you want</p>
               <div className="relative">
                 <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
-                  <DollarSign className="h-4 w-4" />
+                  ₦
                 </div>
                 <Input
                   value={amount}

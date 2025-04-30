@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import { X } from "lucide-react";
 import networks from "./NetWork";
+import { useBilloq } from "@/hooks/useBilloq";
 
 interface AirtimePaymentProps {
   onClose: () => void;
@@ -19,16 +20,20 @@ interface AirtimePaymentProps {
 const AirtimePaymentModal = ({ onClose, onShowPayment  }: AirtimePaymentProps) => {
   const [selectedNetwork, setSelectedNetwork] = useState<string | null>(null);
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [billItem, setBillItem] = useState("");
+  const [billItems, setBillItems] = useState<any[]>([]);
+  const [billPlan, setBillPlan] = useState("");
+  const [billers, setBillers] = useState<any[]>([]); // Adjust type as needed
   const [amount, setAmount] = useState("");
   const [paymentOption, setPaymentOption] = useState<"USDT" | "USDC">("USDT");
+
+  const { getBillersByCategory, getBillItems, validateCustomerDetails } = useBilloq();
 
   const handlePayment = () => {
     if (!selectedNetwork || !phoneNumber || !amount) return;
     
     onShowPayment({
       provider: selectedNetwork.toUpperCase(),
-      billPlan: "MOBILE TOPUP",
+      billPlan: billPlan,
       subscriberId: phoneNumber,
       amountInNaira: amount,
       token: paymentOption,
@@ -36,6 +41,46 @@ const AirtimePaymentModal = ({ onClose, onShowPayment  }: AirtimePaymentProps) =
     });
     onClose()
   };
+
+  useEffect(() => {
+    // Fetch billers by category when the component mounts
+    const fetchBillers = async () => {
+      try {
+        const billers = await getBillersByCategory("AIRTIME");
+        console.log("Fetched billers:", billers);
+        setBillers(billers.data);
+      } catch (error) {
+        console.error("Error fetching billers:", error);
+      }
+    };
+
+    fetchBillers();
+  }
+  , []);
+
+  useEffect(() => {
+    // Fetch bill items when the provider changes
+    const fetchBillItems = async () => {
+      if (selectedNetwork) {
+        try {
+          const currentBiller = billers.find((biller) => biller.name === selectedNetwork);
+          const items = await getBillItems("AIRTIME", currentBiller.biller_code);
+          console.log("Fetched bill items:", items);
+          setBillItems(items.data);
+          if (items.data.length < 2) {
+          setBillPlan(items.data[0].name || "");
+          } else {
+            setBillPlan(items.data[2].name || "");
+          }
+        } catch (error) {
+          console.error("Error fetching bill items:", error);
+        }
+      }
+    };
+
+    fetchBillItems();
+  }
+  , [selectedNetwork]);
 
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
     // Only close if the click is directly on the overlay, not its children
@@ -63,25 +108,28 @@ const AirtimePaymentModal = ({ onClose, onShowPayment  }: AirtimePaymentProps) =
           <div className="w-full mb-6">
             <p className="text-white mb-3">Select network provider</p>
             <div className="flex gap-2">
-              {networks.map((network) => (
-                <button
-                  key={network.id}
+                {billers.map((biller) => {
+                const network = networks.find((net) => net.id === biller.name);
+                return (
+                  <button
+                  key={biller.biller_code}
                   className={`p-2 border rounded-md ${
-                    selectedNetwork === network.id ? "border-[#0080FF]" : "border-[#3A414A]"
+                    selectedNetwork === biller.name ? "border-[#0080FF]" : "border-[#3A414A]"
                   }`}
-                  onClick={() => setSelectedNetwork(network.id)}
-                >
+                  onClick={() => setSelectedNetwork(biller.name)}
+                  >
                   <div
                     className="w-10 h-10 flex items-center justify-center rounded-md"
-                    style={{ backgroundColor: network.color }}
+                    style={{ backgroundColor: network?.color || "#3A414A" }}
                   >
-                    {network.id === "mtn" && <span className="text-black font-bold text-xs">MTN</span>}
-                    {network.id === "airtel" && <span className="text-white font-bold text-xs">airtel</span>}
-                    {network.id === "glo" && <span className="text-white font-bold text-xs">glo</span>}
-                    {network.id === "9mobile" && <span className="text-[#00AA4F] font-bold text-lg">9</span>}
+                    {network?.id === "MTN Nigeria" && <span className="text-black font-bold text-xs">MTN</span>}
+                    {network?.id === "AIRTEL NIGERIA" && <span className="text-white font-bold text-xs">airtel</span>}
+                    {network?.id === "GLO NIGERIA" && <span className="text-white font-bold text-xs">glo</span>}
+                    {network?.id === "9MOBILE NIGERIA" && <span className="text-[#00AA4F] font-bold text-lg">9</span>}
                   </div>
-                </button>
-              ))}
+                  </button>
+                );
+                })}
             </div>
           </div>
 
