@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import React, { useState } from "react";
 import {
@@ -16,50 +16,90 @@ import ServiceItem from "./ServiceItems";
 import AirtimePaymentModal from "./AirtimePaymentModal";
 import DataModal from "./DataModal";
 import ElectricityModal from "./ElectricityModal";
+import CableModal from "./CableModal";
 import PaymentModal from "./PaymentModal";
-import CableModal from "./CableModal"
-//import { subscribe } from "diagnostics_channel";
+
+interface PaymentData {
+  provider: string;
+  billPlan: string;
+  subscriberId: string;
+  amountInNaira: string;
+  token: string;
+  source: "airtime" | "data" | "electricity" | "cable";
+}
 
 const DashboardServices = () => {
+  // Modal visibility states
   const [showAirtimePaymentModal, setShowAirtimePaymentModal] = useState(false);
   const [showDataModal, setShowDataModal] = useState(false);
   const [showElectricityModal, setShowElectricityModal] = useState(false);
   const [showCableModal, setShowCableModal] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [paymentData, setPaymentData] = useState({
+
+  // State preservation for each modal
+  const [airtimeState, setAirtimeState] = useState({
+    selectedNetwork: "",
+    phoneNumber: "",
+    amount: "",
+    paymentOption: "USDT" as "USDT" | "USDC",
+  });
+
+  const [dataState, setDataState] = useState({
+    selectedNetwork: "",
+    phoneNumber: "",
+    amount: "",
+    paymentOption: "USDT" as "USDT" | "USDC",
+    selectedProduct: "",
+  });
+
+  const [electricityState, setElectricityState] = useState({
+    provider: "",
+    accountNumber: "",
+    billPlan: "",
+    amount: "",
+    paymentOption: "USDT" as "USDT" | "USDC",
+  });
+
+  const [cableState, setCableState] = useState({
+    provider: "",
+    accountNumber: "",
+    billItem: "",
+    amount: "",
+    paymentOption: "USDT" as "USDT" | "USDC",
+  });
+
+  const [paymentData, setPaymentData] = useState<PaymentData>({
     provider: "",
     billPlan: "",
     subscriberId: "",
     amountInNaira: "",
     token: "",
-    source: "" as "airtime" | "data" | "electricity" | "cable"
+    source: "airtime",
   });
 
   const handleServiceSelect = (service: string) => {
-    if (service === "Mobile Recharge") {
-      setShowAirtimePaymentModal(true);
-    }
-    if (service === "Internet") {
-      setShowDataModal(true);
-    }
-    if (service === "Electricity") {
-      setShowElectricityModal(true);
-    }
-    if (service === "Cable TV") {
-      setShowCableModal(true);
+    switch (service) {
+      case "Mobile Recharge":
+        setShowAirtimePaymentModal(true);
+        break;
+      case "Internet":
+        setShowDataModal(true);
+        break;
+      case "Electricity":
+        setShowElectricityModal(true);
+        break;
+      case "Cable TV":
+        setShowCableModal(true);
+        break;
+      default:
+        // Other services (Water bill, Gas bill, etc.) do nothing for now
+        console.log(`Service ${service} not implemented`);
     }
   };
 
-  const handleShowPayment = (data: {
-    provider: string;
-    billPlan: string;
-    subscriberId: string;
-    amountInNaira: string;
-    token: string;
-    source: "airtime" | "data" | "electricity" | "cable";
-  }) => {
+  const handleShowPayment = (data: PaymentData) => {
     setPaymentData(data);
-    // Close all modals
+    // Hide all service modals but keep them mounted
     setShowAirtimePaymentModal(false);
     setShowDataModal(false);
     setShowElectricityModal(false);
@@ -67,10 +107,10 @@ const DashboardServices = () => {
     // Show payment modal
     setShowPaymentModal(true);
   };
-  
-  // Update handleBackToModal
+
   const handleBackToModal = () => {
     setShowPaymentModal(false);
+    // Re-show the appropriate service modal based on source
     switch (paymentData.source) {
       case "airtime":
         setShowAirtimePaymentModal(true);
@@ -84,17 +124,40 @@ const DashboardServices = () => {
       case "cable":
         setShowCableModal(true);
         break;
-      default:
-        setShowElectricityModal(false); 
     }
+  };
+
+  const handleClosePaymentModal = () => {
+    setShowPaymentModal(false);
+    // Reset modal states when fully closing the payment modal
+    setAirtimeState({ selectedNetwork: "", phoneNumber: "", amount: "", paymentOption: "USDT" });
+    setDataState({
+      selectedNetwork: "",
+      phoneNumber: "",
+      amount: "",
+      paymentOption: "USDT",
+      selectedProduct: "",
+    });
+    setElectricityState({
+      provider: "",
+      accountNumber: "",
+      billPlan: "",
+      amount: "",
+      paymentOption: "USDT",
+    });
+    setCableState({
+      provider: "",
+      accountNumber: "",
+      billItem: "",
+      amount: "",
+      paymentOption: "USDT",
+    });
   };
 
   return (
     <div className="min-h-screen bg-[#111827] text-white p-4">
       <div className="max-w-3xl ml-6">
-        <p className="text-sm mb-6">
-          View all our services and pay your bill easily
-        </p>
+        <p className="text-sm mb-6">View all our services and pay your bill easily</p>
 
         <div className="bg-[#1e2837] rounded-xl p-6 shadow-lg">
           {/* Mobile Services Section */}
@@ -118,42 +181,42 @@ const DashboardServices = () => {
           <div>
             <h2 className="text-lg pl-10 font-medium mb-4">Bill Payment</h2>
             <div className="flex flex-wrap pl-9">
-              <ServiceItem 
-                icon={<Lightbulb className="h-8 w-8" />} 
-                label="Electricity" 
-                onSelect={() => handleServiceSelect("Electricity")} 
+              <ServiceItem
+                icon={<Lightbulb className="h-8 w-8" />}
+                label="Electricity"
+                onSelect={() => handleServiceSelect("Electricity")}
               />
-              <ServiceItem 
-                icon={<Tv className="h-8 w-8" />} 
+              <ServiceItem
+                icon={<Tv className="h-8 w-8" />}
                 label="Cable TV"
                 onSelect={() => handleServiceSelect("Cable TV")}
               />
-              <ServiceItem 
-                icon={<Droplet className="h-8 w-8" />} 
-                label="Water bill" 
+              <ServiceItem
+                icon={<Droplet className="h-8 w-8" />}
+                label="Water bill"
                 onSelect={() => handleServiceSelect("Water bill")}
               />
-              <ServiceItem 
-                icon={<Flame className="h-8 w-8" />} 
-                label="Gas bill" 
+              <ServiceItem
+                icon={<Flame className="h-8 w-8" />}
+                label="Gas bill"
                 onSelect={() => handleServiceSelect("Gas bill")}
               />
 
               {/* Force new row */}
               <div className="basis-full" />
 
-              <ServiceItem 
-                icon={<Book className="h-8 w-8" />} 
+              <ServiceItem
+                icon={<Book className="h-8 w-8" />}
                 label="Educational"
                 onSelect={() => handleServiceSelect("Educational")}
               />
-              <ServiceItem 
-                icon={<FileText className="h-8 w-8" />} 
+              <ServiceItem
+                icon={<FileText className="h-8 w-8" />}
                 label="Waste bill"
                 onSelect={() => handleServiceSelect("Waste bill")}
               />
-              <ServiceItem 
-                icon={<Video className="h-8 w-8" />} 
+              <ServiceItem
+                icon={<Video className="h-8 w-8" />}
                 label="Streaming service"
                 onSelect={() => handleServiceSelect("Streaming service")}
               />
@@ -164,38 +227,47 @@ const DashboardServices = () => {
 
       {/* Modals */}
       {showAirtimePaymentModal && (
-        <AirtimePaymentModal 
-          onClose={() => setShowAirtimePaymentModal(false)} 
-          onShowPayment={handleShowPayment} 
+        <AirtimePaymentModal
+          onClose={() => setShowAirtimePaymentModal(false)}
+          onShowPayment={handleShowPayment}
+          state={airtimeState}
+          onStateChange={setAirtimeState}
         />
       )}
       {showDataModal && (
-        <DataModal 
-          onClose={() => setShowDataModal(false)} 
-          onShowPayment={handleShowPayment} 
+        <DataModal
+          onClose={() => setShowDataModal(false)}
+          onShowPayment={handleShowPayment}
+          state={dataState}
+          onStateChange={setDataState}
         />
       )}
       {showElectricityModal && (
-        <ElectricityModal 
-          onClose={() => setShowElectricityModal(false)} 
-          onShowPayment={handleShowPayment} 
+        <ElectricityModal
+          onClose={() => setShowElectricityModal(false)}
+          onShowPayment={handleShowPayment}
+          state={electricityState}
+          onStateChange={setElectricityState}
         />
       )}
       {showCableModal && (
-        <CableModal 
-          onClose={() => setShowCableModal(false)} 
-          onShowPayment={handleShowPayment} 
+        <CableModal
+          onClose={() => setShowCableModal(false)}
+          onShowPayment={handleShowPayment}
+          state={cableState}
+          onStateChange={setCableState}
         />
       )}
       {showPaymentModal && (
         <PaymentModal
-          onClose={() => setShowPaymentModal(false)}
+          onClose={handleClosePaymentModal}
           onBack={handleBackToModal}
           provider={paymentData.provider}
           billPlan={paymentData.billPlan}
           subscriberId={paymentData.subscriberId}
           amountInNaira={paymentData.amountInNaira}
           token={paymentData.token}
+          source={paymentData.source}
         />
       )}
     </div>
