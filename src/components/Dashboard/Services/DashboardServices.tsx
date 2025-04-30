@@ -18,7 +18,7 @@ import DataModal from "./DataModal";
 import ElectricityModal from "./ElectricityModal";
 import PaymentModal from "./PaymentModal";
 import CableModal from "./CableModal"
-import { subscribe } from "diagnostics_channel";
+//import { subscribe } from "diagnostics_channel";
 
 const DashboardServices = () => {
   const [showAirtimePaymentModal, setShowAirtimePaymentModal] = useState(false);
@@ -85,7 +85,7 @@ const DashboardServices = () => {
         setShowCableModal(true);
         break;
       default:
-        setShowElectricityModal(true); // fallback
+        setShowElectricityModal(false); 
     }
   };
 
