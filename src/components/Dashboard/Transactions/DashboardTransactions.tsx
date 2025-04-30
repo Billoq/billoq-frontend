@@ -1,18 +1,12 @@
 "use client"
-import React, { useState, useEffect } from 'react';
-import { Input } from '@/components/ui/input';
-import { Search, CheckCircle, XCircle, Clock } from 'lucide-react';
-import { LuArrowDownUp } from "react-icons/lu";
-import { GiSettingsKnobs } from "react-icons/gi";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
+import type React from "react"
+import { useState, useEffect } from "react"
+import { Input } from "@/components/ui/input"
+import { Search, CheckCircle, XCircle, Clock } from "lucide-react"
+import { LuArrowDownUp } from "react-icons/lu"
+import { GiSettingsKnobs } from "react-icons/gi"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Button } from "@/components/ui/button"
 
 const invoices = [
   {
@@ -78,112 +72,111 @@ const invoices = [
     Status: "Successful",
     TransactionID: "0x98a7f3c2...d4b9",
   },
-];
+]
 
 function DashboardTransactions() {
-  const [filteredInvoices, setFilteredInvoices] = useState(invoices);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [sortDirection, setSortDirection] = useState("asc"); // asc or desc
-  const [statusFilter, setStatusFilter] = useState("All");
-  const [showStatusMenu, setShowStatusMenu] = useState(false);
+  const [filteredInvoices, setFilteredInvoices] = useState(invoices)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [sortDirection, setSortDirection] = useState("asc") // asc or desc
+  const [statusFilter, setStatusFilter] = useState("All")
+  const [showStatusMenu, setShowStatusMenu] = useState(false)
 
   // Function to get appropriate icon for each status
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "Successful":
-        return <CheckCircle className="h-5 w-5 text-green-500" />;
+        return <CheckCircle className="h-5 w-5 text-green-500" />
       case "Failed":
-        return <XCircle className="h-5 w-5 text-red-500" />;
+        return <XCircle className="h-5 w-5 text-red-500" />
       case "Pending":
-        return <Clock className="h-5 w-5 text-yellow-500" />;
+        return <Clock className="h-5 w-5 text-yellow-500" />
       default:
-        return null;
+        return null
     }
-  };
+  }
 
   // Get text color for status
   const getStatusTextColor = (status: string) => {
     switch (status) {
       case "Successful":
-        return "text-green-500";
+        return "text-green-500"
       case "Failed":
-        return "text-red-500";
+        return "text-red-500"
       case "Pending":
-        return "text-yellow-500";
+        return "text-yellow-500"
       default:
-        return "text-gray-500";
+        return "text-gray-500"
     }
-  };
+  }
 
   // Handle date sorting
   const handleSortByDate = () => {
-    const newDirection = sortDirection === "asc" ? "desc" : "asc";
-    setSortDirection(newDirection);
-  };
+    const newDirection = sortDirection === "asc" ? "desc" : "asc"
+    setSortDirection(newDirection)
+  }
 
   // Handle status filtering
   const handleStatusFilter = (status: React.SetStateAction<string>) => {
-    setStatusFilter(status);
-    setShowStatusMenu(false);
-  };
+    setStatusFilter(status)
+    setShowStatusMenu(false)
+  }
 
   // Handle search
   const handleSearch = () => {
     if (!searchQuery.trim()) {
       // If search query is empty, reset filters but keep status filter
-      applyFilters(statusFilter, sortDirection);
-      return;
+      applyFilters(statusFilter, sortDirection)
+      return
     }
 
-    const query = searchQuery.toLowerCase();
-    const results = invoices.filter(invoice => {
+    const query = searchQuery.toLowerCase()
+    const results = invoices.filter((invoice) => {
       return (
         invoice.TransactionID.toLowerCase().includes(query) ||
         invoice.Description.toLowerCase().includes(query) ||
         invoice.Amount.toLowerCase().includes(query) ||
         invoice.Status.toLowerCase().includes(query) ||
         invoice.Date.toLowerCase().includes(query)
-      );
-    });
+      )
+    })
 
     // Apply current status filter to search results if not "All"
-    const statusFiltered = statusFilter === "All" 
-      ? results
-      : results.filter(invoice => invoice.Status === statusFilter);
+    const statusFiltered =
+      statusFilter === "All" ? results : results.filter((invoice) => invoice.Status === statusFilter)
 
-    setFilteredInvoices(statusFiltered);
-  };
+    setFilteredInvoices(statusFiltered)
+  }
 
   const applyFilters = (status: string, direction: string) => {
-    let results = [...invoices];
-    
+    let results = [...invoices]
+
     // Apply status filter if not "All"
     if (status !== "All") {
-      results = results.filter(invoice => invoice.Status === status);
+      results = results.filter((invoice) => invoice.Status === status)
     }
-    
+
     // Apply sort direction
     if (direction === "desc") {
       results.sort((a, b) => {
-        const dateA = new Date(a.Date.split('/').reverse().join('/'));
-        const dateB = new Date(b.Date.split('/').reverse().join('/'));
-        return dateB.getTime() - dateA.getTime();
-      });
+        const dateA = new Date(a.Date.split("/").reverse().join("/"))
+        const dateB = new Date(b.Date.split("/").reverse().join("/"))
+        return dateB.getTime() - dateA.getTime()
+      })
     } else {
       results.sort((a, b) => {
-        const dateA = new Date(a.Date.split('/').reverse().join('/'));
-        const dateB = new Date(b.Date.split('/').reverse().join('/'));
-        return dateA.getTime() - dateB.getTime();
-      });
+        const dateA = new Date(a.Date.split("/").reverse().join("/"))
+        const dateB = new Date(b.Date.split("/").reverse().join("/"))
+        return dateA.getTime() - dateB.getTime()
+      })
     }
-    
-    setFilteredInvoices(results);
-  };
+
+    setFilteredInvoices(results)
+  }
 
   // Effect to re-apply filters when status filter or sort direction changes
   useEffect(() => {
-    applyFilters(statusFilter, sortDirection);
-  }, [statusFilter, sortDirection]);
+    applyFilters(statusFilter, sortDirection)
+  }, [statusFilter, sortDirection])
 
   return (
     <div className="p-4 w-full max-w-7xl mx-auto space-y-6">
@@ -192,47 +185,47 @@ function DashboardTransactions() {
         <h3 className="text-lg font-medium text-white">
           You can view all the transactions and services which you have processed
         </h3>
-        
+
         <div className="flex items-center gap-4">
-          <button 
-            className="p-2 rounded-full text-white hover:bg-gray-200 transition-colors"
+          <button
+            className="p-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition-colors"
             onClick={handleSortByDate}
             title={`Sort by date (${sortDirection === "asc" ? "oldest first" : "newest first"})`}
           >
-            <LuArrowDownUp className="h-5 w-5 bg-white text-gray-600 dark:text-gray-300" />
+            <LuArrowDownUp className="h-5 w-5" />
           </button>
-          
+
           <div className="relative">
-            <button 
-              className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+            <button
+              className="p-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition-colors"
               onClick={() => setShowStatusMenu(!showStatusMenu)}
               title="Filter by status"
             >
-              <GiSettingsKnobs className="h-5 w-5 bg-white text-gray-600 dark:text-gray-300" />
+              <GiSettingsKnobs className="h-5 w-5" />
             </button>
-            
+
             {showStatusMenu && (
               <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg z-10 border border-gray-200 dark:border-gray-700">
                 <div className="py-1">
-                  <button 
+                  <button
                     className={`block px-4 py-2 text-sm w-full text-left ${statusFilter === "All" ? "bg-gray-100 dark:bg-gray-700" : ""}`}
                     onClick={() => handleStatusFilter("All")}
                   >
                     All
                   </button>
-                  <button 
+                  <button
                     className={`block px-4 py-2 text-sm w-full text-left ${statusFilter === "Successful" ? "bg-gray-100 dark:bg-gray-700" : ""}`}
                     onClick={() => handleStatusFilter("Successful")}
                   >
                     Successful
                   </button>
-                  <button 
+                  <button
                     className={`block px-4 py-2 text-sm w-full text-left ${statusFilter === "Failed" ? "bg-gray-100 dark:bg-gray-700" : ""}`}
                     onClick={() => handleStatusFilter("Failed")}
                   >
                     Failed
                   </button>
-                  <button 
+                  <button
                     className={`block px-4 py-2 text-sm w-full text-left ${statusFilter === "Pending" ? "bg-gray-100 dark:bg-gray-700" : ""}`}
                     onClick={() => handleStatusFilter("Pending")}
                   >
@@ -254,10 +247,10 @@ function DashboardTransactions() {
             className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 bg-white dark:bg-slate-800 dark:text-white dark:border-slate-700 dark:focus-visible:ring-slate-600"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
           />
         </div>
-        <Button 
+        <Button
           className="bg-blue-500 hover:bg-blue-600 text-white w-full sm:w-auto cursor-pointer"
           onClick={handleSearch}
         >
@@ -270,46 +263,45 @@ function DashboardTransactions() {
         {statusFilter !== "All" && (
           <div className="flex items-center gap-1">
             <span>Status: </span>
-            <span className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusTextColor(statusFilter)}`}>
+            <span
+              className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusTextColor(statusFilter)}`}
+            >
               {getStatusIcon(statusFilter)}
               {statusFilter}
             </span>
           </div>
         )}
         <div className="flex items-center gap-1">
-          <span className='text-white'>Order: </span>
-          <span className='text-white'>{sortDirection === "asc" ? "Oldest first" : "Newest first"}</span>
+          <span className="text-white">Order: </span>
+          <span className="text-white">{sortDirection === "asc" ? "Oldest first" : "Newest first"}</span>
         </div>
       </div>
 
       {/* Transactions table */}
       <div className="overflow-x-auto rounded-lg">
-      <Table className="border-collapse border-gray-300">
+        <Table className="border-collapse border-gray-300">
           <TableHeader>
-          <TableRow className="bg-[#111C2F] border-gray-300">
-            <TableHead className="w-[120px] text-white border-gray-300">Date</TableHead>
-            <TableHead className="text-white border-gray-300">Description</TableHead>
-            <TableHead className="text-white border-gray-300">Amount</TableHead>
-            <TableHead className="text-white border-gray-300">Status</TableHead>
-            <TableHead className="hidden md:table-cell text-white border-gray-300">Transaction ID</TableHead>
-          </TableRow>
+            <TableRow className="bg-[#0A1525] border-b-2">
+              <TableHead className="w-[120px] text-white font-bold py-4">Date</TableHead>
+              <TableHead className="text-white font-bold py-4">Description</TableHead>
+              <TableHead className="text-white font-bold py-4">Amount</TableHead>
+              <TableHead className="text-white font-bold py-4">Status</TableHead>
+              <TableHead className="hidden md:table-cell text-white font-bold py-4">Transaction ID</TableHead>
+            </TableRow>
           </TableHeader>
           <TableBody>
             {filteredInvoices.map((invoice, index) => (
-              <TableRow 
-                key={index}
-                className="dark:hover:bg-gray-800/60"
-              >
-                <TableCell className="font-bold text-slate-300 border-gray-300">{invoice.Date}</TableCell>
-                <TableCell className='text-slate-300 border-gray-300'>{invoice.Description}</TableCell>
-                <TableCell className='text-slate-300 border-gray-300'>{invoice.Amount}</TableCell>
-                <TableCell className="border-gray-300">
+              <TableRow key={index} className="bg-[#111C2F] hover:bg-[#172338] transition-colors">
+                <TableCell className="font-bold text-slate-300 border-t border-gray-700">{invoice.Date}</TableCell>
+                <TableCell className="text-slate-300 border-t border-gray-700">{invoice.Description}</TableCell>
+                <TableCell className="text-slate-300 border-t border-gray-700">{invoice.Amount}</TableCell>
+                <TableCell className="border-t border-gray-700">
                   <div className={`flex items-center gap-2 ${getStatusTextColor(invoice.Status)}`}>
                     {getStatusIcon(invoice.Status)}
                     <span className="font-bold">{invoice.Status}</span>
                   </div>
                 </TableCell>
-                <TableCell className="hidden md:table-cell text-slate-300 border-gray-300">
+                <TableCell className="hidden md:table-cell text-slate-300 border-t border-gray-700">
                   {invoice.TransactionID}
                 </TableCell>
               </TableRow>
@@ -318,7 +310,7 @@ function DashboardTransactions() {
         </Table>
       </div>
     </div>
-  );
+  )
 }
 
-export default DashboardTransactions;
+export default DashboardTransactions
