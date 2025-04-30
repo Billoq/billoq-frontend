@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { DollarSign, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,42 +25,52 @@ interface ElectricityModalProps {
     token: string;
     source: "airtime" | "data" | "electricity" | "cable";
   }) => void;
+  state: {
+    provider: string;
+    accountNumber: string;
+    billPlan: string;
+    amount: string;
+    paymentOption: "USDT" | "USDC";
+  };
+  onStateChange: (newState: {
+    provider: string;
+    accountNumber: string;
+    billPlan: string;
+    amount: string;
+    paymentOption: "USDT" | "USDC";
+  }) => void;
 }
 
-const ElectricityModal: React.FC<ElectricityModalProps> = ({ onClose, onShowPayment }) => {
-  const [provider, setProvider] = useState("");
-  const [accountNumber, setAccountNumber] = useState("");
-  const [billPlan, setBillPlan] = useState("");
-  const [amount, setAmount] = useState("");
-  const [paymentOption, setPaymentOption] = useState("USDT");
-  interface Biller {
-    biller_code: string;
-    name: string;
-  }
+interface Biller {
+  biller_code: string;
+  name: string;
+}
 
+interface BillItem {
+  item_code: string;
+  name: string;
+}
+
+const ElectricityModal: React.FC<ElectricityModalProps> = ({
+  onClose,
+  onShowPayment,
+  state,
+  onStateChange,
+}) => {
   const [billers, setBillers] = useState<Biller[]>([]);
-  interface BillItem {
-    item_code: string;
-    name: string;
-  }
-
   const [billItems, setBillItems] = useState<BillItem[]>([]);
-
   const { getBillersByCategory, getBillItems } = useBilloq();
 
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    // Only close if the click is directly on the overlay, not its children
     if (e.target === e.currentTarget) {
       onClose();
     }
   };
 
   useEffect(() => {
-    // Fetch billers by category when the component mounts
     const fetchBillers = async () => {
       try {
         const billers = await getBillersByCategory("UTILITYBILLS");
-        console.log("Fetched billers:", billers);
         setBillers(billers.data);
       } catch (error) {
         console.error("Error fetching billers:", error);
@@ -68,20 +78,16 @@ const ElectricityModal: React.FC<ElectricityModalProps> = ({ onClose, onShowPaym
     };
 
     fetchBillers();
-  }, []);
+  }, [getBillersByCategory]);
 
   useEffect(() => {
-    // Fetch bill items when the provider changes
     const fetchBillItems = async () => {
-      if (provider) {
+      if (state.provider) {
         try {
-          const biller = billers.find((b) => b.name === provider);
+          const biller = billers.find((b) => b.name === state.provider);
           if (biller) {
             const items = await getBillItems("ELECTRICITY", biller.biller_code);
-            console.log("Fetched bill items:", items);
             setBillItems(items.data);
-          } else {
-            console.warn("No matching biller found for the selected provider.");
           }
         } catch (error) {
           console.error("Error fetching bill items:", error);
@@ -90,7 +96,7 @@ const ElectricityModal: React.FC<ElectricityModalProps> = ({ onClose, onShowPaym
     };
 
     fetchBillItems();
-  }, [provider]);
+  }, [state.provider, billers, getBillItems]);
 
   useEffect(() => {
     document.body.classList.add("overflow-hidden");
@@ -100,16 +106,16 @@ const ElectricityModal: React.FC<ElectricityModalProps> = ({ onClose, onShowPaym
   }, []);
 
   const handleMakePayment = () => {
-    // Pass the payment data to the parent component with source information
+    if (!state.provider || !state.accountNumber || !state.billPlan || !state.amount) return;
+
     onShowPayment({
-      provider,
-      billPlan,
-      subscriberId: accountNumber,
-      amountInNaira: amount,
-      token: paymentOption,
-      source: "electricity" // Add source to identify this modal
+      provider: state.provider,
+      billPlan: state.billPlan,
+      subscriberId: state.accountNumber,
+      amountInNaira: state.amount,
+      token: state.paymentOption,
+      source: "electricity",
     });
-    onClose();
   };
 
   return (
@@ -129,32 +135,33 @@ const ElectricityModal: React.FC<ElectricityModalProps> = ({ onClose, onShowPaym
         </button>
 
         <div className="flex flex-col items-center">
-          <h2 className="text-2xl font-medium text-blue-500 mb-8">
-            Electricity Bill Payment
-          </h2>
+          <h2 className="text-2xl font-medium text-blue-500 mb-8">Electricity Bill Payment</h2>
 
           <div className="w-full space-y-6">
             <div className="w-full">
               <p className="text-white mb-3">Provider</p>
-                <Select value={provider} onValueChange={setProvider}>
+              <Select
+                value={state.provider}
+                onValueChange={(value: string) => onStateChange({ ...state, provider: value })}
+              >
                 <SelectTrigger className="w-full bg-[#1a2236] border-[#3A414A] text-gray-300">
                   <SelectValue placeholder="Select Provider" />
                 </SelectTrigger>
                 <SelectContent className="bg-[#1a2236] border-[#2a3349] text-gray-300">
                   {billers.map((biller) => (
-                  <SelectItem key={biller.biller_code} value={biller.name}>
-                    {biller.name}
-                  </SelectItem>
+                    <SelectItem key={biller.biller_code} value={biller.name}>
+                      {biller.name}
+                    </SelectItem>
                   ))}
                 </SelectContent>
-                </Select>
+              </Select>
             </div>
 
             <div className="w-full">
               <p className="text-white mb-3">Meter Number</p>
               <Input
-                value={accountNumber}
-                onChange={(e) => setAccountNumber(e.target.value)}
+                value={state.accountNumber}
+                onChange={(e) => onStateChange({ ...state, accountNumber: e.target.value })}
                 placeholder="Enter meter number"
                 className="w-full p-4 bg-[#1a2236] border border-[#3A414A] rounded-md text-white"
               />
@@ -162,7 +169,10 @@ const ElectricityModal: React.FC<ElectricityModalProps> = ({ onClose, onShowPaym
 
             <div className="w-full">
               <p className="text-white mb-3">Account Type</p>
-              <Select value={billPlan} onValueChange={setBillPlan}>
+              <Select
+                value={state.billPlan}
+                onValueChange={(value: string) => onStateChange({ ...state, billPlan: value })}
+              >
                 <SelectTrigger className="w-full bg-[#1a2236] border-[#3A414A] text-gray-300">
                   <SelectValue placeholder="Select account type" />
                 </SelectTrigger>
@@ -183,8 +193,8 @@ const ElectricityModal: React.FC<ElectricityModalProps> = ({ onClose, onShowPaym
                   <DollarSign className="h-4 w-4" />
                 </div>
                 <Input
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
+                  value={state.amount}
+                  onChange={(e) => onStateChange({ ...state, amount: e.target.value })}
                   className="w-full p-4 pl-10 bg-[#1a2236] border border-[#3A414A] rounded-md text-white"
                   placeholder="Enter amount"
                 />
@@ -194,8 +204,10 @@ const ElectricityModal: React.FC<ElectricityModalProps> = ({ onClose, onShowPaym
             <div className="w-full mb-6">
               <p className="text-white mb-3">Select Payment Option</p>
               <RadioGroup
-                value={paymentOption}
-                onValueChange={setPaymentOption}
+                value={state.paymentOption}
+                onValueChange={(value) =>
+                  onStateChange({ ...state, paymentOption: value as "USDT" | "USDC" })
+                }
                 className="flex flex-col space-y-2"
               >
                 <div className="flex items-center space-x-2">
@@ -220,14 +232,13 @@ const ElectricityModal: React.FC<ElectricityModalProps> = ({ onClose, onShowPaym
                 </div>
               </RadioGroup>
             </div>
-            <div>
-              <Button
-                className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-medium"
-                onClick={handleMakePayment}
-              >
-                Make Payment
-              </Button>
-            </div>
+
+            <Button
+              className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-medium"
+              onClick={handleMakePayment}
+            >
+              Make Payment
+            </Button>
           </div>
         </div>
       </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { X } from "lucide-react";
 import networks from "./NetWork";
 
@@ -14,34 +14,36 @@ interface AirtimePaymentProps {
     token: string;
     source: "airtime" | "data" | "electricity" | "cable";
   }) => void;
+  state: {
+    selectedNetwork: string;
+    phoneNumber: string;
+    amount: string;
+    paymentOption: "USDT" | "USDC";
+  };
+  onStateChange: (newState: {
+    selectedNetwork: string;
+    phoneNumber: string;
+    amount: string;
+    paymentOption: "USDT" | "USDC";
+  }) => void;
 }
 
-const AirtimePaymentModal = ({ onClose, onShowPayment  }: AirtimePaymentProps) => {
-  const [selectedNetwork, setSelectedNetwork] = useState<string | null>(null);
-  const [phoneNumber, setPhoneNumber] = useState("");
-  //const [billItem, setBillItem] = useState("");
-  const [amount, setAmount] = useState("");
-  const [paymentOption, setPaymentOption] = useState<"USDT" | "USDC">("USDT");
-
+const AirtimePaymentModal = ({ onClose, onShowPayment, state, onStateChange }: AirtimePaymentProps) => {
   const handlePayment = () => {
-    if (!selectedNetwork || !phoneNumber || !amount) return;
-    
+    if (!state.selectedNetwork || !state.phoneNumber || !state.amount) return;
+
     onShowPayment({
-      provider: selectedNetwork.toUpperCase(),
+      provider: state.selectedNetwork.toUpperCase(),
       billPlan: "MOBILE TOPUP",
-      subscriberId: phoneNumber,
-      amountInNaira: amount,
-      token: paymentOption,
-      source: "airtime"
+      subscriberId: state.phoneNumber,
+      amountInNaira: state.amount,
+      token: state.paymentOption,
+      source: "airtime",
     });
-    onClose();
   };
 
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    // Only close if the click is directly on the overlay, not its children
-    if (e.target === e.currentTarget) {
-      onClose();
-    }
+    if (e.target === e.currentTarget) onClose();
   };
 
   return (
@@ -53,7 +55,10 @@ const AirtimePaymentModal = ({ onClose, onShowPayment  }: AirtimePaymentProps) =
         className="relative w-full max-w-xl p-6 border border-[#111C2F] rounded-lg bg-[#0D1526]"
         onClick={(e) => e.stopPropagation()}
       >
-        <button className="absolute top-4 right-4 text-gray-400 hover:text-white" onClick={onClose}>
+        <button
+          className="absolute top-4 right-4 text-gray-400 hover:text-white"
+          onClick={onClose}
+        >
           <X size={20} />
         </button>
 
@@ -67,18 +72,28 @@ const AirtimePaymentModal = ({ onClose, onShowPayment  }: AirtimePaymentProps) =
                 <button
                   key={network.id}
                   className={`p-2 border rounded-md ${
-                    selectedNetwork === network.id ? "border-[#0080FF]" : "border-[#3A414A]"
+                    state.selectedNetwork === network.id
+                      ? "border-[#0080FF]"
+                      : "border-[#3A414A]"
                   }`}
-                  onClick={() => setSelectedNetwork(network.id)}
+                  onClick={() => onStateChange({ ...state, selectedNetwork: network.id })}
                 >
                   <div
                     className="w-10 h-10 flex items-center justify-center rounded-md"
                     style={{ backgroundColor: network.color }}
                   >
-                    {network.id === "mtn" && <span className="text-black font-bold text-xs">MTN</span>}
-                    {network.id === "airtel" && <span className="text-white font-bold text-xs">airtel</span>}
-                    {network.id === "glo" && <span className="text-white font-bold text-xs">glo</span>}
-                    {network.id === "9mobile" && <span className="text-[#00AA4F] font-bold text-lg">9</span>}
+                    {network.id === "mtn" && (
+                      <span className="text-black font-bold text-xs">MTN</span>
+                    )}
+                    {network.id === "airtel" && (
+                      <span className="text-white font-bold text-xs">airtel</span>
+                    )}
+                    {network.id === "glo" && (
+                      <span className="text-white font-bold text-xs">glo</span>
+                    )}
+                    {network.id === "9mobile" && (
+                      <span className="text-[#00AA4F] font-bold text-lg">9</span>
+                    )}
                   </div>
                 </button>
               ))}
@@ -91,8 +106,8 @@ const AirtimePaymentModal = ({ onClose, onShowPayment  }: AirtimePaymentProps) =
               type="text"
               className="w-full p-4 bg-[#0D1526] border border-[#3A414A] rounded-md text-white"
               placeholder="XXX XXXX XXXX"
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
+              value={state.phoneNumber}
+              onChange={(e) => onStateChange({ ...state, phoneNumber: e.target.value })}
             />
           </div>
 
@@ -104,8 +119,8 @@ const AirtimePaymentModal = ({ onClose, onShowPayment  }: AirtimePaymentProps) =
                 type="text"
                 className="w-full p-4 pl-8 bg-[#0D1526] border border-[#3A414A] rounded-md text-white"
                 placeholder="Enter amount"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
+                value={state.amount}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => onStateChange({ ...state, amount: e.target.value })}
               />
             </div>
           </div>
@@ -116,8 +131,8 @@ const AirtimePaymentModal = ({ onClose, onShowPayment  }: AirtimePaymentProps) =
               <label className="flex items-center space-x-2 cursor-pointer">
                 <input
                   type="radio"
-                  checked={paymentOption === "USDT"}
-                  onChange={() => setPaymentOption("USDT")}
+                  checked={state.paymentOption === "USDT"}
+                  onChange={() => onStateChange({ ...state, paymentOption: "USDT" })}
                   className="form-radio text-[#0080FF]"
                 />
                 <span className="text-white">USDT</span>
@@ -125,8 +140,8 @@ const AirtimePaymentModal = ({ onClose, onShowPayment  }: AirtimePaymentProps) =
               <label className="flex items-center space-x-2 cursor-pointer">
                 <input
                   type="radio"
-                  checked={paymentOption === "USDC"}
-                  onChange={() => setPaymentOption("USDC")}
+                  checked={state.paymentOption === "USDC"}
+                  onChange={() => onStateChange({ ...state, paymentOption: "USDC" })}
                   className="form-radio text-[#0080FF]"
                 />
                 <span className="text-white">USDC</span>
@@ -134,7 +149,10 @@ const AirtimePaymentModal = ({ onClose, onShowPayment  }: AirtimePaymentProps) =
             </div>
           </div>
 
-          <button className="w-full py-4 bg-[#0080FF] text-white rounded-md font-medium" onClick={handlePayment}>
+          <button
+            className="w-full py-4 bg-[#0080FF] text-white rounded-md font-medium"
+            onClick={handlePayment}
+          >
             Make Payment
           </button>
         </div>
