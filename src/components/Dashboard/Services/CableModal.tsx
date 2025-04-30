@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, use } from "react";
+import { useState, useEffect } from "react";
 import { DollarSign, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,10 +33,21 @@ const CableModal: React.FC<CableModalProps> = ({ onClose, onShowPayment }) => {
   const [billItem, setBillItem] = useState("");
   const [amount, setAmount] = useState("");
   const [paymentOption, setPaymentOption] = useState("USDT");
-  const [billers, setBillers] = useState<any[]>([]);
-  const [billItems, setBillItems] = useState<any[]>([]);
+  interface Biller {
+    biller_code: string;
+    name: string;
+  }
 
-  const { getBillersByCategory, getBillItems, validateCustomerDetails } = useBilloq();
+  const [billers, setBillers] = useState<Biller[]>([]);
+  interface BillItem {
+    id: string;
+    name: string;
+    amount: string;
+  }
+
+  const [billItems, setBillItems] = useState<BillItem[]>([]);
+
+  const { getBillersByCategory, getBillItems } = useBilloq();
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
     // Only close if the click is directly on the overlay, not its children
     if (e.target === e.currentTarget) {
@@ -65,9 +76,13 @@ const CableModal: React.FC<CableModalProps> = ({ onClose, onShowPayment }) => {
       if (provider) {
         try {
           const currentBiller = billers.find((biller) => biller.name === provider);
-          const items = await getBillItems("CABLE", currentBiller.biller_code);
-          console.log("Fetched bill items:", items);
-          setBillItems(items.data);
+          if (currentBiller) {
+            const items = await getBillItems("CABLE", currentBiller.biller_code);
+            setBillItems(items.data);
+          } else {
+            console.error("No matching biller found for the selected provider.");
+          }
+          //console.log("Fetched bill items:", items);
         } catch (error) {
           console.error("Error fetching bill items:", error);
         }

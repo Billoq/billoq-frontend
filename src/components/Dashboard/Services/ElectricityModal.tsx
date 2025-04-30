@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, use } from "react";
+import { useState, useEffect } from "react";
 import { DollarSign, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,10 +33,20 @@ const ElectricityModal: React.FC<ElectricityModalProps> = ({ onClose, onShowPaym
   const [billPlan, setBillPlan] = useState("");
   const [amount, setAmount] = useState("");
   const [paymentOption, setPaymentOption] = useState("USDT");
-  const [billers, setBillers] = useState<any[]>([]); // Adjust type as needed
-  const [billItems, setBillItems] = useState<any[]>([]); // Adjust type as needed
+  interface Biller {
+    biller_code: string;
+    name: string;
+  }
 
-  const { getBillersByCategory, getBillItems, validateCustomerDetails } = useBilloq();
+  const [billers, setBillers] = useState<Biller[]>([]);
+  interface BillItem {
+    item_code: string;
+    name: string;
+  }
+
+  const [billItems, setBillItems] = useState<BillItem[]>([]);
+
+  const { getBillersByCategory, getBillItems } = useBilloq();
 
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
     // Only close if the click is directly on the overlay, not its children
@@ -66,9 +76,13 @@ const ElectricityModal: React.FC<ElectricityModalProps> = ({ onClose, onShowPaym
       if (provider) {
         try {
           const biller = billers.find((b) => b.name === provider);
-          const items = await getBillItems("ELECTRICITY", biller.biller_code);
-          console.log("Fetched bill items:", items);
-          setBillItems(items.data);
+          if (biller) {
+            const items = await getBillItems("ELECTRICITY", biller.biller_code);
+            console.log("Fetched bill items:", items);
+            setBillItems(items.data);
+          } else {
+            console.warn("No matching biller found for the selected provider.");
+          }
         } catch (error) {
           console.error("Error fetching bill items:", error);
         }

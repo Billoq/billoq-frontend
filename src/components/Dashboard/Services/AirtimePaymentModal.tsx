@@ -19,7 +19,7 @@ interface AirtimePaymentProps {
 const AirtimePaymentModal = ({ onClose, onShowPayment  }: AirtimePaymentProps) => {
   const [selectedNetwork, setSelectedNetwork] = useState<string | null>(null);
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [billItem, setBillItem] = useState("");
+  //const [billItem, setBillItem] = useState("");
   const [amount, setAmount] = useState("");
   const [paymentOption, setPaymentOption] = useState<"USDT" | "USDC">("USDT");
 
@@ -34,7 +34,7 @@ const AirtimePaymentModal = ({ onClose, onShowPayment  }: AirtimePaymentProps) =
       token: paymentOption,
       source: "airtime"
     });
-    onClose()
+    onClose();
   };
 
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
