@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import React from "react";
 import { X } from "lucide-react";
 import networks from "./NetWork";
 import { useBilloq } from "@/hooks/useBilloq";
@@ -15,9 +16,24 @@ interface DataModalProps {
     token: string;
     source: "airtime" | "data" | "electricity" | "cable";
   }) => void;
+  state: {
+    selectedNetwork: string;
+    billPlan: string;
+    phoneNumber: string;
+    amount: string;
+    paymentOption: "USDT" | "USDC";
+    selectedProduct: string;
+  };
+  onStateChange: (newState: {
+    selectedNetwork: string;
+    phoneNumber: string;
+    amount: string;
+    paymentOption: "USDT" | "USDC";
+    billPlan: string;
+  }) => void;
 }
 
-const DataModal = ({ onClose, onShowPayment }: DataModalProps) => {
+const DataModal = ({ onClose, onShowPayment, state, onStateChange }: DataModalProps) => {
   const [selectedNetwork, setSelectedNetwork] = useState<string | null>(null);
   const [phoneNumber, setPhoneNumber] = useState("");
   const [amount, setAmount] = useState("");
@@ -69,20 +85,19 @@ const DataModal = ({ onClose, onShowPayment }: DataModalProps) => {
   }, [billPlan, billItems, billers]);
 
   const handlePayment = () => {
-    if (!selectedNetwork || !phoneNumber || !amount || !billPlan) return;
-    
+    if (!state.selectedNetwork || !state.phoneNumber || !state.amount || !state.billPlan) return;
+
     onShowPayment({
-      provider: `${selectedNetwork.toUpperCase()}`,
-      billPlan: billPlan,
-      subscriberId: phoneNumber,
-      amountInNaira: amount,
-      token: paymentOption,
+      provider: `${state.selectedNetwork.toUpperCase()}`,
+      billPlan: state.billPlan,
+      subscriberId: state.phoneNumber,
+      amountInNaira: state.amount,
+      token: state.paymentOption,
       source: "data"
     });
-  }; // This closing brace was missing
+  };
 
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    // Only close if the click is directly on the overlay, not its children
     if (e.target === e.currentTarget) {
       onClose();
     }
@@ -90,7 +105,7 @@ const DataModal = ({ onClose, onShowPayment }: DataModalProps) => {
 
   return (
     <div
-      className="fixed inset-0 flex items-center justify-center bg-slate-800/80 bg-opacity-50 z-50"
+      className="fixed inset-0 flex items-center justify-center bg-slate-800/80 p-4 z-50"
       onClick={handleOverlayClick}
     >
       <div
@@ -105,9 +120,7 @@ const DataModal = ({ onClose, onShowPayment }: DataModalProps) => {
         </button>
 
         <div className="flex flex-col items-center">
-          <h2 className="text-2xl font-medium text-[#0080FF] mb-8">
-            Mobile Data
-          </h2>
+          <h2 className="text-2xl font-medium text-[#0080FF] mb-8">Mobile Data</h2>
 
           <div className="w-full mb-6">
             <p className="text-white mb-3">Select network provider</p>
@@ -118,9 +131,9 @@ const DataModal = ({ onClose, onShowPayment }: DataModalProps) => {
                   <button
                   key={biller.biller_code}
                   className={`p-2 border cursor-pointer rounded-md ${
-                    selectedNetwork === biller.name ? "border-[#0080FF]" : "border-[#3A414A]"
+                    state.selectedNetwork === biller.name ? "border-[#0080FF]" : "border-[#3A414A]"
                   }`}
-                  onClick={() => setSelectedNetwork(biller.name)}
+                  onClick={() => onStateChange({ ...state, selectedNetwork: biller.name })}
                   >
                   <div
                     className="w-10 h-10 flex items-center justify-center rounded-md"
@@ -138,10 +151,11 @@ const DataModal = ({ onClose, onShowPayment }: DataModalProps) => {
           </div>
 
           <div className="w-full mb-6">
+            <p className="text-white mb-3">Select product</p>
             <select
-              className="w-full p-4 bg-[#0D1526] border border-[#3A414A] rounded-md text-gray-500 mb-3"
-              value={billPlan}
-              onChange={(e) => setBillPlan(e.target.value)}
+              className="w-full p-4 bg-[#0D1526] border border-[#3A414A] rounded-md text-white"
+              value={state.billPlan}
+              onChange={(e) => onStateChange({ ...state, billPlan: e.target.value })}
             >
               <option value="" disabled hidden>
               Select Plan
@@ -152,29 +166,30 @@ const DataModal = ({ onClose, onShowPayment }: DataModalProps) => {
               </option>
               ))}
             </select>
+          </div>
+
+          <div className="w-full mb-6">
             <p className="text-white mb-3">Enter your phone number</p>
             <input
               type="text"
               className="w-full p-4 bg-[#0D1526] border border-[#3A414A] rounded-md text-white"
               placeholder="XXX XXXX XXXX"
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
+              value={state.phoneNumber}
+              onChange={(e) => onStateChange({ ...state, phoneNumber: e.target.value })}
             />
           </div>
 
           <div className="w-full mb-6">
             <p className="text-white mb-3">Amount</p>
             <div className="relative">
-              <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white">
-                ₦
-              </div>
+              <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white">₦</div>
               <input
                 type="text"
                 className="w-full p-4 pl-8 bg-[#0D1526] border border-[#3A414A] rounded-md text-white"
                 placeholder="Data Amount"
                 disabled
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
+                value={state.amount}
+                onChange={(e) => onStateChange({ ...state, amount: e.target.value })}
               />
             </div>
           </div>
@@ -185,8 +200,8 @@ const DataModal = ({ onClose, onShowPayment }: DataModalProps) => {
               <label className="flex items-center space-x-2 cursor-pointer">
                 <input
                   type="radio"
-                  checked={paymentOption === "USDT"}
-                  onChange={() => setPaymentOption("USDT")}
+                  checked={state.paymentOption === "USDT"}
+                  onChange={() => onStateChange({ ...state, paymentOption: "USDT" })}
                   className="form-radio text-[#0080FF]"
                 />
                 <span className="text-white">USDT</span>
@@ -194,8 +209,8 @@ const DataModal = ({ onClose, onShowPayment }: DataModalProps) => {
               <label className="flex items-center space-x-2 cursor-pointer">
                 <input
                   type="radio"
-                  checked={paymentOption === "USDC"}
-                  onChange={() => setPaymentOption("USDC")}
+                  checked={state.paymentOption === "USDC"}
+                  onChange={() => onStateChange({ ...state, paymentOption: "USDC" })}
                   className="form-radio text-[#0080FF]"
                 />
                 <span className="text-white">USDC</span>
