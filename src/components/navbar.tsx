@@ -61,21 +61,27 @@ export function Navbar() {
   const getWalletIcon = () => {
     if (walletInfo?.icon) {
       return (
-        <img
+        <Image
           src={walletInfo.icon}
-          alt={walletInfo.name}
+          alt={walletInfo.name || "Wallet"}
+          width={24}
+          height={24}
           className="w-6 h-6 rounded-full"
           onError={(e) => (e.currentTarget.style.display = "none")}
+          unoptimized
         />
       );
     }
     if (connector?.icon) {
       return (
-        <img
+        <Image
           src={connector.icon}
-          alt={connector.name}
+          alt={connector.name || "Wallet"}
+          width={24}
+          height={24}
           className="w-6 h-6 rounded-full"
           onError={(e) => (e.currentTarget.style.display = "none")}
+          unoptimized
         />
       );
     }

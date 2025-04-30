@@ -2,7 +2,7 @@
 
 import { motion, useAnimation } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
-import { useEffect, ReactNode } from 'react';
+import { useEffect, ReactNode, useCallback } from 'react';
 import { AutoHighlightFeatureCards } from "./feature-card";
 
 // AnimatedSection component (same as before)
@@ -27,7 +27,7 @@ export const AnimatedSection = ({
     threshold: 0.1
   });
 
-  const getInitialState = () => {
+  const getInitialState = useCallback(() => {
     switch (direction) {
       case 'up': return { y: distance, opacity: 0 };
       case 'down': return { y: -distance, opacity: 0 };
@@ -35,9 +35,9 @@ export const AnimatedSection = ({
       case 'right': return { x: -distance, opacity: 0 };
       default: return { y: distance, opacity: 0 };
     }
-  };
+  }, [direction, distance]);
 
-  const getAnimateState = () => {
+  const getAnimateState = useCallback(() => {
     switch (direction) {
       case 'up':
       case 'down':
@@ -48,7 +48,7 @@ export const AnimatedSection = ({
       default:
         return { y: 0, opacity: 1 };
     }
-  };
+  }, [direction]);
 
   useEffect(() => {
     if (inView) {
@@ -56,7 +56,7 @@ export const AnimatedSection = ({
     } else {
       controls.start(getInitialState());
     }
-  }, [controls, inView]);
+  }, [controls, inView, getAnimateState, getInitialState]);
 
   return (
     <motion.div

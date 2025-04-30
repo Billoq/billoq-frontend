@@ -1,10 +1,8 @@
-
-
 "use client";
 
 import { motion, useAnimation } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 import { ReactNode } from 'react';
 
 interface AnimatedSectionProps {
@@ -29,7 +27,7 @@ export const AnimatedSection = ({
   });
 
   // Set initial animation states based on direction
-  const getInitialState = () => {
+  const getInitialState = useCallback(() => {
     switch (direction) {
       case 'up': return { y: distance, opacity: 0 };
       case 'down': return { y: -distance, opacity: 0 };
@@ -37,9 +35,9 @@ export const AnimatedSection = ({
       case 'right': return { x: -distance, opacity: 0 };
       default: return { y: distance, opacity: 0 };
     }
-  };
+  }, [direction, distance]);
 
-  const getAnimateState = () => {
+  const getAnimateState = useCallback(() => {
     switch (direction) {
       case 'up':
       case 'down':
@@ -50,7 +48,7 @@ export const AnimatedSection = ({
       default:
         return { y: 0, opacity: 1 };
     }
-  };
+  }, [direction]);
 
   useEffect(() => {
     if (inView) {
@@ -58,7 +56,7 @@ export const AnimatedSection = ({
     } else {
       controls.start(getInitialState()); // Reset animation when out of view
     }
-  }, [controls, inView]);
+  }, [controls, inView, getInitialState, getAnimateState]);
 
   return (
     <motion.div
