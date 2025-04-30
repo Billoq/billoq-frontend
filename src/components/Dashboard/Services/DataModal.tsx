@@ -1,8 +1,10 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import React from "react";
 import { X } from "lucide-react";
 import networks from "./NetWork";
+import { useBilloq } from "@/hooks/useBilloq";
 
 interface DataModalProps {
   onClose: () => void;
@@ -13,35 +15,96 @@ interface DataModalProps {
     amountInNaira: string;
     token: string;
     source: "airtime" | "data" | "electricity" | "cable";
+    quoteId: string;
   }) => void;
   state: {
     selectedNetwork: string;
+    billPlan: string;
     phoneNumber: string;
     amount: string;
     paymentOption: "USDT" | "USDC";
-    selectedProduct: string;
   };
   onStateChange: (newState: {
     selectedNetwork: string;
     phoneNumber: string;
     amount: string;
     paymentOption: "USDT" | "USDC";
-    selectedProduct: string;
+    billPlan: string;
   }) => void;
 }
 
 const DataModal = ({ onClose, onShowPayment, state, onStateChange }: DataModalProps) => {
-  const handlePayment = () => {
-    if (!state.selectedNetwork || !state.phoneNumber || !state.amount || !state.selectedProduct) return;
+  const [selectedNetwork, setSelectedNetwork] = useState<string | null>(null);
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [paymentOption, setPaymentOption] = useState<"USDT" | "USDC">("USDT");
+  const [billers, setBillers] = useState<any[]>([]); // Adjust type as needed
+  const [billItems, setBillItems] = useState<any[]>([]); // Adjust type as needed
+  const [billPlan, setBillPlan] = useState("");
+
+  const { getBillersByCategory, getBillItems, validateCustomerDetails, getQuote } = useBilloq();
+
+  useEffect(() => {
+    // Fetch billers by category when the component mounts
+    const fetchBillers = async () => {
+      try {
+        const billers = await getBillersByCategory("MOBILEDATA");
+        console.log("Fetched billers:", billers);
+        setBillers(billers.data);
+      } catch (error) {
+        console.error("Error fetching billers:", error);
+      }
+    };
+
+    fetchBillers();
+  }, []);
+
+  useEffect(() => {
+    const fetchBillItems = async () => {
+      if (state.selectedNetwork) {
+          try {
+            const selectedBiller = billers.find((biller) => biller.name === state.selectedNetwork);
+            const currentBillItems = await getBillItems("MOBILE", selectedBiller.biller_code)
+            console.log("Fetched Bill items:", currentBillItems)
+            setBillItems(currentBillItems.data);
+          } catch (error) {
+            console.error("Error fetching bill plans:", error);
+          }
+      }
+    };
+
+    fetchBillItems();
+  }, [state.selectedNetwork, billers]);
+
+  useEffect(() => {
+    //set the amount based on the selected bill item
+    const selectedBillItem = billItems.find((item) => item.name === state.billPlan);
+    if (selectedBillItem) {
+      onStateChange({ ...state, amount: selectedBillItem.amount })
+    }
+  }, [state.billPlan, billItems, billers]);
+
+  const handlePayment = async () => {
+    if (!state.selectedNetwork || !state.phoneNumber || !state.amount || !state.billPlan) return;
+
+    const billItem = billItems.find((item) => item.name === state.billPlan);
+    try{
+      const quote = await getQuote({amount: parseFloat(state.amount) , item_code: billItem.item_code, customer: state.phoneNumber});
+      console.log("Quote response:", quote);
+      const totalAmount = quote.data.totalAmount.toString();
+      const quoteId = quote.data._id;
 
     onShowPayment({
-      provider: `${state.selectedNetwork.toUpperCase()} ${state.selectedProduct}`,
-      billPlan: state.selectedProduct,
+      provider: `${state.selectedNetwork.toUpperCase()}`,
+      billPlan: state.billPlan,
       subscriberId: state.phoneNumber,
-      amountInNaira: state.amount,
+      amountInNaira: totalAmount,
       token: state.paymentOption,
       source: "data",
+      quoteId: quoteId,
     });
+    } catch (error) {
+      console.error("Error fetching quote:", error);
+    }
   };
 
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -72,35 +135,28 @@ const DataModal = ({ onClose, onShowPayment, state, onStateChange }: DataModalPr
           <div className="w-full mb-6">
             <p className="text-white mb-3">Select network provider</p>
             <div className="flex gap-2">
-              {networks.map((network) => (
-                <button
-                  key={network.id}
-                  className={`p-2 border rounded-md ${
-                    state.selectedNetwork === network.id
-                      ? "border-[#0080FF]"
-                      : "border-[#3A414A]"
+            {billers.map((biller) => {
+                const network = networks.find((net) => net.id.includes(biller.name.split(" ")[0]));
+                return (
+                  <button
+                  key={biller.biller_code}
+                  className={`p-2 border cursor-pointer rounded-md ${
+                    state.selectedNetwork === biller.name ? "border-[#0080FF]" : "border-[#3A414A]"
                   }`}
-                  onClick={() => onStateChange({ ...state, selectedNetwork: network.id })}
-                >
+                  onClick={() => onStateChange({ ...state, selectedNetwork: biller.name })}
+                  >
                   <div
                     className="w-10 h-10 flex items-center justify-center rounded-md"
-                    style={{ backgroundColor: network.color }}
+                    style={{ backgroundColor: network?.color || "#3A414A" }}
                   >
-                    {network.id === "mtn" && (
-                      <span className="text-black font-bold text-xs">MTN</span>
-                    )}
-                    {network.id === "airtel" && (
-                      <span className="text-white font-bold text-xs">airtel</span>
-                    )}
-                    {network.id === "glo" && (
-                      <span className="text-white font-bold text-xs">glo</span>
-                    )}
-                    {network.id === "9mobile" && (
-                      <span className="text-[#00AA4F] font-bold text-lg">9</span>
-                    )}
+                    {network?.id === "MTN Nigeria" && <span className="text-black font-bold text-xs">MTN</span>}
+                    {network?.id === "AIRTEL NIGERIA" && <span className="text-white font-bold text-xs">airtel</span>}
+                    {network?.id === "GLO NIGERIA" && <span className="text-white font-bold text-xs">glo</span>}
+                    {network?.id === "9MOBILE NIGERIA" && <span className="text-[#00AA4F] font-bold text-lg">9</span>}
                   </div>
-                </button>
-              ))}
+                  </button>
+                );
+                })}
             </div>
           </div>
 
@@ -108,15 +164,17 @@ const DataModal = ({ onClose, onShowPayment, state, onStateChange }: DataModalPr
             <p className="text-white mb-3">Select product</p>
             <select
               className="w-full p-4 bg-[#0D1526] border border-[#3A414A] rounded-md text-white"
-              value={state.selectedProduct}
-              onChange={(e) => onStateChange({ ...state, selectedProduct: e.target.value })}
+              value={state.billPlan}
+              onChange={(e) => onStateChange({ ...state, billPlan: e.target.value })}
             >
               <option value="" disabled hidden>
-                Products
+              Select Plan
               </option>
-              <option value="Daily">Daily</option>
-              <option value="Weekly">Weekly</option>
-              <option value="Monthly">Monthly</option>
+              {billItems.map((item) => (
+              <option key={item.item_code} value={item.name}>
+                {item.name}
+              </option>
+              ))}
             </select>
           </div>
 
@@ -132,13 +190,14 @@ const DataModal = ({ onClose, onShowPayment, state, onStateChange }: DataModalPr
           </div>
 
           <div className="w-full mb-6">
-            <p className="text-white mb-3">Enter the amount you want</p>
+            <p className="text-white mb-3">Amount</p>
             <div className="relative">
               <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white">₦</div>
               <input
                 type="text"
                 className="w-full p-4 pl-8 bg-[#0D1526] border border-[#3A414A] rounded-md text-white"
-                placeholder="Enter amount"
+                placeholder="Data Amount"
+                disabled
                 value={state.amount}
                 onChange={(e) => onStateChange({ ...state, amount: e.target.value })}
               />

@@ -26,6 +26,7 @@ interface PaymentData {
   amountInNaira: string;
   token: string;
   source: "airtime" | "data" | "electricity" | "cable";
+  quoteId: string;
 }
 
 const DashboardServices = () => {
@@ -41,6 +42,8 @@ const DashboardServices = () => {
     selectedNetwork: "",
     phoneNumber: "",
     amount: "",
+    totalAmount: "",
+    billPlan: "",
     paymentOption: "USDT" as "USDT" | "USDC",
   });
 
@@ -49,7 +52,7 @@ const DashboardServices = () => {
     phoneNumber: "",
     amount: "",
     paymentOption: "USDT" as "USDT" | "USDC",
-    selectedProduct: "",
+    billPlan: "",
   });
 
   const [electricityState, setElectricityState] = useState({
@@ -75,6 +78,7 @@ const DashboardServices = () => {
     amountInNaira: "",
     token: "",
     source: "airtime",
+    quoteId: "",
   });
 
   const handleServiceSelect = (service: string) => {
@@ -129,13 +133,13 @@ const DashboardServices = () => {
   const handleClosePaymentModal = () => {
     setShowPaymentModal(false);
     // Reset modal states when fully closing the payment modal
-    setAirtimeState({ selectedNetwork: "", phoneNumber: "", amount: "", paymentOption: "USDT" });
+    setAirtimeState({ selectedNetwork: "", phoneNumber: "", amount: "", totalAmount: "", billPlan: "", paymentOption: "USDT" });
     setDataState({
       selectedNetwork: "",
       phoneNumber: "",
       amount: "",
       paymentOption: "USDT",
-      selectedProduct: "",
+      billPlan: "",
     });
     setElectricityState({
       provider: "",
@@ -158,12 +162,13 @@ const DashboardServices = () => {
       amountInNaira: "",
       token: "",
       source: "airtime",
+      quoteId: "",
     });
   };
 
   const handleCloseAirtimeModal = () => {
     setShowAirtimePaymentModal(false);
-    setAirtimeState({ selectedNetwork: "", phoneNumber: "", amount: "", paymentOption: "USDT" });
+    setAirtimeState({ selectedNetwork: "", phoneNumber: "", amount: "", totalAmount: "", paymentOption: "USDT", billPlan: "" });
   };
 
   const handleCloseDataModal = () => {
@@ -173,7 +178,7 @@ const DashboardServices = () => {
       phoneNumber: "",
       amount: "",
       paymentOption: "USDT",
-      selectedProduct: "",
+      billPlan: "",
     });
   };
 
@@ -313,6 +318,7 @@ const DashboardServices = () => {
           amountInNaira={paymentData.amountInNaira}
           token={paymentData.token}
           source={paymentData.source}
+          quoteId={paymentData.quoteId}
         />
       )}
     </div>

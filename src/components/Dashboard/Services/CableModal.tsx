@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { DollarSign, X } from "lucide-react";
+import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -24,6 +24,7 @@ interface CableModalProps {
     amountInNaira: string;
     token: string;
     source: "airtime" | "data" | "electricity" | "cable";
+    quoteId: string;
   }) => void;
   state: {
     provider: string;
@@ -46,16 +47,11 @@ interface Biller {
   name: string;
 }
 
-interface BillItem {
-  id: string;
-  name: string;
-  amount: string;
-}
 
 const CableModal: React.FC<CableModalProps> = ({ onClose, onShowPayment, state, onStateChange }) => {
   const [billers, setBillers] = useState<Biller[]>([]);
-  const [billItems, setBillItems] = useState<BillItem[]>([]);
-  const { getBillersByCategory, getBillItems } = useBilloq();
+  const [billItems, setBillItems] = useState<any[]>([]);
+  const { getBillersByCategory, getBillItems, getQuote } = useBilloq();
 
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) {
@@ -74,7 +70,7 @@ const CableModal: React.FC<CableModalProps> = ({ onClose, onShowPayment, state, 
     };
 
     fetchBillers();
-  }, [getBillersByCategory]);
+  }, []);
 
   useEffect(() => {
     const fetchBillItems = async () => {
@@ -92,7 +88,7 @@ const CableModal: React.FC<CableModalProps> = ({ onClose, onShowPayment, state, 
     };
 
     fetchBillItems();
-  }, [state.provider, billers, getBillItems]);
+  }, [state.provider, billers]);
 
   useEffect(() => {
     const selectedBillItem = billItems.find((item) => item.name === state.billItem);
@@ -108,17 +104,27 @@ const CableModal: React.FC<CableModalProps> = ({ onClose, onShowPayment, state, 
     };
   }, []);
 
-  const handleMakePayment = () => {
+  const handleMakePayment = async () => {
     if (!state.provider || !state.accountNumber || !state.billItem || !state.amount) return;
+    const billItem = billItems.find((item) => item.name === state.billItem);
+    try{
+      const quote = await getQuote({amount: parseFloat(state.amount) , item_code: billItem.item_code, customer: state.accountNumber});
+      console.log("Quote response:", quote);
+      const totalAmount = quote.data.totalAmount.toString();
+      const quoteId = quote.data._id;
 
-    onShowPayment({
-      provider: state.provider,
-      billPlan: state.billItem,
-      subscriberId: state.accountNumber,
-      amountInNaira: state.amount,
-      token: state.paymentOption,
-      source: "cable",
-    });
+      onShowPayment({
+        provider: state.provider,
+        billPlan: state.billItem,
+        subscriberId: state.accountNumber,
+        amountInNaira: totalAmount,
+        token: state.paymentOption,
+        source: "cable",
+        quoteId: quoteId,
+      });
+    } catch (error) {
+      console.error("Error fetching quote:", error);
+    }
   };
 
   return (
@@ -193,7 +199,7 @@ const CableModal: React.FC<CableModalProps> = ({ onClose, onShowPayment, state, 
               <p className="text-white mb-3">Amount</p>
               <div className="relative">
                 <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
-                  <DollarSign className="h-4 w-4" />
+                  ₦
                 </div>
                 <Input
                   value={state.amount}
