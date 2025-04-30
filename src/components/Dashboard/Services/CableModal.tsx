@@ -19,7 +19,8 @@ interface CableModalProps {
   onClose: () => void;
   onShowPayment: (paymentData: {
     provider: string;
-    accountType: string;
+    billPlan: string;
+    subscriberId: string;
     amountInNaira: string;
     token: string;
     source: "airtime" | "data" | "electricity" | "cable";
@@ -95,7 +96,8 @@ const CableModal: React.FC<CableModalProps> = ({ onClose, onShowPayment }) => {
     // Pass the payment data to the parent component with source information
     onShowPayment({
       provider,
-      accountType: billItem,
+      billPlan: billItem,
+      subscriberId: accountNumber,
       amountInNaira: amount,
       token: paymentOption,
       source: "cable" // Add source to identify this modal

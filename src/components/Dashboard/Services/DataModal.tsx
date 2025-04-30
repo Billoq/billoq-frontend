@@ -8,7 +8,8 @@ interface DataModalProps {
   onClose: () => void;
   onShowPayment: (data: {
     provider: string;
-    accountType: string;
+    billPlan: string;
+    subscriberId: string;
     amountInNaira: string;
     token: string;
     source: "airtime" | "data" | "electricity" | "cable";
@@ -27,7 +28,8 @@ const DataModal = ({ onClose, onShowPayment }: DataModalProps) => {
     
     onShowPayment({
       provider: `${selectedNetwork.toUpperCase()} ${selectedProduct}`,
-      accountType: phoneNumber,
+      billPlan: phoneNumber,
+      subscriberId: phoneNumber,
       amountInNaira: amount,
       token: paymentOption,
       source: "data"

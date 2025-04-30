@@ -18,6 +18,7 @@ import DataModal from "./DataModal";
 import ElectricityModal from "./ElectricityModal";
 import PaymentModal from "./PaymentModal";
 import CableModal from "./CableModal"
+import { subscribe } from "diagnostics_channel";
 
 const DashboardServices = () => {
   const [showAirtimePaymentModal, setShowAirtimePaymentModal] = useState(false);
@@ -27,7 +28,8 @@ const DashboardServices = () => {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentData, setPaymentData] = useState({
     provider: "",
-    accountType: "",
+    billPlan: "",
+    subscriberId: "",
     amountInNaira: "",
     token: "",
     source: "" as "airtime" | "data" | "electricity" | "cable"
@@ -50,7 +52,8 @@ const DashboardServices = () => {
 
   const handleShowPayment = (data: {
     provider: string;
-    accountType: string;
+    billPlan: string;
+    subscriberId: string;
     amountInNaira: string;
     token: string;
     source: "airtime" | "data" | "electricity" | "cable";
@@ -189,7 +192,8 @@ const DashboardServices = () => {
           onClose={() => setShowPaymentModal(false)}
           onBack={handleBackToModal}
           provider={paymentData.provider}
-          accountType={paymentData.accountType}
+          billPlan={paymentData.billPlan}
+          subscriberId={paymentData.subscriberId}
           amountInNaira={paymentData.amountInNaira}
           token={paymentData.token}
         />
