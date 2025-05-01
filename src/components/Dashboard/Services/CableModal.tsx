@@ -48,6 +48,14 @@ interface Biller {
   name: string;
 }
 
+interface BillItem {
+  id: string;
+  item_code: string;
+  name: string;
+  amount?: number;
+  [key: string]: unknown; // For any additional properties we don't know about
+}
+
 const CableModal: React.FC<CableModalProps> = ({
   onClose,
   onShowPayment,
@@ -55,7 +63,7 @@ const CableModal: React.FC<CableModalProps> = ({
   onStateChange,
 }) => {
   const [billers, setBillers] = useState<Biller[]>([]);
-  const [billItems, setBillItems] = useState<any[]>([]);
+  const [billItems, setBillItems] = useState<BillItem[]>([]);
   const [isLoadingBillers, setIsLoadingBillers] = useState(false);
   const [isLoadingBillItems, setIsLoadingBillItems] = useState(false);
   const [isLoadingPayment, setIsLoadingPayment] = useState(false);
@@ -89,10 +97,11 @@ const CableModal: React.FC<CableModalProps> = ({
 
         setBillers(billersResponse.data);
         clearTimeout(timeout);
-      } catch (error: any) {
-        console.error("Error fetching billers:", error.message, error.stack);
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : "Failed to load providers";
+        console.error("Error fetching billers:", errorMessage);
         toast.error(
-          error.message === "Invalid billers data format"
+          errorMessage === "Invalid billers data format"
             ? "Received invalid provider data. Please try again."
             : "Failed to load providers. Please try again.",
           {
@@ -139,12 +148,13 @@ const CableModal: React.FC<CableModalProps> = ({
 
           setBillItems(itemsResponse.data);
           clearTimeout(timeout);
-        } catch (error: any) {
-          console.error("Error fetching bill items:", error.message, error.stack);
+        } catch (error: unknown) {
+          const errorMessage = error instanceof Error ? error.message : "Failed to load plans";
+          console.error("Error fetching bill items:", errorMessage);
           toast.error(
-            error.message === "Invalid bill items data format"
+            errorMessage === "Invalid bill items data format"
               ? "Received invalid plan data. Please try again."
-              : error.message === "Selected provider not found"
+              : errorMessage === "Selected provider not found"
               ? "Selected provider not found. Please choose another."
               : "Failed to load plans. Please try again.",
             {
@@ -167,7 +177,7 @@ const CableModal: React.FC<CableModalProps> = ({
       (item) => item.name === state.billItem
     );
     if (selectedBillItem) {
-      onStateChange({ ...state, amount: selectedBillItem.amount });
+      onStateChange({ ...state, amount: selectedBillItem.amount?.toString() || "" });
     }
   }, [state.billItem, billItems]);
 
@@ -197,6 +207,16 @@ const CableModal: React.FC<CableModalProps> = ({
 
     setIsLoadingPayment(true);
     const billItem = billItems.find((item) => item.name === state.billItem);
+
+    if (!billItem) {
+      toast.error("Selected plan not found", {
+        position: "bottom-right",
+        autoClose: 5000,
+        theme: "dark",
+      });
+      setIsLoadingPayment(false);
+      return;
+    }
 
     try {
       const timeout = setTimeout(() => {
@@ -233,10 +253,11 @@ const CableModal: React.FC<CableModalProps> = ({
       });
 
       clearTimeout(timeout);
-    } catch (error: any) {
-      console.error("Error fetching quote:", error.message, error.stack);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to process payment";
+      console.error("Error fetching quote:", errorMessage);
       toast.error(
-        error.message === "Invalid quote data format"
+        errorMessage === "Invalid quote data format"
           ? "Received invalid payment data. Please try again."
           : "Failed to process payment. Please try again.",
         {

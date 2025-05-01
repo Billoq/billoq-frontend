@@ -9,7 +9,6 @@ import { ChartTooltip } from "./overview-chart/chart-tooltips";
 import { TimeframeDropdown } from "./overview-chart/timeframe-dropdown";
 import { formatCurrency } from "@/lib/utils";
 import { useTransactions } from "@/context/transaction-context";
-import { Transaction } from "@/types/transaction";
 
 export type TimeframeOption = "daily" | "weekly" | "monthly" | "yearly";
 
@@ -97,35 +96,33 @@ export function OverviewChart({
 
     const now = new Date();
     let startDate: Date;
-    let dateFormat: string;
-    let groupingFormat: string;
+    // let dateFormat: string;
+    // let groupingFormat: string;
 
     // Set date range and format based on timeframe
     switch (selectedTimeframe) {
       case "daily":
         startDate = subDays(now, 7); // Last 7 days
-        dateFormat = "dd MMM";
-        groupingFormat = "yyyy-MM-dd";
+        // dateFormat = "dd MMM";
+        // groupingFormat = "yyyy-MM-dd";
         break;
       case "weekly":
         startDate = subWeeks(now, 4); // Last 4 weeks
-        dateFormat = "'Week' w, MMM";
-        groupingFormat = "yyyy-'W'w";
+        // dateFormat = "'Week' w, MMM";
+        // groupingFormat = "yyyy-'W'w";
         break;
       case "monthly":
         startDate = subMonths(now, 6); // Last 6 months
-        dateFormat = "MMM yyyy";
-        groupingFormat = "yyyy-MM";
+        // dateFormat = "MMM yyyy";
+        // groupingFormat = "yyyy-MM";
         break;
       case "yearly":
         startDate = subMonths(now, 12); // Last 12 months
-        dateFormat = "MMM yyyy";
-        groupingFormat = "yyyy-MM";
+        // dateFormat = "MMM yyyy";
+        // groupingFormat = "yyyy-MM";
         break;
       default:
         startDate = subDays(now, 7);
-        dateFormat = "dd MMM";
-        groupingFormat = "yyyy-MM-dd";
     }
 
     // Filter transactions by date range and status

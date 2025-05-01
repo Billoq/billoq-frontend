@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { Navbar } from "../navbar";
 import Image from "next/image";
 import { FAQSection } from "../faq-section";
@@ -140,26 +140,26 @@ function About() {
     return () => cancelAnimationFrame(animationId);
   }, [isMounted]);
 
-  const aboutCards = [
-    {
-      iconSrc: "/mission.png",
-      title: "OUR MISSION",
-      description:
-        "To create a decentralized payment ecosystem that empowers both service providers and users with transparent, efficient, and secure bill payment management.",
-    },
-    {
-      iconSrc: "/technology.png",
-      title: "THE TECHNOLOGY",
-      description:
-        "Built on blockchain technology, Billoq utilizes smart contracts to automate payment processes, eliminating intermediaries and reducing costs while increasing security.",
-    },
-    {
-      iconSrc: "/team.png",
-      title: "OUR TEAM",
-      description:
-        "Our diverse team of blockchain experts, developers, and UX specialists is dedicated to creating the most user-friendly decentralized bill payment platform available.",
-    },
-  ];
+  // const aboutCards = [
+  //   {
+  //     iconSrc: "/mission.png",
+  //     title: "OUR MISSION",
+  //     description:
+  //       "To create a decentralized payment ecosystem that empowers both service providers and users with transparent, efficient, and secure bill payment management.",
+  //   },
+  //   {
+  //     iconSrc: "/technology.png",
+  //     title: "THE TECHNOLOGY",
+  //     description:
+  //       "Built on blockchain technology, Billoq utilizes smart contracts to automate payment processes, eliminating intermediaries and reducing costs while increasing security.",
+  //   },
+  //   {
+  //     iconSrc: "/team.png",
+  //     title: "OUR TEAM",
+  //     description:
+  //       "Our diverse team of blockchain experts, developers, and UX specialists is dedicated to creating the most user-friendly decentralized bill payment platform available.",
+  //   },
+  // ];
 
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-[#0A0E1A]">
