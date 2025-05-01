@@ -135,8 +135,8 @@ export function HeroSection() {
 
           <AnimatedSection direction="up" delay={0.7}>
             <div className="mt-10 flex flex-col sm:flex-row items-center justify-center mx-6 gap-4">
-              <Button className="bg-blue-600 hover:bg-blue-700 text-white w-[230px] py-6 text-lg">Get Started</Button>
-              <Button variant="outline" className="bg-transparent text-white hover:bg-gray-800 w-[230px] py-6 text-lg">
+              <Button className="bg-blue-600 hover:bg-blue-700 text-white w-[230px] py-6 text-lg cursor-pointer">Get Started</Button>
+              <Button variant="outline" className="bg-transparent text-white hover:bg-gray-800 w-[230px] py-6 text-lg cursor-pointer">
                 Learn more
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
