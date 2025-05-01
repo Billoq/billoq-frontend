@@ -1,228 +1,305 @@
-'use client';
-import React, { useState, useEffect } from 'react';
-import { useAppKitAccount, useDisconnect as useAppKitDisconnect, useAppKit } from "@reown/appkit/react";
-import { useAccount, useDisconnect as useWagmiDisconnect } from "wagmi";
+"use client"
+import { useState } from "react"
+import {
+  Wallet,
+  Bell,
+  Shield,
+  Check,
+  Copy,
+  Loader2,
+  Key,
+  Lock,
+  LogOut,
+  Settings as SettingsIcon,
+  ExternalLink,
+  ChevronDown
+} from "lucide-react"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Switch } from "@/components/ui/switch"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Badge } from "@/components/ui/badge"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { useAccount, useDisconnect } from "wagmi"
+import { useRouter } from "next/navigation"
+import { sepolia, liskSepolia } from 'wagmi/chains'
 
-const SettingsPage: React.FC = () => {
-  const { address: appkitAddress, isConnected: appkitIsConnected } = useAppKitAccount();
-  const { address: wagmiAddress, isConnected: wagmiIsConnected } = useAccount();
-  
-  const { disconnect: appkitDisconnect } = useAppKitDisconnect();
-  const { close } = useAppKit();
-  
-  const { disconnect: wagmiDisconnect } = useWagmiDisconnect();
-  
-  const walletAddress = appkitAddress || wagmiAddress;
-  const isConnected = appkitIsConnected || wagmiIsConnected;
-  
-  // Handle wallet disconnect
-  const handleDisconnect = () => {
-    try {
-      if (appkitIsConnected) {
-        appkitDisconnect();
-      }
-      if (wagmiIsConnected) {
-        wagmiDisconnect();
-      }
-      close();
-    } catch (error) {
-      console.error("Disconnect error:", error);
-    }
-  };
-  
-  // State for user data
-  const [userData, setUserData] = useState({
-    username: '',
-    walletAddress: '',
-    email: '',
-  });
+const networks = [
+  { id: sepolia.id, name: sepolia.name, color: "bg-[#627EEA]" },
+  { id: liskSepolia.id, name: liskSepolia.name, color: "bg-[#8247E5]" }
+]
 
-  // Update userData when wallet address changes
-  useEffect(() => {
-    if (walletAddress) {
-      const formattedAddress = walletAddress ? 
-        `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}` : '';
-      
-      setUserData({
-        username: formattedAddress,
-        walletAddress: walletAddress,
-        email: '',
-      });
-    }
-  }, [walletAddress]);
-
-  // State for settings form
-  const [displayUsername, setDisplayUsername] = useState(userData.username);
-  const [emailAddress, setEmailAddress] = useState(userData.email || '');
+export default function DashboardSettings() {
+  const router = useRouter()
+  const { address, isConnected, connector } = useAccount()
+  const { disconnect } = useDisconnect()
+  
+  // Notification settings
   const [notifications, setNotifications] = useState({
-    billDueAlerts: true,
-    paymentSuccessAlerts: true,
-    promotionsUpdates: false
-  });
+    transactions: true,
+    security: true,
+    promotions: false
+  })
 
-  // Update display username when userData changes
-  useEffect(() => {
-    setDisplayUsername(userData.username);
-  }, [userData.username]);
+  // Security settings
+  const [security, setSecurity] = useState({
+    twoFactor: false,
+    activityTracking: true
+  })
 
-  const handleNotificationChange = (type: keyof typeof notifications) => {
-    setNotifications(prev => ({
-      ...prev,
-      [type]: !prev[type]
-    }));
-  };
-  
-  // Handle save changes
-  const [isSaving, setIsSaving] = useState(false);
-  const [saveMessage, setSaveMessage] = useState('');
-  
-  const handleSaveChanges = () => {
-    setIsSaving(true);
-    
-    // Simulate API call to save changes----I should change this when i get the backend api
+  const [copied, setCopied] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
+  const [saveStatus, setSaveStatus] = useState<"success" | "error" | string | null>(null)
+  const [currentChainId, setCurrentChainId] = useState(networks[0].id)
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+
+  const truncateAddress = (addr: string | undefined) => 
+    addr ? `${addr.slice(0, 6)}...${addr.slice(-4)}` : ""
+
+  const getWalletIcon = () => {
+    if (connector?.icon) {
+      return (
+        <img
+          src={connector.icon}
+          alt={connector.name}
+          className="w-6 h-6 rounded-full"
+        />
+      )
+    }
+    return <Wallet className="w-6 h-6 text-blue-500" />
+  }
+
+  const getWalletName = () => 
+    connector?.name || "Connected Wallet"
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  const handleDisconnect = () => {
+    disconnect()
+    router.push('/')
+  }
+
+  const handleSave = () => {
+    setIsSaving(true)
     setTimeout(() => {
-      // Update the user data
-      setUserData(prev => ({
-        ...prev,
-        username: displayUsername,
-        email: emailAddress
-      }));
-      
-      setSaveMessage('Settings saved successfully!');
-      setIsSaving(false);
-      
-      // Clear message after 3 seconds
-      setTimeout(() => {
-        setSaveMessage('');
-      }, 3000);
-    }, 1000);
-  };
+      setIsSaving(false)
+      setSaveStatus("success")
+      setTimeout(() => setSaveStatus(null), 3000)
+    }, 1000)
+  }
+
+  const handleNetworkSwitch = (chainId: number) => {
+    setCurrentChainId(chainId)
+    const networkName = networks.find(n => n.id === chainId)?.name || 'Unknown'
+    setSaveStatus(`Switched to ${networkName} network`)
+    setTimeout(() => setSaveStatus(null), 3000)
+  }
+
+  const currentNetwork = networks.find(n => n.id === currentChainId) || networks[0]
 
   return (
-    <div className="flex-1 p-8 bg-gray-900 text-white">
-      <div>
-        <h1 className="text-2xl font-semibold mb-2">Settings</h1>
-        <p className="text-gray-400">Manage your account, security, and crypto preferences.</p>
+    <div className="p-4 md:p-6 h-full max-w-6xl mx-auto">
+      {/* Network switch notification */}
+      {saveStatus && typeof saveStatus === 'string' && (
+        <Alert className="fixed top-4 right-4 w-auto max-w-sm bg-[#1E293B] border-[#3B82F6] text-white shadow-lg z-50">
+          <Check className="h-4 w-4" />
+          <AlertDescription>{saveStatus}</AlertDescription>
+        </Alert>
+      )}
+
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-white">
+          <span className="text-[#3B82F6]">Settings</span>
+        </h1>
+        <p className="text-[#94A3B8]">Manage your wallet and account preferences</p>
       </div>
 
-      {/* Account Profile Section */}
-      <div className="mt-8">
-        <h2 className="text-xl font-medium mb-4">Account Profile</h2>
-        
-        <div className="mb-6">
-          <label className="block text-gray-400 mb-2">Connected Wallets</label>
-          <div className="flex flex-col space-y-2">
-            <div className="bg-gray-800 border border-gray-700 rounded p-3 text-sm w-80">
-              {userData.walletAddress || 'No wallet connected'}
-            </div>
-            {isConnected && (
-              <button 
-                onClick={handleDisconnect}
-                className="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-md transition-colors text-sm w-fit"
+      <Tabs defaultValue="wallet" className="space-y-6">
+        <div className="flex flex-col md:flex-row gap-6">
+          {/* Sidebar Navigation */}
+          <div className="md:w-56">
+            <TabsList className="flex flex-row md:flex-col w-full bg-[#111C2F] border border-[#1E293B] rounded-lg p-1 h-auto">
+              <TabsTrigger
+                value="wallet"
+                className="flex items-center justify-start w-full px-4 py-3 gap-3 data-[state=active]:bg-[#1E293B] data-[state=active]:text-white text-[#94A3B8] hover:bg-[#1E293B]/50 transition-colors"
               >
-                Disconnect Wallet
-              </button>
-            )}
-          </div>
-        </div>
+                <Wallet className="h-5 w-5 flex-shrink-0" />
+                <span className="truncate">Wallet</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="notifications"
+                className="flex items-center justify-start w-full px-4 py-3 gap-3 data-[state=active]:bg-[#1E293B] data-[state=active]:text-white text-[#94A3B8] hover:bg-[#1E293B]/50 transition-colors"
+              >
+                <Bell className="h-5 w-5 flex-shrink-0" />
+                <span className="truncate">Notifications</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="security"
+                className="flex items-center justify-start w-full px-4 py-3 gap-3 data-[state=active]:bg-[#1E293B] data-[state=active]:text-white text-[#94A3B8] hover:bg-[#1E293B]/50 transition-colors"
+              >
+                <Shield className="h-5 w-5 flex-shrink-0" />
+                <span className="truncate">Security</span>
+              </TabsTrigger>
+            </TabsList>
 
-        <div className="mb-6">
-          <h3 className="text-lg font-medium mb-2">Profile Settings</h3>
-          
-          <div className="space-y-4 mt-4">
-            <div>
-              <label htmlFor="displayUsername" className="block text-gray-400 mb-2">Display Username</label>
-              <input
-                type="text"
-                id="displayUsername"
-                value={displayUsername}
-                onChange={(e) => setDisplayUsername(e.target.value)}
-                className="bg-gray-800 border border-gray-700 rounded p-3 text-sm w-80 text-white"
-                placeholder="Enter display username"
-              />
-            </div>
-            
-            <div>
-              <label htmlFor="emailAddress" className="block text-gray-400 mb-2">Email Address (optional)</label>
-              <input
-                type="email"
-                id="emailAddress"
-                value={emailAddress}
-                onChange={(e) => setEmailAddress(e.target.value)}
-                className="bg-gray-800 border border-gray-700 rounded p-3 text-sm w-80 text-white"
-                placeholder="Enter email address"
-              />
-              <p className="text-xs text-gray-500 mt-1">Used for notifications and account recovery</p>
-            </div>
-            
-            <div className="pt-2">
-              <div className="flex flex-col space-y-2">
-                <button 
-                  onClick={handleSaveChanges}
-                  disabled={isSaving}
-                  className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md transition-colors text-sm shadow-[0_0_15px_rgba(59,130,246,0.5)] disabled:opacity-50 disabled:cursor-not-allowed w-fit"
-                >
-                  {isSaving ? 'Saving...' : 'Save'}
-                </button>
-                
-                {saveMessage && (
-                  <p className="text-green-500 text-sm">{saveMessage}</p>
-                )}
-              </div>
+            {/* Help Card - Only visible on desktop */}
+            <div className="hidden md:block mt-6">
+              <Card className="border-[#1E293B] bg-[#111C2F]">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-lg text-white">Need Help?</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-[#94A3B8] mb-4">
+                    Contact our support team for assistance with your settings.
+                  </p>
+                  <Button className="w-full bg-[#3B82F6] hover:bg-[#2563EB] text-white">
+                    Contact Support
+                  </Button>
+                </CardContent>
+              </Card>
             </div>
           </div>
-        </div>
-      </div>
 
-      {/* Notification Section */}
-      <div className="mt-8">
-        <h2 className="text-xl font-medium mb-4">Notification</h2>
-        <div>
-          <p className="text-gray-400 mb-4">Enable /Disable</p>
-          <div className="space-y-4">
-            <div className="flex items-center">
-              <input
-                type="checkbox"
-                id="billDueAlerts"
-                checked={notifications.billDueAlerts}
-                onChange={() => handleNotificationChange('billDueAlerts')}
-                className="h-4 w-4 rounded bg-gray-800 border-gray-700 text-blue-600 focus:ring-blue-500"
-              />
-              <label htmlFor="billDueAlerts" className="ml-2 text-sm">
-                Bill Due Alerts
-              </label>
-            </div>
-            
-            <div className="flex items-center">
-              <input
-                type="checkbox"
-                id="paymentSuccessAlerts"
-                checked={notifications.paymentSuccessAlerts}
-                onChange={() => handleNotificationChange('paymentSuccessAlerts')}
-                className="h-4 w-4 rounded bg-gray-800 border-gray-700 text-blue-600 focus:ring-blue-500"
-              />
-              <label htmlFor="paymentSuccessAlerts" className="ml-2 text-sm">
-                Payment Success Alerts
-              </label>
-            </div>
-            
-            <div className="flex items-center">
-              <input
-                type="checkbox"
-                id="promotionsUpdates"
-                checked={notifications.promotionsUpdates}
-                onChange={() => handleNotificationChange('promotionsUpdates')}
-                className="h-4 w-4 rounded bg-gray-800 border-gray-700 text-blue-600 focus:ring-blue-500"
-              />
-              <label htmlFor="promotionsUpdates" className="ml-2 text-sm">
-                Promotions/Updates
-              </label>
-            </div>
+          {/* Main Content */}
+          <div className="flex-1">
+            {/* Wallet Settings */}
+            <TabsContent value="wallet" className="space-y-6">
+              <Card className="border-[#1E293B] bg-[#0A1525]">
+                <CardHeader>
+                  <CardTitle className="text-xl text-white flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-[#1E293B]">
+                      <Wallet className="h-5 w-5 text-[#3B82F6]" />
+                    </div>
+                    Wallet Settings
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {isConnected ? (
+                    <>
+                      <div className="bg-[#111C2F] border border-[#1E293B] rounded-lg p-6 relative overflow-hidden">
+                        <div className="absolute -top-20 -right-20 w-40 h-40 bg-[#3B82F6]/10 rounded-full blur-3xl"></div>
+                        
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 relative">
+                          <div className="flex items-center gap-4">
+                            <div className="h-12 w-12 rounded-full bg-[#1E293B] flex items-center justify-center">
+                              <div className={`h-3 w-3 rounded-full ${currentNetwork.color}`} />
+                            </div>
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <h3 className="font-medium text-white">{currentNetwork.name}</h3>
+                                <Badge className="bg-green-900/20 text-green-400 border-green-800">
+                                  Connected
+                                </Badge>
+                              </div>
+                              <div className="flex items-center gap-2 mt-1">
+                                <p className="text-sm text-[#94A3B8] font-mono">
+                                  {truncateAddress(address)}
+                                </p>
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-6 w-6 text-[#94A3B8] hover:text-white"
+                                        onClick={() => address && copyToClipboard(address)}
+                                      >
+                                        {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
+                                      </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent className="bg-[#1E293B] border-[#1E293B] text-white">
+                                      <p>{copied ? "Copied!" : "Copy address"}</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex gap-3">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="border-[#1E293B] bg-[#111C2F] hover:bg-[#1E293B] text-white"
+                              onClick={() => window.open(`https://etherscan.io/address/${address}`, "_blank")}
+                            >
+                              <ExternalLink className="mr-2 h-4 w-4" />
+                              Explorer
+                            </Button>
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              className="bg-red-900/20 hover:bg-red-900/30 text-white border-red-900/30"
+                              onClick={handleDisconnect}
+                            >
+                              Disconnect
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="space-y-4">
+                        <h3 className="text-lg font-medium text-white">Default Network</h3>
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+                          {networks.map(network => (
+                            <button
+                              key={network.id}
+                              onClick={() => handleNetworkSwitch(network.id)}
+                              className={`flex items-center gap-3 p-3 rounded-lg border transition-all ${
+                                network.id === currentChainId
+                                  ? "bg-[#1E293B] border-[#3B82F6] shadow-[0_0_0_1px_#3B82F6]"
+                                  : "bg-[#111C2F] border-[#1E293B] hover:border-[#3B82F6]/50"
+                              }`}
+                            >
+                              <div className={`h-3 w-3 rounded-full ${network.color}`} />
+                              <span className="text-white">{network.name}</span>
+                              {network.id === currentChainId && <Check className="ml-auto h-4 w-4 text-[#3B82F6]" />}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="text-center py-12">
+                      <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-[#1E293B] mb-6">
+                        <Wallet className="h-8 w-8 text-[#3B82F6]" />
+                      </div>
+                      <h3 className="text-xl font-medium mb-3 text-white">No Wallet Connected</h3>
+                      <p className="text-[#94A3B8] mb-6 max-w-md mx-auto">
+                        Connect your wallet to manage your settings
+                      </p>
+                      <Button 
+                        className="bg-[#3B82F6] hover:bg-[#2563EB] text-white"
+                        onClick={() => router.push('/')}
+                      >
+                        Connect Wallet
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Rest of the tabs remain the same */}
+            {/* Notification Settings */}
+            <TabsContent value="notifications" className="space-y-6">
+              {/* ... existing notification settings content ... */}
+            </TabsContent>
+
+            {/* Security Settings */}
+            <TabsContent value="security" className="space-y-6">
+              {/* ... existing security settings content ... */}
+            </TabsContent>
           </div>
         </div>
-      </div>
+      </Tabs>
     </div>
-  );
-};
+  )
+}
 
-export default SettingsPage;
