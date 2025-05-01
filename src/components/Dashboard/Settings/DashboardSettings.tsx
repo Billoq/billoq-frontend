@@ -6,21 +6,14 @@ import {
   Shield,
   Check,
   Copy,
-  Loader2,
-  ExternalLink,
-  ChevronDown,
-  LogOut,
-  X
+  ExternalLink
 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { useAccount, useDisconnect, useConnectors, useSwitchChain } from "wagmi"
+import { useAccount, useDisconnect, useSwitchChain } from "wagmi"
 import { useRouter } from "next/navigation"
 import { sepolia, liskSepolia } from 'wagmi/chains'
 import Image from "next/image"
@@ -33,25 +26,24 @@ export default function DashboardSettings() {
   const router = useRouter()
   const { address, isConnected, connector, chain } = useAccount()
   const { disconnect } = useDisconnect()
-  const connectors = useConnectors()
   const { switchChain } = useSwitchChain()
   
   // State
   const [copied, setCopied] = useState(false)
-  const [isSaving, setIsSaving] = useState(false)
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
-  const [showWalletInfo, setShowWalletInfo] = useState(false)
+  // const [, setIsSaving] = useState(false)
+  // const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  // const [showWalletInfo, setShowWalletInfo] = useState(false)
   
   // Settings
-  const [notifications, setNotifications] = useState({
-    transactions: true,
-    security: true,
-    promotions: false
-  })
-  const [security, setSecurity] = useState({
-    twoFactor: false,
-    activityTracking: true
-  })
+  // const [notifications, setNotifications] = useState({
+  //   transactions: true,
+  //   security: true,
+  //   promotions: false
+  // })
+  // const [security, setSecurity] = useState({
+  //   twoFactor: false,
+  //   activityTracking: true
+  // })
 
   const truncateAddress = (addr: string | undefined) => 
     addr ? `${addr.slice(0, 6)}...${addr.slice(-4)}` : ""
@@ -135,22 +127,22 @@ export default function DashboardSettings() {
     }
   }
 
-  const handleSave = () => {
-    setIsSaving(true)
-    setTimeout(() => {
-      setIsSaving(false)
-      toast.success("Settings saved successfully!", {
-        position: "bottom-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "dark",
-      })
-    }, 1000)
-  }
+  // const handleSave = () => {
+  //   setIsSaving(true)
+  //   setTimeout(() => {
+  //     setIsSaving(false)
+  //     toast.success("Settings saved successfully!", {
+  //       position: "bottom-right",
+  //       autoClose: 3000,
+  //       hideProgressBar: false,
+  //       closeOnClick: true,
+  //       pauseOnHover: true,
+  //       draggable: true,
+  //       progress: undefined,
+  //       theme: "dark",
+  //     })
+  //   }, 1000)
+  // }
 
   return (
     <div className="p-4 md:p-6 h-full max-w-6xl mx-auto">

@@ -13,7 +13,7 @@ import { useTransactions } from "@/context/transaction-context";
 import { Transaction } from "@/types/transaction";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "react-toastify";
-import { useRouter, usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 type TransactionDisplay = {
@@ -113,7 +113,7 @@ const FilterControls = ({
     <>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex flex-col">
-          <h1 className="text-xl font-bold text-white bg-gradient-to-r from-blue-400 to-indigo-500 bg-clip-text text-transparent">
+          <h1 className="text-xl font-bold text-white bg-gradient-to-r from-blue-400 to-indigo-500 bg-clip-text">
             Transaction History
           </h1>
           <p className="text-sm text-[#94A3B8] mt-1">View all your processed transactions</p>
@@ -694,7 +694,7 @@ export default function DashboardTransactions() {
   const [displayTransactions, setDisplayTransactions] = useState<TransactionDisplay[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const pathname = usePathname();
-  const router = useRouter();
+
 
   // Fetch transactions on initial load and when navigating back to the page
   useEffect(() => {
@@ -762,9 +762,11 @@ export default function DashboardTransactions() {
             return txDate >= weekAgo && txDate <= today;
 
           case "Monthly":
-            if (month instanceof Date && !isNaN(month.getTime())) {
-              const startOfMonth = new Date(month.getFullYear(), month.getMonth(), 1);
-              const endOfMonth = new Date(month.getFullYear(), month.getMonth() + 1, 0);
+            const parsedMonth = month;
+            const monthYear = year;
+            if (!isNaN(parsedMonth)) {
+              const startOfMonth = new Date(monthYear, parsedMonth , 1);
+              const endOfMonth = new Date(monthYear, parsedMonth, 31);
               return txDate >= startOfMonth && txDate <= endOfMonth;
             }
             return false;

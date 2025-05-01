@@ -38,13 +38,20 @@ interface Biller {
   name: string;
 }
 
+interface BillItem {
+  item_code: string;
+  name: string;
+  amount: string;
+  // Add other properties if they exist
+}
+
 const DataModal = ({ onClose, onShowPayment, state, onStateChange }: DataModalProps) => {
   const [billers, setBillers] = useState<Biller[]>([]);
-  const [billItems, setBillItems] = useState<any[]>([]);
+  const [billItems, setBillItems] = useState<BillItem[]>([]);
   const [isLoadingBillers, setIsLoadingBillers] = useState(false);
   const [isLoadingBillItems, setIsLoadingBillItems] = useState(false);
   const [isLoadingPayment, setIsLoadingPayment] = useState(false);
-  const { getBillersByCategory, getBillItems, validateCustomerDetails, getQuote } = useBilloq();
+  const { getBillersByCategory, getBillItems, getQuote } = useBilloq();
 
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) {
@@ -74,10 +81,11 @@ const DataModal = ({ onClose, onShowPayment, state, onStateChange }: DataModalPr
 
         setBillers(billersResponse.data);
         clearTimeout(timeout);
-      } catch (error: any) {
-        console.error("Error fetching billers:", error.message, error.stack);
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+        console.error("Error fetching billers:", errorMessage);
         toast.error(
-          error.message === "Invalid billers data format"
+          errorMessage === "Invalid billers data format"
             ? "Received invalid provider data. Please try again."
             : "Failed to load providers. Please try again.",
           {
@@ -122,12 +130,13 @@ const DataModal = ({ onClose, onShowPayment, state, onStateChange }: DataModalPr
 
           setBillItems(itemsResponse.data);
           clearTimeout(timeout);
-        } catch (error: any) {
-          console.error("Error fetching bill items:", error.message, error.stack);
+        } catch (error: unknown) {
+          const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+          console.error("Error fetching bill items:", errorMessage);
           toast.error(
-            error.message === "Invalid bill items data format"
+            errorMessage === "Invalid bill items data format"
               ? "Received invalid plan data. Please try again."
-              : error.message === "Selected provider not found"
+              : errorMessage === "Selected provider not found"
               ? "Selected provider not found. Please choose another."
               : "Failed to load plans. Please try again.",
             {
@@ -179,6 +188,16 @@ const DataModal = ({ onClose, onShowPayment, state, onStateChange }: DataModalPr
     setIsLoadingPayment(true);
     const billItem = billItems.find((item) => item.name === state.billPlan);
 
+    if (!billItem) {
+      toast.error("Selected plan not found", {
+        position: "bottom-right",
+        autoClose: 5000,
+        theme: "dark",
+      });
+      setIsLoadingPayment(false);
+      return;
+    }
+
     try {
       const timeout = setTimeout(() => {
         setIsLoadingPayment(false);
@@ -214,10 +233,11 @@ const DataModal = ({ onClose, onShowPayment, state, onStateChange }: DataModalPr
       });
 
       clearTimeout(timeout);
-    } catch (error: any) {
-      console.error("Error fetching quote:", error.message, error.stack);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+      console.error("Error fetching quote:", errorMessage);
       toast.error(
-        error.message === "Invalid quote data format"
+        errorMessage === "Invalid quote data format"
           ? "Received invalid payment data. Please try again."
           : "Failed to process payment. Please try again.",
         {

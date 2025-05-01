@@ -67,7 +67,7 @@ export function useBillData() {
       const billersPromises = allCategories.map(async (category) => {
         try {
           const response = await getBillersByCategory(category.code);
-          return response.data.map((biller: any) => ({
+          return response.data.map((biller: Biller) => ({
             ...biller,
             item_code: category.items
           }));
@@ -88,7 +88,7 @@ export function useBillData() {
             return [];
           }
           const response = await getBillItems(biller.item_code, biller.biller_code);
-          return response.data.map((item: any) => ({
+          return response.data.map((item: BillItem) => ({
             ...item,
             category: biller.item_code,
           }));

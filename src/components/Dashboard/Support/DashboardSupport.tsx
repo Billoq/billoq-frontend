@@ -120,7 +120,7 @@ export default function DashboardSupport() {
             Support Center
           </h1>
           <p className="text-xl md:text-2xl font-medium text-slate-300 mb-8">
-            Need help? We're here for you — fast and secure support for your Web3 payments.
+            Need help? We&apos;re here for you — fast and secure support for your Web3 payments.
           </p>
 
           <div className="flex flex-col md:flex-row items-center gap-4">
@@ -254,7 +254,7 @@ export default function DashboardSupport() {
 
       {/* Contact Support */}
       <div className="mt-12 text-center">
-        <p className="text-slate-400 mb-4">Can't find what you're looking for?</p>
+        <p className="text-slate-400 mb-4">Can&apos;t find what you&apos;re looking for?</p>
         <Button className="bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-8 py-6 h-auto text-lg font-medium rounded-xl shadow-lg shadow-blue-900/20 transition-all hover:shadow-blue-900/30">
           <MessageCircle className="mr-2 h-5 w-5" />
           Contact Support Team

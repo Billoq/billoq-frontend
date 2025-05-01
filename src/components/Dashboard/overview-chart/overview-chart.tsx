@@ -4,7 +4,6 @@ import { useState, useEffect, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { useTransactions } from "@/context/transaction-context";
-import { Transaction } from "@/types/transaction";
 import { TimeframeDropdown } from "./timeframe-dropdown";
 import { ChartError } from "./chart-error";
 import { ChartSkeleton } from "./chart-skeleton";
@@ -111,8 +110,8 @@ export function OverviewChart({
 
     const now = new Date();
     let startDate: Date;
-    let dateFormat: string;
-    let groupingFormat: string;
+    // let dateFormat: string;
+    // let groupingFormat: string;
     let endDate: Date;
 
     // Set date range and format based on timeframe
@@ -120,32 +119,32 @@ export function OverviewChart({
       case "daily":
         startDate = subDays(now, 7); // Last 7 days, inclusive of today
         endDate = now; // Always include up to today
-        dateFormat = "dd MMM"; // e.g., "24 Apr"
-        groupingFormat = "yyyy-MM-dd";
+        // dateFormat = "dd MMM"; // e.g., "24 Apr"
+        // groupingFormat = "yyyy-MM-dd";
         break;
       case "weekly":
         startDate = subWeeks(now, 4); // Last 4 weeks
         endDate = now;
-        dateFormat = "'W'w yyyy"; // e.g., "W18 2025"
-        groupingFormat = "yyyy-'W'w";
+        // dateFormat = "'W'w yyyy"; // e.g., "W18 2025"
+        // groupingFormat = "yyyy-'W'w";
         break;
       case "monthly":
         startDate = subMonths(now, 6); // Last 6 months
         endDate = now;
-        dateFormat = "MMM yyyy"; // e.g., "Apr 2025"
-        groupingFormat = "yyyy-MM";
+        // dateFormat = "MMM yyyy"; // e.g., "Apr 2025"
+        // groupingFormat = "yyyy-MM";
         break;
       case "yearly":
         startDate = subMonths(now, 12); // Last 12 months
         endDate = now;
-        dateFormat = "MMM yyyy"; // e.g., "Apr 2025"
-        groupingFormat = "yyyy-MM";
+        // dateFormat = "MMM yyyy"; // e.g., "Apr 2025"
+        // groupingFormat = "yyyy-MM";
         break;
       default:
         startDate = subDays(now, 7);
         endDate = now;
-        dateFormat = "dd MMM";
-        groupingFormat = "yyyy-MM-dd";
+        // dateFormat = "dd MMM";
+        // groupingFormat = "yyyy-MM-dd";
     }
 
     // Filter transactions by date range and status

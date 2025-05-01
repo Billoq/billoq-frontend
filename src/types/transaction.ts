@@ -14,7 +14,7 @@ export interface Transaction {
   blockchain_transaction_id: string;
   subscriberId: string;
   explorerUrl: string;
-  rawData?: any; // Keep original data for reference
+  rawData?: ApiTransaction; // Keep original data for reference
 }
 
 export interface TransactionQuote {
