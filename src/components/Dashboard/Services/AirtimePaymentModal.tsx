@@ -1,8 +1,9 @@
 "use client";
 
-import React from "react";
+import React, { use, useEffect, useState } from "react";
 import { X } from "lucide-react";
 import networks from "./NetWork";
+import { useBilloq } from "@/hooks/useBilloq";
 
 interface AirtimePaymentProps {
   onClose: () => void;
@@ -13,34 +14,99 @@ interface AirtimePaymentProps {
     amountInNaira: string;
     token: string;
     source: "airtime" | "data" | "electricity" | "cable";
+    quoteId: string;
   }) => void;
   state: {
     selectedNetwork: string;
     phoneNumber: string;
     amount: string;
+    totalAmount: string;
+    billPlan: string;
     paymentOption: "USDT" | "USDC";
   };
   onStateChange: (newState: {
     selectedNetwork: string;
     phoneNumber: string;
     amount: string;
+    totalAmount: string;
+    billPlan: string;
     paymentOption: "USDT" | "USDC";
   }) => void;
 }
 
 const AirtimePaymentModal = ({ onClose, onShowPayment, state, onStateChange }: AirtimePaymentProps) => {
-  const handlePayment = () => {
+  const [selectedNetwork, setSelectedNetwork] = useState<string | null>(null);
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [billItems, setBillItems] = useState<any[]>([]);
+  const [billPlan, setBillPlan] = useState("");
+  const [billers, setBillers] = useState<any[]>([]); // Adjust type as needed
+  const [paymentOption, setPaymentOption] = useState<"USDT" | "USDC">("USDT");
+
+  const { getBillersByCategory, getBillItems, validateCustomerDetails, getQuote} = useBilloq();
+
+  const handlePayment = async () => {
     if (!state.selectedNetwork || !state.phoneNumber || !state.amount) return;
+
+    const billItem = billItems.find((item) => item.name === state.billPlan);
+    try{
+      const quote = await getQuote({amount: parseFloat(state.amount) , item_code: billItem.item_code, customer: state.phoneNumber});
+      console.log("Quote response:", quote);
+      const quoteId = quote.data._id;
+      const totalAmount = quote.data.totalAmount.toString();
 
     onShowPayment({
       provider: state.selectedNetwork.toUpperCase(),
-      billPlan: "MOBILE TOPUP",
+      billPlan: state.billPlan,
       subscriberId: state.phoneNumber,
-      amountInNaira: state.amount,
+      amountInNaira: totalAmount,
       token: state.paymentOption,
       source: "airtime",
+      quoteId: quoteId,
     });
-  };
+    } catch (error) {
+      console.error("Error fetching quote:", error);
+    };
+  }
+
+  useEffect(() => {
+    // Fetch billers by category when the component mounts
+    const fetchBillers = async () => {
+      try {
+        const billers = await getBillersByCategory("AIRTIME");
+        console.log("Fetched billers:", billers);
+        setBillers(billers.data);
+      } catch (error) {
+        console.error("Error fetching billers:", error);
+      }
+    };
+
+    fetchBillers();
+  }
+  , []);
+
+  useEffect(() => {
+    // Fetch bill items when the provider changes
+    const fetchBillItems = async () => {
+      if (state.selectedNetwork) {
+        try {
+          const currentBiller = billers.find((biller) => biller.name === state.selectedNetwork);
+          const items = await getBillItems("AIRTIME", currentBiller.biller_code);
+          console.log("Fetched bill items:", items);
+          setBillItems(items.data);
+          if (items.data.length < 2) {
+            onStateChange({ ...state, billPlan: items.data[0].name })
+          } else {
+            onStateChange({ ...state, billPlan: items.data[2].name })
+          }
+        } catch (error) {
+          console.error("Error fetching bill items:", error);
+        }
+      }
+    };
+
+    fetchBillItems();
+  }
+  , [state.selectedNetwork]);
 
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) onClose();
@@ -68,35 +134,38 @@ const AirtimePaymentModal = ({ onClose, onShowPayment, state, onStateChange }: A
           <div className="w-full mb-6">
             <p className="text-white mb-3">Select network provider</p>
             <div className="flex gap-2">
-              {networks.map((network) => (
-                <button
-                  key={network.id}
+                {billers.map((biller) => {
+                const network = networks.find((net) => net.id === biller.name);
+                return (
+                  <button
+                  key={biller.biller_code}
                   className={`p-2 border rounded-md ${
-                    state.selectedNetwork === network.id
+                    state.selectedNetwork === biller.name
                       ? "border-[#0080FF]"
                       : "border-[#3A414A]"
                   }`}
-                  onClick={() => onStateChange({ ...state, selectedNetwork: network.id })}
-                >
+                  onClick={() => onStateChange({ ...state, selectedNetwork: biller.name })}
+                  >
                   <div
                     className="w-10 h-10 flex items-center justify-center rounded-md"
-                    style={{ backgroundColor: network.color }}
+                    style={{ backgroundColor: network?.color || "#3A414A" }}
                   >
-                    {network.id === "mtn" && (
+                    {network?.id === "MTN Nigeria" && (
                       <span className="text-black font-bold text-xs">MTN</span>
                     )}
-                    {network.id === "airtel" && (
+                    {network?.id === "AIRTEL NIGERIA" && (
                       <span className="text-white font-bold text-xs">airtel</span>
                     )}
-                    {network.id === "glo" && (
+                    {network?.id === "GLO NIGERIA" && (
                       <span className="text-white font-bold text-xs">glo</span>
                     )}
-                    {network.id === "9mobile" && (
+                    {network?.id === "9MOBILE NIGERIA" && (
                       <span className="text-[#00AA4F] font-bold text-lg">9</span>
                     )}
                   </div>
-                </button>
-              ))}
+                  </button>
+                );
+                })}
             </div>
           </div>
 

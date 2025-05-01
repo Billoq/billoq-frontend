@@ -1,25 +1,25 @@
 const networks = [
     {
-      id: "mtn",
-      name: "MTN",
+      id: "MTN Nigeria",
+      name: "MTN Nigeria",
       logo: "/placeholder.svg?height=40&width=40",
       color: "#FFCC00",
     },
     {
-      id: "airtel",
-      name: "Airtel",
+      id: "AIRTEL NIGERIA",
+      name: "AIRTEL NIGERIA",
       logo: "/placeholder.svg?height=40&width=40",
       color: "#FF0000",
     },
     {
-      id: "glo",
-      name: "Glo",
+      id: "GLO NIGERIA",
+      name: "GLO NIGERIA",
       logo: "/placeholder.svg?height=40&width=40",
       color: "#00FF00",
     },
     {
-      id: "9mobile",
-      name: "9mobile",
+      id: "9MOBILE NIGERIA",
+      name: "9MOBILE NIGERIA",
       logo: "/placeholder.svg?height=40&width=40",
       color: "#FFFFFF",
     },

@@ -24,6 +24,7 @@ interface ElectricityModalProps {
     amountInNaira: string;
     token: string;
     source: "airtime" | "data" | "electricity" | "cable";
+    quoteId: string;
   }) => void;
   state: {
     provider: string;
@@ -46,11 +47,6 @@ interface Biller {
   name: string;
 }
 
-interface BillItem {
-  item_code: string;
-  name: string;
-}
-
 const ElectricityModal: React.FC<ElectricityModalProps> = ({
   onClose,
   onShowPayment,
@@ -58,8 +54,11 @@ const ElectricityModal: React.FC<ElectricityModalProps> = ({
   onStateChange,
 }) => {
   const [billers, setBillers] = useState<Biller[]>([]);
-  const [billItems, setBillItems] = useState<BillItem[]>([]);
-  const { getBillersByCategory, getBillItems } = useBilloq();
+  const [billItems, setBillItems] = useState<any[]>([]);
+  const [quoteId, setQuoteId] = useState("");
+  const [totalAmount, setTotalAmount] = useState("");
+
+  const { getBillersByCategory, getBillItems, getQuote } = useBilloq();
 
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) {
@@ -78,7 +77,7 @@ const ElectricityModal: React.FC<ElectricityModalProps> = ({
     };
 
     fetchBillers();
-  }, [getBillersByCategory]);
+  }, []);
 
   useEffect(() => {
     const fetchBillItems = async () => {
@@ -96,7 +95,7 @@ const ElectricityModal: React.FC<ElectricityModalProps> = ({
     };
 
     fetchBillItems();
-  }, [state.provider, billers, getBillItems]);
+  }, [state.provider, billers]);
 
   useEffect(() => {
     document.body.classList.add("overflow-hidden");
@@ -105,18 +104,28 @@ const ElectricityModal: React.FC<ElectricityModalProps> = ({
     };
   }, []);
 
-  const handleMakePayment = () => {
+  const handleMakePayment = async () => {
     if (!state.provider || !state.accountNumber || !state.billPlan || !state.amount) return;
 
-    onShowPayment({
-      provider: state.provider,
-      billPlan: state.billPlan,
-      subscriberId: state.accountNumber,
-      amountInNaira: state.amount,
-      token: state.paymentOption,
-      source: "electricity",
-    });
-  };
+    const billItem = billItems.find((item) => item.name === state.billPlan);
+    try{
+      const quote = await getQuote({amount: parseFloat(state.amount) , item_code: billItem.item_code, customer: state.accountNumber});
+      console.log("Quote response:", quote);
+      const quoteId = quote.data._id;
+      const totalAmount = quote.data.totalAmount.toString();
+
+      onShowPayment({
+        provider: state.provider,
+        billPlan: state.billPlan,
+        subscriberId: state.accountNumber,
+        amountInNaira: totalAmount,
+        token: state.paymentOption,
+        source: "electricity",
+        quoteId: quoteId,
+      });
+    } catch (error) {
+      console.error("Error fetching quote:", error);
+    }};
 
   return (
     <div
@@ -190,7 +199,7 @@ const ElectricityModal: React.FC<ElectricityModalProps> = ({
               <p className="text-white mb-3">Enter the amount you want</p>
               <div className="relative">
                 <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
-                  <DollarSign className="h-4 w-4" />
+                  ₦
                 </div>
                 <Input
                   value={state.amount}

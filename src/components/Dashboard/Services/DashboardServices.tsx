@@ -28,12 +28,13 @@ import CableModal from "./CableModal"
 import PaymentModal from "./PaymentModal"
 
 interface PaymentData {
-  provider: string
-  billPlan: string
-  subscriberId: string
-  amountInNaira: string
-  token: string
-  source: "airtime" | "data" | "electricity" | "cable"
+  provider: string;
+  billPlan: string;
+  subscriberId: string;
+  amountInNaira: string;
+  token: string;
+  source: "airtime" | "data" | "electricity" | "cable";
+  quoteId: string;
 }
 
 interface ServiceItemProps {
@@ -107,6 +108,7 @@ const ServiceCategory: React.FC<{
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">{children}</div>
     </div>
   )
+
 }
 
 const DashboardServices = () => {
@@ -124,6 +126,8 @@ const DashboardServices = () => {
     selectedNetwork: "",
     phoneNumber: "",
     amount: "",
+    totalAmount: "",
+    billPlan: "",
     paymentOption: "USDT" as "USDT" | "USDC",
   })
 
@@ -132,8 +136,8 @@ const DashboardServices = () => {
     phoneNumber: "",
     amount: "",
     paymentOption: "USDT" as "USDT" | "USDC",
-    selectedProduct: "",
-  })
+    billPlan: "",
+  });
 
   const [electricityState, setElectricityState] = useState({
     provider: "",
@@ -158,25 +162,18 @@ const DashboardServices = () => {
     amountInNaira: "",
     token: "",
     source: "airtime",
-  })
+    quoteId: "",
+  });
 
-  // Load recent services from localStorage on component mount
-  useEffect(() => {
-    const savedRecentServices = localStorage.getItem("recentServices")
-    if (savedRecentServices) {
-      setRecentServices(JSON.parse(savedRecentServices))
-    }
-  }, [])
-
-  // Update recent services
   const updateRecentServices = (service: string) => {
-    const updatedRecent = [service, ...recentServices.filter((s) => s !== service).slice(0, 3)]
-    setRecentServices(updatedRecent)
-    localStorage.setItem("recentServices", JSON.stringify(updatedRecent))
-  }
+    setRecentServices((prev) => {
+      const updated = [service, ...prev.filter((s) => s !== service)];
+      return updated.slice(0, 3); // Limit to the 3 most recent services
+    });
+  };
 
   const handleServiceSelect = (service: string) => {
-    updateRecentServices(service)
+    updateRecentServices(service);
 
     switch (service) {
       case "Mobile Recharge":
@@ -229,14 +226,14 @@ const DashboardServices = () => {
   const handleClosePaymentModal = () => {
     setShowPaymentModal(false)
     // Reset modal states when fully closing the payment modal
-    setAirtimeState({ selectedNetwork: "", phoneNumber: "", amount: "", paymentOption: "USDT" })
+    setAirtimeState({ selectedNetwork: "", phoneNumber: "", amount: "", totalAmount: "", billPlan: "", paymentOption: "USDT" });
     setDataState({
       selectedNetwork: "",
       phoneNumber: "",
       amount: "",
       paymentOption: "USDT",
-      selectedProduct: "",
-    })
+      billPlan: "",
+    });
     setElectricityState({
       provider: "",
       accountNumber: "",
@@ -258,13 +255,14 @@ const DashboardServices = () => {
       amountInNaira: "",
       token: "",
       source: "airtime",
-    })
-  }
+      quoteId: "",
+    });
+  };
 
   const handleCloseAirtimeModal = () => {
-    setShowAirtimePaymentModal(false)
-    setAirtimeState({ selectedNetwork: "", phoneNumber: "", amount: "", paymentOption: "USDT" })
-  }
+    setShowAirtimePaymentModal(false);
+    setAirtimeState({ selectedNetwork: "", phoneNumber: "", amount: "", totalAmount: "", paymentOption: "USDT", billPlan: "" });
+  };
 
   const handleCloseDataModal = () => {
     setShowDataModal(false)
@@ -273,9 +271,9 @@ const DashboardServices = () => {
       phoneNumber: "",
       amount: "",
       paymentOption: "USDT",
-      selectedProduct: "",
-    })
-  }
+      billPlan: "",
+    });
+  };
 
   const handleCloseElectricityModal = () => {
     setShowElectricityModal(false)
@@ -478,52 +476,51 @@ const DashboardServices = () => {
       </div>
 
       {/* Modals */}
-      <AnimatePresence>
-        {showAirtimePaymentModal && (
-          <AirtimePaymentModal
-            onClose={handleCloseAirtimeModal}
-            onShowPayment={handleShowPayment}
-            state={airtimeState}
-            onStateChange={setAirtimeState}
-          />
-        )}
-        {showDataModal && (
-          <DataModal
-            onClose={handleCloseDataModal}
-            onShowPayment={handleShowPayment}
-            state={dataState}
-            onStateChange={setDataState}
-          />
-        )}
-        {showElectricityModal && (
-          <ElectricityModal
-            onClose={handleCloseElectricityModal}
-            onShowPayment={handleShowPayment}
-            state={electricityState}
-            onStateChange={setElectricityState}
-          />
-        )}
-        {showCableModal && (
-          <CableModal
-            onClose={handleCloseCableModal}
-            onShowPayment={handleShowPayment}
-            state={cableState}
-            onStateChange={setCableState}
-          />
-        )}
-        {showPaymentModal && (
-          <PaymentModal
-            onClose={handleClosePaymentModal}
-            onBack={handleBackToModal}
-            provider={paymentData.provider}
-            billPlan={paymentData.billPlan}
-            subscriberId={paymentData.subscriberId}
-            amountInNaira={paymentData.amountInNaira}
-            token={paymentData.token}
-            source={paymentData.source}
-          />
-        )}
-      </AnimatePresence>
+      {showAirtimePaymentModal && (
+        <AirtimePaymentModal
+          onClose={handleCloseAirtimeModal}
+          onShowPayment={handleShowPayment}
+          state={airtimeState}
+          onStateChange={setAirtimeState}
+        />
+      )}
+      {showDataModal && (
+        <DataModal
+          onClose={handleCloseDataModal}
+          onShowPayment={handleShowPayment}
+          state={dataState}
+          onStateChange={setDataState}
+        />
+      )}
+      {showElectricityModal && (
+        <ElectricityModal
+          onClose={handleCloseElectricityModal}
+          onShowPayment={handleShowPayment}
+          state={electricityState}
+          onStateChange={setElectricityState}
+        />
+      )}
+      {showCableModal && (
+        <CableModal
+          onClose={handleCloseCableModal}
+          onShowPayment={handleShowPayment}
+          state={cableState}
+          onStateChange={setCableState}
+        />
+      )}
+      {showPaymentModal && (
+        <PaymentModal
+          onClose={handleClosePaymentModal}
+          onBack={handleBackToModal}
+          provider={paymentData.provider}
+          billPlan={paymentData.billPlan}
+          subscriberId={paymentData.subscriberId}
+          amountInNaira={paymentData.amountInNaira}
+          token={paymentData.token}
+          source={paymentData.source}
+          quoteId={paymentData.quoteId}
+        />
+      )}
     </div>
   )
 }
