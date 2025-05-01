@@ -1,10 +1,10 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useMemo } from 'react';
 import { useAccount } from 'wagmi';
 import { billoqService } from '../services/billoq.services';
 import { Transaction, ApiTransaction, BillType } from '@/types/transaction';
-import { useBilloq } from '@/hooks/useBilloq';
+import { useBillData } from '@/hooks/useBillData';
 
 interface TransactionContextType {
   transactions: Transaction[];
@@ -18,39 +18,53 @@ const TransactionContext = createContext<TransactionContextType | undefined>(und
 
 export const TransactionProvider = ({ children }: { children: React.ReactNode }) => {
   const { address } = useAccount();
+  const { allBillers, allBillItems, loading: billDataLoading } = useBillData();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const { getBillItems } = useBilloq();
+  // Memoized mapping function that depends on bill data
+  const mapApiTransaction = useMemo(() => {
+    return (tx: ApiTransaction): Transaction => {
+      const billTypeMap: Record<string, BillType> = {
+        "AIRTIME": "Airtime",
+        "MOBILE": "Data",
+        "CABLE": "Cable TV",
+        "ELECTRICITY": "Electricity",
+        "OTHERS": "Others"
+      };
 
-  // Map API transaction to our frontend format
-  const mapApiTransaction = (tx: ApiTransaction): Transaction => {
-    // You'll need to implement this mapping based on your biller/item codes
-    // This is a simplified version - adjust according to your actual data
-    const billTypeMap: Record<string, BillType> = {
-      "BIL100": "Airtime",
-      "BIL200": "Data",
-      // Add other mappings as needed
-    };
+      // Find matching biller and item
+      const biller = allBillers.find(b => b.biller_code === tx.biller_code);
+      const item = allBillItems.find(i => 
+        i.item_code === tx.item_code && 
+        i.biller_code === tx.biller_code
+      );
 
-    return {
-      id: tx._id,
-      billType: billTypeMap[tx.biller_code] || "Others",
-      status: tx.order_status,
-      provider: "Unknown Provider", // You'll need to map this from biller_code
-      description: "Unknown Item",  // You'll need to map this from item_code
-      amountInNaira: tx.amountQuotedInNaira,
-      amountInCrypto: tx.cryptoAmount,
-      paymentMethod: tx.cryptocurrency as "USDT" | "USDC",
-      date: new Date(tx.createdAt).toLocaleDateString('en-GB'),
-      hash: tx.transaction_hash,
-      blockchain_transaction_id: tx.blockchain_transaction_id,
-      subscriberId: tx.customer_id,
-      explorerUrl: `https://sepolia.etherscan.io/tx/${tx.transaction_hash}`,
-      rawData: tx
+      // Determine category from biller or fallback to transaction data
+      const categoryCode = biller?.category_code || 
+                         (tx.biller_code.startsWith("BIL") ? 
+                          tx.biller_code.replace("BIL", "") : 
+                          "OTHERS");
+
+      return {
+        id: tx._id,
+        billType: billTypeMap[categoryCode] || "Others",
+        status: tx.order_status,
+        provider: biller?.name || tx.biller_code,
+        description: item?.name || tx.item_code,
+        amountInNaira: tx.quote?.amount || tx.amountQuotedInNaira || 0,
+        amountInCrypto: tx.cryptoAmount || 0,
+        paymentMethod: tx.cryptocurrency as "USDT" | "USDC",
+        date: new Date(tx.createdAt).toLocaleDateString('en-GB'),
+        hash: tx.transaction_hash,
+        blockchain_transaction_id: tx.blockchain_transaction_id,
+        subscriberId: tx.customer_id,
+        explorerUrl: `https://sepolia.etherscan.io/tx/${tx.transaction_hash}`,
+        rawData: tx
+      };
     };
-  };
+  }, [allBillers, allBillItems]);
 
   const fetchTransactions = async () => {
     if (!address) {
@@ -62,6 +76,17 @@ export const TransactionProvider = ({ children }: { children: React.ReactNode })
     setError(null);
 
     try {
+      // Wait for bill data to load if it's still loading
+      if (billDataLoading) {
+        await new Promise(resolve => {
+          const check = () => {
+            if (!billDataLoading) resolve(true);
+            else setTimeout(check, 100);
+          };
+          check();
+        });
+      }
+
       const response = await billoqService.getUserTransactions(address);
       if (response.status === 'success') {
         const formattedTransactions = response.data.map(mapApiTransaction);
@@ -90,16 +115,18 @@ export const TransactionProvider = ({ children }: { children: React.ReactNode })
     }
   };
 
-  // Initial fetch
+  // Initial fetch - runs when address or bill data changes
   useEffect(() => {
-    fetchTransactions();
-  }, [address]);
+    if (address && !billDataLoading) {
+      fetchTransactions();
+    }
+  }, [address, billDataLoading]);
 
   return (
     <TransactionContext.Provider
       value={{
         transactions,
-        loading,
+        loading: loading || billDataLoading,
         error,
         refreshTransactions: fetchTransactions,
         getTransactionById
