@@ -1,4 +1,3 @@
-// components/Navbar.tsx
 "use client";
 
 import Link from "next/link";
@@ -186,7 +185,7 @@ export function Navbar() {
 
       <div className="flex items-center gap-2">
         {!mounted ? (
-          <button className="bg-blue-600 text-white py-2 px-4 md:py-3 md:px-10 rounded-md text-sm md:text-base">
+          <button className="bg-blue-600 text-white py-2 px-4 md:py-3 md:px-10 rounded-md text-sm md:text-base cursor-pointer">
             Connect Wallet
           </button>
         ) : isConnected ? (
@@ -240,7 +239,7 @@ export function Navbar() {
         ) : (
           <button
             onClick={handleConnect}
-            className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 md:py-3 md:px-10 rounded-md transition-colors text-sm md:text-base"
+            className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 md:py-3 md:px-10 rounded-md transition-colors text-sm md:text-base cursor-pointer"
           >
             Connect Wallet
           </button>

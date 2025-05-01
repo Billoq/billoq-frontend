@@ -46,25 +46,25 @@ export function AppSidebar() {
         <div className="fixed inset-0 z-20 bg-[#111C2F] lg:hidden" onClick={() => toggle()} aria-hidden="true" />
       )}
 
-      {/* Sidebar */}
+      {/* Sidebar - removed fixed positioning here since it's handled in layout */}
       <aside
-        className={`fixed inset-y-0 left-0 z-30 flex w-64 flex-col border-r border-slate-800 bg-[#111C2F] transition-transform duration-300 ease-in-out lg:static lg:translate-x-0 ${
+        className={`flex h-full w-64 flex-col border-r border-slate-800 bg-[#111C2F] transition-transform duration-300 ease-in-out lg:translate-x-0 ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         {/* Sidebar header */}
-        <div className="flex h-16 items-center bg-[#111C2F]  border-slate-800 px-4">
+        <div className="flex h-16 items-center bg-[#111C2F] border-slate-800 px-4">
           <Link href="/" className="flex items-center text-2xl font-bold text-blue-500">
-          <div className="text-blue-500 font-bold text-2xl flex gap-2 items-center">
-            <Image
-              src="/logo.png"
-              alt="Billoq Logo"
-              width={40}
-              height={40}
-              className="w-10 h-10"
-            />
-            Billoq
-          </div>
+            <div className="text-blue-500 font-bold text-2xl flex gap-2 items-center">
+              <Image
+                src="/logo.png"
+                alt="Billoq Logo"
+                width={40}
+                height={40}
+                className="w-10 h-10"
+              />
+              Billoq
+            </div>
           </Link>
         </div>
 
