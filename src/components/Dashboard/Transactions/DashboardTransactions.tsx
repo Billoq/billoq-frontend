@@ -9,226 +9,39 @@ import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { format } from "date-fns";
+import { useTransactions } from "@/context/transaction-context";
+import { Transaction } from "@/types/transaction";
 
-type Invoice = {
-  Date: string;
-  Description: string;
-  Amount: string;
-  Status: "Successful" | "Failed" | "Pending";
-  TransactionID: string;
+type TransactionDisplay = {
+  id: string;
+  date: string;
+  description: string;
+  amount: string;
+  status: "Successful" | "Failed" | "Pending";
+  transactionId: string;
+  explorerUrl: string;
 };
 
 type SortDirection = "asc" | "desc";
 type StatusFilter = "All" | "Successful" | "Failed" | "Pending";
 type DateRange = "All" | "Weekly" | "Monthly" | "Yearly" | "Custom";
 
-const invoices: Invoice[] = [
-  // Current week transactions (assuming today is 29/04/2025 as in your example)
-  {
-    Date: "29/04/2025",
-    Description: "Internet Bill",
-    Amount: "4000NG",
-    Status: "Successful",
-    TransactionID: "0x98a7f3c2...d4b9",
-  },
-  {
-    Date: "28/04/2025",
-    Description: "Grocery Shopping",
-    Amount: "15000NG",
-    Status: "Successful",
-    TransactionID: "0x45b2c8d1...e7f3",
-  },
-  {
-    Date: "27/04/2025",
-    Description: "Mobile Recharge",
-    Amount: "2000NG",
-    Status: "Failed",
-    TransactionID: "N/A",
-  },
-  {
-    Date: "26/04/2025",
-    Description: "Electricity Payment",
-    Amount: "5000NG",
-    Status: "Pending",
-    TransactionID: "0x76e9f1a2...c5d8",
-  },
-  {
-    Date: "25/04/2025",
-    Description: "Netflix Subscription",
-    Amount: "3000NG",
-    Status: "Successful",
-    TransactionID: "0x32f4b7c9...a1e6",
-  },
-
-  // Previous week transactions
-  {
-    Date: "22/04/2025",
-    Description: "Internet Bill",
-    Amount: "5000NG",
-    Status: "Failed",
-    TransactionID: "N/A",
-  },
-  {
-    Date: "21/04/2025",
-    Description: "Amazon Purchase",
-    Amount: "25000NG",
-    Status: "Successful",
-    TransactionID: "0x91c3d5e7...f2a4",
-  },
-  {
-    Date: "20/04/2025",
-    Description: "Spotify Subscription",
-    Amount: "2000NG",
-    Status: "Successful",
-    TransactionID: "0x54d6e8f3...b7c1",
-  },
-
-  // Current month transactions (April 2025)
-  {
-    Date: "15/04/2025",
-    Description: "Restaurant Payment",
-    Amount: "8000NG",
-    Status: "Successful",
-    TransactionID: "0x23a5b8c7...d9e1",
-  },
-  {
-    Date: "10/04/2025",
-    Description: "Uber Ride",
-    Amount: "3500NG",
-    Status: "Successful",
-    TransactionID: "0x67f2e9d4...a8b3",
-  },
-  {
-    Date: "05/04/2025",
-    Description: "Gym Membership",
-    Amount: "10000NG",
-    Status: "Pending",
-    TransactionID: "0x89b1c2d3...e4f5",
-  },
-  {
-    Date: "01/04/2025",
-    Description: "Rent Payment",
-    Amount: "120000NG",
-    Status: "Successful",
-    TransactionID: "0x12e3f4a5...b6c7",
-  },
-
-  // Previous month transactions (March 2025)
-  {
-    Date: "28/03/2025",
-    Description: "Internet Bill",
-    Amount: "4000NG",
-    Status: "Successful",
-    TransactionID: "0x98a7f3c2...d4b9",
-  },
-  {
-    Date: "20/03/2025",
-    Description: "Electricity Payment",
-    Amount: "4500NG",
-    Status: "Failed",
-    TransactionID: "N/A",
-  },
-  {
-    Date: "15/03/2025",
-    Description: "Mobile Recharge",
-    Amount: "3000NG",
-    Status: "Successful",
-    TransactionID: "0x45d2e8f1...c7b9",
-  },
-  {
-    Date: "10/03/2025",
-    Description: "Online Course",
-    Amount: "20000NG",
-    Status: "Successful",
-    TransactionID: "0x76a1b2c3...d4e5",
-  },
-
-  // Current year transactions (2025)
-  {
-    Date: "28/02/2025",
-    Description: "Internet Bill",
-    Amount: "4000NG",
-    Status: "Successful",
-    TransactionID: "0x98a7f3c2...d4b9",
-  },
-  {
-    Date: "14/02/2025",
-    Description: "Valentine's Gift",
-    Amount: "15000NG",
-    Status: "Successful",
-    TransactionID: "0x34e5f6a7...b8c9",
-  },
-  {
-    Date: "01/01/2025",
-    Description: "New Year Shopping",
-    Amount: "30000NG",
-    Status: "Successful",
-    TransactionID: "0x12a3b4c5...d6e7",
-  },
-
-  // Previous year transactions (2024)
-  {
-    Date: "15/12/2024",
-    Description: "Christmas Shopping",
-    Amount: "25000NG",
-    Status: "Successful",
-    TransactionID: "0x78d9e1f2...a3b4",
-  },
-  {
-    Date: "01/11/2024",
-    Description: "Internet Bill",
-    Amount: "3500NG",
-    Status: "Successful",
-    TransactionID: "0x56c7d8e9...f1a2",
-  },
-  {
-    Date: "15/10/2024",
-    Description: "Birthday Gift",
-    Amount: "10000NG",
-    Status: "Failed",
-    TransactionID: "N/A",
-  },
-  {
-    Date: "01/09/2024",
-    Description: "School Fees",
-    Amount: "50000NG",
-    Status: "Successful",
-    TransactionID: "0x23b4c5d6...e7f8",
-  },
-  {
-    Date: "15/08/2024",
-    Description: "Vacation Payment",
-    Amount: "80000NG",
-    Status: "Successful",
-    TransactionID: "0x67a8b9c1...d2e3",
-  },
-  {
-    Date: "01/07/2024",
-    Description: "Car Maintenance",
-    Amount: "35000NG",
-    Status: "Pending",
-    TransactionID: "0x45d6e7f8...a9b1",
-  },
-  {
-    Date: "15/06/2024",
-    Description: "Medical Bill",
-    Amount: "12000NG",
-    Status: "Successful",
-    TransactionID: "0x89c1d2e3...f4a5",
-  },
-  {
-    Date: "01/05/2024",
-    Description: "Internet Bill",
-    Amount: "4000NG",
-    Status: "Successful",
-    TransactionID: "0x98a7f3c2...d4b9",
-  },
-];
+const mapToDisplayFormat = (tx: Transaction): TransactionDisplay => {
+  return {
+    id: tx.id,
+    date: tx.date, // Already formatted in your context
+    description: tx.description,
+    amount: `${tx.amountInNaira.toFixed(2)}NGN`,
+    status: tx.status === "completed" ? "Successful" : 
+           tx.status === "failed" ? "Failed" : "Pending",
+    transactionId: tx.hash,
+    explorerUrl: tx.explorerUrl
+  };
+};
 
 const ITEMS_PER_PAGE = 10;
 
 export default function DashboardTransactions() {
-  const [filteredInvoices, setFilteredInvoices] = useState<Invoice[]>(invoices);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("All");
@@ -240,12 +53,25 @@ export default function DashboardTransactions() {
   const [customEndDate, setCustomEndDate] = useState<Date | undefined>(undefined);
   const [month, setMonth] = useState<Date | undefined>(new Date());
   const [year, setYear] = useState<Date | undefined>(new Date());
+  const { transactions, loading: contextLoading } = useTransactions();
+  const [filteredTransactions, setFilteredTransactions] = useState<TransactionDisplay[]>([]);
+  const [displayTransactions, setDisplayTransactions] = useState<TransactionDisplay[]>([]);
 
-  const totalPages = Math.ceil(filteredInvoices.length / ITEMS_PER_PAGE);
-  const paginatedInvoices = filteredInvoices.slice(
+  const totalPages = Math.ceil(filteredTransactions.length / ITEMS_PER_PAGE);
+  const paginatedTransactionDisplays = filteredTransactions.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
   );
+
+  useEffect(() => {
+    if (transactions.length > 0) {
+      const formatted = transactions.map(mapToDisplayFormat);
+      setFilteredTransactions(formatted);
+      setDisplayTransactions(formatted);
+    }
+  }, [transactions]);
+
+  console.log("Formatted User Transactions:", transactions);
 
   const getStatusIcon = (status: StatusFilter) => {
     switch (status) {
@@ -301,39 +127,39 @@ export default function DashboardTransactions() {
       return;
     }
     const query = searchQuery.toLowerCase();
-    const results = invoices.filter((invoice) =>
-      Object.values(invoice).some(
+    const results = displayTransactions.filter((tx) =>
+      Object.values(tx).some(
         (value) => typeof value === "string" && value.toLowerCase().includes(query)
       )
     );
 
     // Apply status filter
-    let filteredResults: Invoice[] =
-      statusFilter === "All" ? results : results.filter((invoice) => invoice.Status === statusFilter);
+    let filteredResults: TransactionDisplay[] =
+      statusFilter === "All" ? results : results.filter((tx) => tx.status === statusFilter);
 
     // Apply date range filter
     filteredResults = applyDateRangeFilter(filteredResults, dateRangeFilter);
 
-    setFilteredInvoices(filteredResults);
+    setFilteredTransactions(filteredResults);
     setCurrentPage(1);
   };
 
-  const applyDateRangeFilter = (data: Invoice[], range: DateRange) => {
+  const applyDateRangeFilter = (data: TransactionDisplay[], range: DateRange) => {
     if (range === "All") return data;
 
     const currentDate = new Date();
     const today = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
 
-    return data.filter((invoice) => {
-      const [day, month, year] = invoice.Date.split("/").map(Number);
-      const invoiceDate = new Date(year, month - 1, day);
+    return data.filter((tx) => {
+      const [day, month, year] = tx.date.split("/").map(Number);
+      const txDate = new Date(year, month - 1, day);
 
       switch (range) {
         case "Weekly":
           // Get transactions from the past 7 days
           const weekAgo = new Date(today);
           weekAgo.setDate(weekAgo.getDate() - 7);
-          return invoiceDate >= weekAgo && invoiceDate <= today;
+          return txDate >= weekAgo && txDate <= today;
 
         case "Monthly":
           // Get transactions from the selected month
@@ -341,7 +167,7 @@ export default function DashboardTransactions() {
           if (!isNaN(parsedMonth)) {
             const startOfMonth = new Date(parsedMonth, 0, 1);
             const endOfMonth = new Date(parsedMonth, 1, 0);
-            return invoiceDate >= startOfMonth && invoiceDate <= endOfMonth;
+            return txDate >= startOfMonth && txDate <= endOfMonth;
           }
           return false;
 
@@ -351,7 +177,7 @@ export default function DashboardTransactions() {
           if (!isNaN(parsedYear)) {
             const startOfYear = new Date(parsedYear, 0, 1);
             const endOfYear = new Date(parsedYear, 11, 31);
-            return invoiceDate >= startOfYear && invoiceDate <= endOfYear;
+            return txDate >= startOfYear && txDate <= endOfYear;
           }
           return false;
 
@@ -363,7 +189,7 @@ export default function DashboardTransactions() {
             customEndDate instanceof Date &&
             !isNaN(customEndDate.getTime())
           ) {
-            return invoiceDate >= customStartDate && invoiceDate <= customEndDate;
+            return txDate >= customStartDate && txDate <= customEndDate;
           }
           return false;
 
@@ -374,11 +200,11 @@ export default function DashboardTransactions() {
   };
 
   const applyFilters = (status: StatusFilter, direction: SortDirection, dateRange: DateRange) => {
-    let results: Invoice[] = [...invoices];
+    let results: TransactionDisplay[] = [...displayTransactions];
 
     // Apply status filter
     if (status !== "All") {
-      results = results.filter((invoice) => invoice.Status === status);
+      results = results.filter((tx) => tx.status === status);
     }
 
     // Apply date range filter
@@ -386,14 +212,14 @@ export default function DashboardTransactions() {
 
     // Apply sorting
     results.sort((a, b) => {
-      const dateA = new Date(a.Date.split("/").reverse().join("/"));
-      const dateB = new Date(b.Date.split("/").reverse().join("/"));
+      const dateA = new Date(a.date.split("/").reverse().join("/"));
+      const dateB = new Date(b.date.split("/").reverse().join("/"));
       return direction === "desc"
         ? dateB.getTime() - dateA.getTime()
         : dateA.getTime() - dateB.getTime();
     });
 
-    setFilteredInvoices(results);
+    setFilteredTransactions(results);
   };
 
   const handlePageChange = (page: number) => {
@@ -685,25 +511,25 @@ export default function DashboardTransactions() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {paginatedInvoices.length > 0 ? (
-                paginatedInvoices.map((invoice, index) => (
+              {paginatedTransactionDisplays.length > 0 ? (
+                paginatedTransactionDisplays.map((tx: TransactionDisplay, index: number) => (
                   <TableRow
                     key={index}
                     className="bg-[#111C2F] hover:bg-[#1E293B] transition-colors border-b border-[#1E293B]"
                   >
-                    <TableCell className="font-medium text-white py-3">{invoice.Date}</TableCell>
-                    <TableCell className="text-[#94A3B8] py-3">{invoice.Description}</TableCell>
-                    <TableCell className="text-white font-medium py-3">{invoice.Amount}</TableCell>
+                    <TableCell className="font-medium text-white py-3">{tx.date}</TableCell>
+                    <TableCell className="text-[#94A3B8] py-3">{tx.description}</TableCell>
+                    <TableCell className="text-white font-medium py-3">{tx.amount}</TableCell>
                     <TableCell>
-                      <div className={`flex items-center gap-2 ${getStatusTextColor(invoice.Status)}`}>
-                        {getStatusIcon(invoice.Status as StatusFilter)}
-                        <span>{invoice.Status}</span>
+                      <div className={`flex items-center gap-2 ${getStatusTextColor(tx.status)}`}>
+                        {getStatusIcon(tx.status as StatusFilter)}
+                        <span>{tx.status}</span>
                       </div>
                     </TableCell>
                     <TableCell className="hidden md:table-cell text-[#94A3B8] truncate max-w-[150px] group relative py-3">
-                      <span className="cursor-pointer">{invoice.TransactionID}</span>
+                      <span className="cursor-pointer">{tx.transactionId}</span>
                       <div className="absolute hidden group-hover:block bg-[#111C2F] text-white text-xs rounded p-2 shadow-lg z-10">
-                        {invoice.TransactionID}
+                        {tx.transactionId}
                       </div>
                     </TableCell>
                   </TableRow>
@@ -727,11 +553,11 @@ export default function DashboardTransactions() {
       {/* Pagination (Footer-like) */}
       <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-4 py-3 px-4 sm:px-6 bg-[#0A1525] border-t border-[#1E293B] rounded-b-lg shadow-lg">
         <div className="text-sm text-[#94A3B8]">
-          {filteredInvoices.length > 0
-            ? `Page ${currentPage} of ${totalPages} (${filteredInvoices.length} transactions total)`
+          {filteredTransactions.length > 0
+            ? `Page ${currentPage} of ${totalPages} (${filteredTransactions.length} transactions total)`
             : "No transactions found"}
         </div>
-        {filteredInvoices.length > 0 && (
+        {filteredTransactions.length > 0 && (
           <div className="flex items-center gap-2">
             <Button
               variant="outline"

@@ -1,9 +1,9 @@
-export type BillType = "Airtime" | "Data" | "Cable" | "Electricity" | "Others";
+export type BillType = "Airtime" | "Data" | "Cable TV" | "Electricity" | "Others";
 
 export interface Transaction {
   id: string;
   billType: BillType;
-  status: "pending" | "successful" | "failed";
+  status: "pending" | "completed" | "failed";
   provider: string;
   description: string;
   amountInNaira: number;
@@ -17,20 +17,34 @@ export interface Transaction {
   rawData?: any; // Keep original data for reference
 }
 
+export interface TransactionQuote {
+    _id: string;
+    billerCode: string;
+    itemCode: string;
+    customerName: string | null;
+    customerId: string;
+    amount: number;
+    fee: number;
+    vatOnFee: number;
+    totalAmount: number;
+    createdAt: string;
+    __v: number;
+}
+
 export interface ApiTransaction {
-  _id: string;
-  user_address: string;
-  biller_code: string;
-  item_code: string;
-  customer_id: string;
-  quote: string;
-  amountQuotedInNaira: number;
-  cryptocurrency: string;
-  cryptoAmount: number;
-  order_status: "pending" | "successful" | "failed";
-  transaction_hash: string;
-  blockchain_transaction_id: string;
-  createdAt: string;
-  updatedAt: string;
-  __v: number;
+    _id: string;
+    user_address: string;
+    biller_code: string;
+    item_code: string;
+    customer_id: string;
+    quote: TransactionQuote;
+    amountQuotedInNaira?: number; // Optional for backward compatibility
+    cryptocurrency?: string;      // Optional for backward compatibility
+    cryptoAmount?: number;        // Optional for backward compatibility
+    order_status: "pending" | "completed" | "failed";
+    transaction_hash: string;
+    blockchain_transaction_id: string;
+    createdAt: string;
+    updatedAt: string;
+    __v: number;
 }

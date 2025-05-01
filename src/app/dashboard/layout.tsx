@@ -2,6 +2,7 @@
 
 import { AppSidebar } from "@/components/Dashboard/Sidebar/AppSidebar"
 import { SidebarProvider } from "@/context/sidebar-context"
+import { TransactionProvider } from "@/context/transaction-context"
 import type React from "react"
 
 interface DashboardLayoutProps {
@@ -19,7 +20,10 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
         
         {/* Main content with padding to account for sidebar */}
         <div className="flex-1 lg:pl-64">
+          <TransactionProvider>
           {children}
+          </TransactionProvider>
+
         </div>
       </div>
     </SidebarProvider>
