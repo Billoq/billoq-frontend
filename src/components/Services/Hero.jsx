@@ -1,9 +1,10 @@
 "use client";
 
-
+import { Button } from "../ui/button";
 import { Navbar } from "../navbar";
 import Image from "next/image";
 import  {AnimatedSection}  from "../../components/AnimatedSection";
+import { RollingBall } from "../RollingBall";
 
 export function HeroSection() {
   return (

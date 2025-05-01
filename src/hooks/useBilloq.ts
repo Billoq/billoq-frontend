@@ -44,9 +44,5 @@ export function useBilloq() {
       cryptocurrency: string;
       cryptoAmount: string;
     }) => handleApiCall(() => billoqService.initiatePayment(params)),
-    getUserTransactions: (userAddress: string) => 
-        handleApiCall(() => billoqService.getUserTransactions(userAddress)),
-    getTransactionById: (transactionId: string) =>
-    handleApiCall(() => billoqService.getTransactionById(transactionId)),
   };
 }

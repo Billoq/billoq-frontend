@@ -32,14 +32,14 @@ export function CommunitySection() {
             <p className="text-gray-400 text-lg mb-10">
               Join thousands of users who are already enjoying the benefits of blockchain- {" "} <br/> <span>powered bill payments.</span>
             </p>
-            <Button className="bg-blue-600 hover:bg-blue-700 text-white px-6 sm:px-12 md:px-16 py-4 md:py-6 text-base md:text-lg cursor-pointer">
+            <Button className="bg-blue-600 hover:bg-blue-700 text-white px-6 sm:px-12 md:px-16 py-4 md:py-6 text-base md:text-lg">
               Get Started
             </Button>
           </div>
           
           {/* Right column - ATM Card */}
           <div className="w-full md:w-1/2 flex justify-center md:justify-end items-center mt-8 md:mt-0">
-            <div className="w-full max-w-sm lg:max-w-md cursor-pointer">
+            <div className="w-full max-w-sm lg:max-w-md">
               <GlassATMCard />
             </div>
           </div>

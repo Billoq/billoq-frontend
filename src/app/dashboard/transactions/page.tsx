@@ -1,17 +1,14 @@
-"use client";
-import { DashboardHeader } from "@/components/Dashboard/dashboard-header";
-import DashboardTransactions from "@/components/Dashboard/Transactions/DashboardTransactions";
-import React from "react";
+import { DashboardHeader } from '@/components/Dashboard/dashboard-header'
+import DashboardTransactions from '@/components/Dashboard/Transactions/DashboardTransactions'
+import React from 'react'
 
-const Page = () => {
+const page = () => {
   return (
-    <div className="flex flex-col h-screen bg-[#0f172a] overflow-hidden">
-      <DashboardHeader />
-      <div className="flex-1 overflow-hidden">
-        <DashboardTransactions />
-      </div>
+    <div  className="flex-1 bg-[#0f172a]">
+       <DashboardHeader/>
+      <DashboardTransactions/>
     </div>
-  );
-};
+  )
+}
 
-export default Page;
+export default page

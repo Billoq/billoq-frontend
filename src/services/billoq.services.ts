@@ -63,14 +63,4 @@ export const billoqService = {
     });
     return await response.json();
   },
-
-  async getUserTransactions(userAddress: string) {
-    const response = await fetch(`${API_BASE_URL}/transactions/${userAddress}`);
-    return await response.json();
-  },
-
-  async getTransactionById(transactionId: string) {
-    const response = await fetch(`${API_BASE_URL}/transaction/${transactionId}`);
-    return await response.json();
-  }
 };

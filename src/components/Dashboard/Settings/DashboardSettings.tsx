@@ -1,351 +1,228 @@
-"use client"
-import { useState } from "react"
-import {
-  Wallet,
-  Bell,
-  Shield,
-  Check,
-  Copy,
-  Loader2,
-  ExternalLink,
-  ChevronDown,
-  LogOut,
-  X
-} from "lucide-react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Badge } from "@/components/ui/badge"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { useAccount, useDisconnect, useConnectors, useSwitchChain } from "wagmi"
-import { useRouter } from "next/navigation"
-import { sepolia, liskSepolia } from 'wagmi/chains'
-import Image from "next/image"
-import { ToastContainer, toast } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css'
+'use client';
+import React, { useState, useEffect } from 'react';
+import { useAppKitAccount, useDisconnect as useAppKitDisconnect, useAppKit } from "@reown/appkit/react";
+import { useAccount, useDisconnect as useWagmiDisconnect } from "wagmi";
 
-const supportedChains = [sepolia, liskSepolia]
-
-export default function DashboardSettings() {
-  const router = useRouter()
-  const { address, isConnected, connector, chain } = useAccount()
-  const { disconnect } = useDisconnect()
-  const connectors = useConnectors()
-  const { switchChain } = useSwitchChain()
+const SettingsPage: React.FC = () => {
+  const { address: appkitAddress, isConnected: appkitIsConnected } = useAppKitAccount();
+  const { address: wagmiAddress, isConnected: wagmiIsConnected } = useAccount();
   
-  // State
-  const [copied, setCopied] = useState(false)
-  const [isSaving, setIsSaving] = useState(false)
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
-  const [showWalletInfo, setShowWalletInfo] = useState(false)
+  const { disconnect: appkitDisconnect } = useAppKitDisconnect();
+  const { close } = useAppKit();
   
-  // Settings
-  const [notifications, setNotifications] = useState({
-    transactions: true,
-    security: true,
-    promotions: false
-  })
-  const [security, setSecurity] = useState({
-    twoFactor: false,
-    activityTracking: true
-  })
-
-  const truncateAddress = (addr: string | undefined) => 
-    addr ? `${addr.slice(0, 6)}...${addr.slice(-4)}` : ""
-
-  const getWalletIcon = () => {
-    if (connector?.icon) {
-      return (
-        <Image
-          src={connector.icon}
-          alt={connector.name || "Wallet"}
-          width={24}
-          height={24}
-          className="w-6 h-6 rounded-full"
-          unoptimized
-        />
-      )
-    }
-    return <Wallet className="w-6 h-6 text-blue-500" />
-  }
-
-  const getChainIcon = () => {
-    return <div className={`w-3 h-3 rounded-full ${chain?.id === sepolia.id ? 'bg-green-500' : 'bg-[#8247E5]'}`} />
-  }
-
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text)
-    setCopied(true)
-    toast.success("Address copied to clipboard!", {
-      position: "bottom-right",
-      autoClose: 3000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: "dark",
-    })
-    setTimeout(() => setCopied(false), 2000)
-  }
-
+  const { disconnect: wagmiDisconnect } = useWagmiDisconnect();
+  
+  const walletAddress = appkitAddress || wagmiAddress;
+  const isConnected = appkitIsConnected || wagmiIsConnected;
+  
+  // Handle wallet disconnect
   const handleDisconnect = () => {
-    disconnect()
-    router.push('/')
-    toast.info("Wallet disconnected", {
-      position: "bottom-right",
-      autoClose: 3000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: "dark",
-    })
-  }
-
-  const handleSwitchChain = async (chainId: number) => {
     try {
-      await switchChain({ chainId })
-      toast.success(`Switched to ${supportedChains.find(c => c.id === chainId)?.name} network`, {
-        position: "bottom-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "dark",
-      })
+      if (appkitIsConnected) {
+        appkitDisconnect();
+      }
+      if (wagmiIsConnected) {
+        wagmiDisconnect();
+      }
+      close();
     } catch (error) {
-      console.error("Error switching chain:", error)
-      toast.error("Failed to switch network", {
-        position: "bottom-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "dark",
-      })
+      console.error("Disconnect error:", error);
     }
-  }
+  };
+  
+  // State for user data
+  const [userData, setUserData] = useState({
+    username: '',
+    walletAddress: '',
+    email: '',
+  });
 
-  const handleSave = () => {
-    setIsSaving(true)
+  // Update userData when wallet address changes
+  useEffect(() => {
+    if (walletAddress) {
+      const formattedAddress = walletAddress ? 
+        `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}` : '';
+      
+      setUserData({
+        username: formattedAddress,
+        walletAddress: walletAddress,
+        email: '',
+      });
+    }
+  }, [walletAddress]);
+
+  // State for settings form
+  const [displayUsername, setDisplayUsername] = useState(userData.username);
+  const [emailAddress, setEmailAddress] = useState(userData.email || '');
+  const [notifications, setNotifications] = useState({
+    billDueAlerts: true,
+    paymentSuccessAlerts: true,
+    promotionsUpdates: false
+  });
+
+  // Update display username when userData changes
+  useEffect(() => {
+    setDisplayUsername(userData.username);
+  }, [userData.username]);
+
+  const handleNotificationChange = (type: keyof typeof notifications) => {
+    setNotifications(prev => ({
+      ...prev,
+      [type]: !prev[type]
+    }));
+  };
+  
+  // Handle save changes
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveMessage, setSaveMessage] = useState('');
+  
+  const handleSaveChanges = () => {
+    setIsSaving(true);
+    
+    // Simulate API call to save changes----I should change this when i get the backend api
     setTimeout(() => {
-      setIsSaving(false)
-      toast.success("Settings saved successfully!", {
-        position: "bottom-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "dark",
-      })
-    }, 1000)
-  }
+      // Update the user data
+      setUserData(prev => ({
+        ...prev,
+        username: displayUsername,
+        email: emailAddress
+      }));
+      
+      setSaveMessage('Settings saved successfully!');
+      setIsSaving(false);
+      
+      // Clear message after 3 seconds
+      setTimeout(() => {
+        setSaveMessage('');
+      }, 3000);
+    }, 1000);
+  };
 
   return (
-    <div className="p-4 md:p-6 h-full max-w-6xl mx-auto">
-      {/* Toast Container */}
-      <ToastContainer
-        position="bottom-right"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="dark"
-        toastStyle={{
-          backgroundColor: '#0F172A',
-          border: '1px solid #1E293B',
-          borderRadius: '0.5rem',
-        }}
-      />
-
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-white">
-          <span className="text-[#3B82F6]">Settings</span>
-        </h1>
-        <p className="text-[#94A3B8]">Manage your wallet and account preferences</p>
+    <div className="flex-1 p-8 bg-gray-900 text-white">
+      <div>
+        <h1 className="text-2xl font-semibold mb-2">Settings</h1>
+        <p className="text-gray-400">Manage your account, security, and crypto preferences.</p>
       </div>
 
-      <Tabs defaultValue="wallet" className="space-y-6">
-        <div className="flex flex-col md:flex-row gap-6">
-          {/* Sidebar Navigation */}
-          <div className="md:w-56">
-            <TabsList className="flex flex-row md:flex-col w-full bg-[#111C2F] border border-[#1E293B] rounded-lg p-1 h-auto">
-              <TabsTrigger
-                value="wallet"
-                className="flex items-center justify-start w-full px-4 py-3 gap-3 data-[state=active]:bg-[#1E293B] data-[state=active]:text-white text-[#94A3B8] hover:bg-[#1E293B]/50 transition-colors"
+      {/* Account Profile Section */}
+      <div className="mt-8">
+        <h2 className="text-xl font-medium mb-4">Account Profile</h2>
+        
+        <div className="mb-6">
+          <label className="block text-gray-400 mb-2">Connected Wallets</label>
+          <div className="flex flex-col space-y-2">
+            <div className="bg-gray-800 border border-gray-700 rounded p-3 text-sm w-80">
+              {userData.walletAddress || 'No wallet connected'}
+            </div>
+            {isConnected && (
+              <button 
+                onClick={handleDisconnect}
+                className="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-md transition-colors text-sm w-fit"
               >
-                <Wallet className="h-5 w-5 flex-shrink-0" />
-                <span className="truncate">Wallet</span>
-              </TabsTrigger>
-              <TabsTrigger
-                value="notifications"
-                className="flex items-center justify-start w-full px-4 py-3 gap-3 data-[state=active]:bg-[#1E293B] data-[state=active]:text-white text-[#94A3B8] hover:bg-[#1E293B]/50 transition-colors"
-              >
-                <Bell className="h-5 w-5 flex-shrink-0" />
-                <span className="truncate">Notifications</span>
-              </TabsTrigger>
-              <TabsTrigger
-                value="security"
-                className="flex items-center justify-start w-full px-4 py-3 gap-3 data-[state=active]:bg-[#1E293B] data-[state=active]:text-white text-[#94A3B8] hover:bg-[#1E293B]/50 transition-colors"
-              >
-                <Shield className="h-5 w-5 flex-shrink-0" />
-                <span className="truncate">Security</span>
-              </TabsTrigger>
-            </TabsList>
-          </div>
-
-          {/* Main Content */}
-          <div className="flex-1">
-            {/* Wallet Settings */}
-            <TabsContent value="wallet" className="space-y-6">
-              <Card className="border-[#1E293B] bg-[#0A1525]">
-                <CardHeader>
-                  <CardTitle className="text-xl text-white flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-[#1E293B]">
-                      <Wallet className="h-5 w-5 text-[#3B82F6]" />
-                    </div>
-                    Wallet Settings
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  {isConnected ? (
-                    <>
-                      <div className="bg-[#111C2F] border border-[#1E293B] rounded-lg p-6 relative overflow-hidden">
-                        <div className="absolute -top-20 -right-20 w-40 h-40 bg-[#3B82F6]/10 rounded-full blur-3xl"></div>
-                        
-                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 relative">
-                          <div className="flex items-center gap-4">
-                            <div className="relative">
-                              {getWalletIcon()}
-                              <div className="absolute -bottom-1 -right-1">
-                                {getChainIcon()}
-                              </div>
-                            </div>
-                            <div>
-                              <div className="flex items-center gap-2">
-                                <h3 className="font-medium text-white">{chain?.name || "Unknown Network"}</h3>
-                                <Badge className="bg-green-900/20 text-green-400 border-green-800">
-                                  Connected
-                                </Badge>
-                              </div>
-                              <div className="flex items-center gap-2 mt-1">
-                                <p className="text-sm text-[#94A3B8] font-mono">
-                                  {truncateAddress(address)}
-                                </p>
-                                <TooltipProvider>
-                                  <Tooltip>
-                                    <TooltipTrigger asChild>
-                                      <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        className="h-6 w-6 text-[#94A3B8] hover:text-white"
-                                        onClick={() => address && copyToClipboard(address)}
-                                      >
-                                        {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
-                                      </Button>
-                                    </TooltipTrigger>
-                                    <TooltipContent className="bg-[#1E293B] border-[#1E293B] text-white">
-                                      <p>{copied ? "Copied!" : "Copy address"}</p>
-                                    </TooltipContent>
-                                  </Tooltip>
-                                </TooltipProvider>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="flex gap-3">
-                            {chain?.blockExplorers?.default?.url && (
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="border-[#1E293B] bg-[#111C2F] hover:bg-[#1E293B] text-white"
-                                onClick={() => chain?.blockExplorers?.default?.url && window.open(`${chain.blockExplorers.default.url}/address/${address}`, "_blank")}
-                              >
-                                <ExternalLink className="mr-2 h-4 w-4" />
-                                Explorer
-                              </Button>
-                            )}
-                            <Button
-                              variant="destructive"
-                              size="sm"
-                              className="bg-red-900/20 hover:bg-red-900/30 text-white border-red-900/30"
-                              onClick={handleDisconnect}
-                            >
-                              Disconnect
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="space-y-4">
-                        <h3 className="text-lg font-medium text-white">Default Network</h3>
-                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-                          {supportedChains.map(network => (
-                            <button
-                              key={network.id}
-                              onClick={() => handleSwitchChain(network.id)}
-                              className={`flex items-center gap-3 p-3 rounded-lg border transition-all ${
-                                network.id === chain?.id
-                                  ? "bg-[#1E293B] border-[#3B82F6] shadow-[0_0_0_1px_#3B82F6]"
-                                  : "bg-[#111C2F] border-[#1E293B] hover:border-[#3B82F6]/50"
-                              }`}
-                              disabled={!switchChain}
-                            >
-                              <div className={`h-3 w-3 rounded-full ${network.id === sepolia.id ? 'bg-[#627EEA]' : 'bg-[#8247E5]'}`} />
-                              <span className="text-white">{network.name}</span>
-                              {network.id === chain?.id && <Check className="ml-auto h-4 w-4 text-[#3B82F6]" />}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    </>
-                  ) : (
-                    <div className="text-center py-12">
-                      <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-[#1E293B] mb-6">
-                        <Wallet className="h-8 w-8 text-[#3B82F6]" />
-                      </div>
-                      <h3 className="text-xl font-medium mb-3 text-white">No Wallet Connected</h3>
-                      <p className="text-[#94A3B8] mb-6 max-w-md mx-auto">
-                        Connect your wallet to manage your settings
-                      </p>
-                      <Button 
-                        className="bg-[#3B82F6] hover:bg-[#2563EB] text-white"
-                        onClick={() => router.push('/')}
-                      >
-                        Connect Wallet
-                      </Button>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            {/* Notification Settings */}
-            <TabsContent value="notifications" className="space-y-6">
-              {/* ... existing notification settings ... */}
-            </TabsContent>
-
-            {/* Security Settings */}
-            <TabsContent value="security" className="space-y-6">
-              {/* ... existing security settings ... */}
-            </TabsContent>
+                Disconnect Wallet
+              </button>
+            )}
           </div>
         </div>
-      </Tabs>
+
+        <div className="mb-6">
+          <h3 className="text-lg font-medium mb-2">Profile Settings</h3>
+          
+          <div className="space-y-4 mt-4">
+            <div>
+              <label htmlFor="displayUsername" className="block text-gray-400 mb-2">Display Username</label>
+              <input
+                type="text"
+                id="displayUsername"
+                value={displayUsername}
+                onChange={(e) => setDisplayUsername(e.target.value)}
+                className="bg-gray-800 border border-gray-700 rounded p-3 text-sm w-80 text-white"
+                placeholder="Enter display username"
+              />
+            </div>
+            
+            <div>
+              <label htmlFor="emailAddress" className="block text-gray-400 mb-2">Email Address (optional)</label>
+              <input
+                type="email"
+                id="emailAddress"
+                value={emailAddress}
+                onChange={(e) => setEmailAddress(e.target.value)}
+                className="bg-gray-800 border border-gray-700 rounded p-3 text-sm w-80 text-white"
+                placeholder="Enter email address"
+              />
+              <p className="text-xs text-gray-500 mt-1">Used for notifications and account recovery</p>
+            </div>
+            
+            <div className="pt-2">
+              <div className="flex flex-col space-y-2">
+                <button 
+                  onClick={handleSaveChanges}
+                  disabled={isSaving}
+                  className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md transition-colors text-sm shadow-[0_0_15px_rgba(59,130,246,0.5)] disabled:opacity-50 disabled:cursor-not-allowed w-fit"
+                >
+                  {isSaving ? 'Saving...' : 'Save'}
+                </button>
+                
+                {saveMessage && (
+                  <p className="text-green-500 text-sm">{saveMessage}</p>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Notification Section */}
+      <div className="mt-8">
+        <h2 className="text-xl font-medium mb-4">Notification</h2>
+        <div>
+          <p className="text-gray-400 mb-4">Enable /Disable</p>
+          <div className="space-y-4">
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                id="billDueAlerts"
+                checked={notifications.billDueAlerts}
+                onChange={() => handleNotificationChange('billDueAlerts')}
+                className="h-4 w-4 rounded bg-gray-800 border-gray-700 text-blue-600 focus:ring-blue-500"
+              />
+              <label htmlFor="billDueAlerts" className="ml-2 text-sm">
+                Bill Due Alerts
+              </label>
+            </div>
+            
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                id="paymentSuccessAlerts"
+                checked={notifications.paymentSuccessAlerts}
+                onChange={() => handleNotificationChange('paymentSuccessAlerts')}
+                className="h-4 w-4 rounded bg-gray-800 border-gray-700 text-blue-600 focus:ring-blue-500"
+              />
+              <label htmlFor="paymentSuccessAlerts" className="ml-2 text-sm">
+                Payment Success Alerts
+              </label>
+            </div>
+            
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                id="promotionsUpdates"
+                checked={notifications.promotionsUpdates}
+                onChange={() => handleNotificationChange('promotionsUpdates')}
+                className="h-4 w-4 rounded bg-gray-800 border-gray-700 text-blue-600 focus:ring-blue-500"
+              />
+              <label htmlFor="promotionsUpdates" className="ml-2 text-sm">
+                Promotions/Updates
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-  )
-}
+  );
+};
+
+export default SettingsPage;
