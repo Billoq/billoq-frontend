@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { X, Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import React from "react";
+import { X } from "lucide-react";
 import networks from "./NetWork";
 import { useBilloq } from "@/hooks/useBilloq";
-import { toast } from "react-toastify";
 
 interface DataModalProps {
   onClose: () => void;
@@ -15,7 +15,6 @@ interface DataModalProps {
     amountInNaira: string;
     token: string;
     source: "airtime" | "data" | "electricity" | "cable";
-    quoteId: string;
   }) => void;
   state: {
     selectedNetwork: string;
@@ -33,61 +32,26 @@ interface DataModalProps {
   }) => void;
 }
 
-interface Biller {
-  biller_code: string;
-  name: string;
-}
-
 const DataModal = ({ onClose, onShowPayment, state, onStateChange }: DataModalProps) => {
-  const [billers, setBillers] = useState<Biller[]>([]);
-  const [billItems, setBillItems] = useState<any[]>([]);
-  const [isLoadingBillers, setIsLoadingBillers] = useState(false);
-  const [isLoadingBillItems, setIsLoadingBillItems] = useState(false);
-  const [isLoadingPayment, setIsLoadingPayment] = useState(false);
-  const { getBillersByCategory, getBillItems, validateCustomerDetails, getQuote } = useBilloq();
+  const [selectedNetwork, setSelectedNetwork] = useState<string | null>(null);
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [amount, setAmount] = useState("");
+  const [paymentOption, setPaymentOption] = useState<"USDT" | "USDC">("USDT");
+  const [billers, setBillers] = useState<any[]>([]); // Adjust type as needed
+  const [billItems, setBillItems] = useState<any[]>([]); // Adjust type as needed
+  const [billPlan, setBillPlan] = useState("");
 
-  const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (e.target === e.currentTarget) {
-      onClose();
-    }
-  };
+  const { getBillersByCategory, getBillItems, validateCustomerDetails } = useBilloq();
 
   useEffect(() => {
+    // Fetch billers by category when the component mounts
     const fetchBillers = async () => {
-      setIsLoadingBillers(true);
       try {
-        const timeout = setTimeout(() => {
-          setIsLoadingBillers(false);
-          toast.error("Loading providers timed out. Please try again.", {
-            position: "bottom-right",
-            autoClose: 5000,
-            theme: "dark",
-          });
-        }, 10000); // 10-second timeout
-
-        const billersResponse = await getBillersByCategory("MOBILEDATA");
-        console.log("Billers response:", billersResponse);
-
-        if (!billersResponse?.data || !Array.isArray(billersResponse.data)) {
-          throw new Error("Invalid billers data format");
-        }
-
-        setBillers(billersResponse.data);
-        clearTimeout(timeout);
-      } catch (error: any) {
-        console.error("Error fetching billers:", error.message, error.stack);
-        toast.error(
-          error.message === "Invalid billers data format"
-            ? "Received invalid provider data. Please try again."
-            : "Failed to load providers. Please try again.",
-          {
-            position: "bottom-right",
-            autoClose: 5000,
-            theme: "dark",
-          }
-        );
-      } finally {
-        setIsLoadingBillers(false);
+        const billers = await getBillersByCategory("MOBILEDATA");
+        console.log("Fetched billers:", billers);
+        setBillers(billers.data);
+      } catch (error) {
+        console.error("Error fetching billers:", error);
       }
     };
 
@@ -97,48 +61,14 @@ const DataModal = ({ onClose, onShowPayment, state, onStateChange }: DataModalPr
   useEffect(() => {
     const fetchBillItems = async () => {
       if (state.selectedNetwork) {
-        setIsLoadingBillItems(true);
-        try {
-          const timeout = setTimeout(() => {
-            setIsLoadingBillItems(false);
-            toast.error("Loading plans timed out. Please try again.", {
-              position: "bottom-right",
-              autoClose: 5000,
-              theme: "dark",
-            });
-          }, 10000); // 10-second timeout
-
-          const selectedBiller = billers.find((biller) => biller.name === state.selectedNetwork);
-          if (!selectedBiller) {
-            throw new Error("Selected provider not found");
+          try {
+            const selectedBiller = billers.find((biller) => biller.name === state.selectedNetwork);
+            const currentBillItems = await getBillItems("MOBILE", selectedBiller.biller_code)
+            console.log("Fetched Bill items:", currentBillItems)
+            setBillItems(currentBillItems.data);
+          } catch (error) {
+            console.error("Error fetching bill plans:", error);
           }
-
-          const itemsResponse = await getBillItems("MOBILE", selectedBiller.biller_code);
-          console.log("Bill items response:", itemsResponse);
-
-          if (!itemsResponse?.data || !Array.isArray(itemsResponse.data)) {
-            throw new Error("Invalid bill items data format");
-          }
-
-          setBillItems(itemsResponse.data);
-          clearTimeout(timeout);
-        } catch (error: any) {
-          console.error("Error fetching bill items:", error.message, error.stack);
-          toast.error(
-            error.message === "Invalid bill items data format"
-              ? "Received invalid plan data. Please try again."
-              : error.message === "Selected provider not found"
-              ? "Selected provider not found. Please choose another."
-              : "Failed to load plans. Please try again.",
-            {
-              position: "bottom-right",
-              autoClose: 5000,
-              theme: "dark",
-            }
-          );
-        } finally {
-          setIsLoadingBillItems(false);
-        }
       }
     };
 
@@ -146,88 +76,29 @@ const DataModal = ({ onClose, onShowPayment, state, onStateChange }: DataModalPr
   }, [state.selectedNetwork, billers]);
 
   useEffect(() => {
+    //set the amount based on the selected bill item
     const selectedBillItem = billItems.find((item) => item.name === state.billPlan);
     if (selectedBillItem) {
-      onStateChange({ ...state, amount: selectedBillItem.amount });
+      onStateChange({ ...state, amount: selectedBillItem.amount })
     }
-  }, [state.billPlan, billItems]);
+  }, [state.billPlan, billItems, billers]);
 
-  useEffect(() => {
-    document.body.classList.add("overflow-hidden");
-    return () => {
-      document.body.classList.remove("overflow-hidden");
-    };
-  }, []);
+  const handlePayment = () => {
+    if (!state.selectedNetwork || !state.phoneNumber || !state.amount || !state.billPlan) return;
 
-  const handlePayment = async () => {
-    // Validate required fields
-    if (
-      !state.selectedNetwork ||
-      !state.phoneNumber ||
-      !state.billPlan ||
-      !state.amount ||
-      !state.paymentOption
-    ) {
-      toast.error("Please fill in all required fields!", {
-        position: "bottom-right",
-        autoClose: 5000,
-        theme: "dark",
-      });
-      return;
-    }
+    onShowPayment({
+      provider: `${state.selectedNetwork.toUpperCase()}`,
+      billPlan: state.billPlan,
+      subscriberId: state.phoneNumber,
+      amountInNaira: state.amount,
+      token: state.paymentOption,
+      source: "data"
+    });
+  };
 
-    setIsLoadingPayment(true);
-    const billItem = billItems.find((item) => item.name === state.billPlan);
-
-    try {
-      const timeout = setTimeout(() => {
-        setIsLoadingPayment(false);
-        toast.error("Payment processing timed out. Please try again.", {
-          position: "bottom-right",
-          autoClose: 5000,
-          theme: "dark",
-        });
-      }, 10000); // 10-second timeout
-
-      const quote = await getQuote({
-        amount: parseFloat(state.amount),
-        item_code: billItem.item_code,
-        customer: state.phoneNumber,
-      });
-      console.log("Quote response:", quote);
-
-      if (!quote?.data || !quote.data.totalAmount || !quote.data._id) {
-        throw new Error("Invalid quote data format");
-      }
-
-      const totalAmount = quote.data.totalAmount.toString();
-      const quoteId = quote.data._id;
-
-      onShowPayment({
-        provider: state.selectedNetwork.toUpperCase(),
-        billPlan: state.billPlan,
-        subscriberId: state.phoneNumber,
-        amountInNaira: totalAmount,
-        token: state.paymentOption,
-        source: "data",
-        quoteId: quoteId,
-      });
-
-      clearTimeout(timeout);
-    } catch (error: any) {
-      console.error("Error fetching quote:", error.message, error.stack);
-      toast.error(
-        error.message === "Invalid quote data format"
-          ? "Received invalid payment data. Please try again."
-          : "Failed to process payment. Please try again.",
-        {
-          position: "bottom-right",
-          autoClose: 5000,
-          theme: "dark",
-        }
-      );
-    } finally {
-      setIsLoadingPayment(false);
+  const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget) {
+      onClose();
     }
   };
 
@@ -252,74 +123,48 @@ const DataModal = ({ onClose, onShowPayment, state, onStateChange }: DataModalPr
 
           <div className="w-full mb-6">
             <p className="text-white mb-3">Select network provider</p>
-            <div className="flex gap-2 relative">
-              {isLoadingBillers && (
-                <Loader2
-                  size={20}
-                  className="absolute right-0 top-0 text-gray-400 animate-spin"
-                />
-              )}
-              {billers.length === 0 && !isLoadingBillers ? (
-                <div className="text-gray-500">No providers available</div>
-              ) : (
-                billers.map((biller) => {
-                  const network = networks.find((net) => net.id.includes(biller.name.split(" ")[0]));
-                  return (
-                    <button
-                      key={biller.biller_code}
-                      className={`p-2 border cursor-pointer rounded-md ${
-                        state.selectedNetwork === biller.name ? "border-[#0080FF]" : "border-[#3A414A]"
-                      }`}
-                      onClick={() => onStateChange({ ...state, selectedNetwork: biller.name })}
-                      disabled={isLoadingBillers || isLoadingBillItems || isLoadingPayment}
-                    >
-                      <div
-                        className="w-10 h-10 flex items-center justify-center rounded-md"
-                        style={{ backgroundColor: network?.color || "#3A414A" }}
-                      >
-                        {network?.id === "MTN Nigeria" && <span className="text-black font-bold text-xs">MTN</span>}
-                        {network?.id === "AIRTEL NIGERIA" && <span className="text-white font-bold text-xs">airtel</span>}
-                        {network?.id === "GLO NIGERIA" && <span className="text-white font-bold text-xs">glo</span>}
-                        {network?.id === "9MOBILE NIGERIA" && <span className="text-[#00AA4F] font-bold text-lg">9</span>}
-                      </div>
-                    </button>
-                  );
-                })
-              )}
+            <div className="flex gap-2">
+            {billers.map((biller) => {
+                const network = networks.find((net) => net.id.includes(biller.name.split(" ")[0]));
+                return (
+                  <button
+                  key={biller.biller_code}
+                  className={`p-2 border cursor-pointer rounded-md ${
+                    state.selectedNetwork === biller.name ? "border-[#0080FF]" : "border-[#3A414A]"
+                  }`}
+                  onClick={() => onStateChange({ ...state, selectedNetwork: biller.name })}
+                  >
+                  <div
+                    className="w-10 h-10 flex items-center justify-center rounded-md"
+                    style={{ backgroundColor: network?.color || "#3A414A" }}
+                  >
+                    {network?.id === "MTN Nigeria" && <span className="text-black font-bold text-xs">MTN</span>}
+                    {network?.id === "AIRTEL NIGERIA" && <span className="text-white font-bold text-xs">airtel</span>}
+                    {network?.id === "GLO NIGERIA" && <span className="text-white font-bold text-xs">glo</span>}
+                    {network?.id === "9MOBILE NIGERIA" && <span className="text-[#00AA4F] font-bold text-lg">9</span>}
+                  </div>
+                  </button>
+                );
+                })}
             </div>
           </div>
 
           <div className="w-full mb-6">
             <p className="text-white mb-3">Select product</p>
-            <div className="relative">
-              <select
-                className="w-full p-4 bg-[#0D1526] border border-[#3A414A] rounded-md text-white appearance-none"
-                value={state.billPlan}
-                onChange={(e) => onStateChange({ ...state, billPlan: e.target.value })}
-                disabled={isLoadingBillers || isLoadingBillItems || isLoadingPayment}
-              >
-                <option value="" disabled hidden>
-                  Select Plan
-                </option>
-                {billItems.length === 0 ? (
-                  <option value="" disabled>
-                    No plans available
-                  </option>
-                ) : (
-                  billItems.map((item) => (
-                    <option key={item.item_code} value={item.name}>
-                      {item.name}
-                    </option>
-                  ))
-                )}
-              </select>
-              {isLoadingBillItems && (
-                <Loader2
-                  size={20}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 animate-spin"
-                />
-              )}
-            </div>
+            <select
+              className="w-full p-4 bg-[#0D1526] border border-[#3A414A] rounded-md text-white"
+              value={state.billPlan}
+              onChange={(e) => onStateChange({ ...state, billPlan: e.target.value })}
+            >
+              <option value="" disabled hidden>
+              Select Plan
+              </option>
+              {billItems.map((item) => (
+              <option key={item.item_code} value={item.name}>
+                {item.name}
+              </option>
+              ))}
+            </select>
           </div>
 
           <div className="w-full mb-6">
@@ -330,7 +175,6 @@ const DataModal = ({ onClose, onShowPayment, state, onStateChange }: DataModalPr
               placeholder="XXX XXXX XXXX"
               value={state.phoneNumber}
               onChange={(e) => onStateChange({ ...state, phoneNumber: e.target.value })}
-              disabled={isLoadingBillers || isLoadingBillItems || isLoadingPayment}
             />
           </div>
 
@@ -358,7 +202,6 @@ const DataModal = ({ onClose, onShowPayment, state, onStateChange }: DataModalPr
                   checked={state.paymentOption === "USDT"}
                   onChange={() => onStateChange({ ...state, paymentOption: "USDT" })}
                   className="form-radio text-[#0080FF]"
-                  disabled={isLoadingBillers || isLoadingBillItems || isLoadingPayment}
                 />
                 <span className="text-white">USDT</span>
               </label>
@@ -368,7 +211,6 @@ const DataModal = ({ onClose, onShowPayment, state, onStateChange }: DataModalPr
                   checked={state.paymentOption === "USDC"}
                   onChange={() => onStateChange({ ...state, paymentOption: "USDC" })}
                   className="form-radio text-[#0080FF]"
-                  disabled={isLoadingBillers || isLoadingBillItems || isLoadingPayment}
                 />
                 <span className="text-white">USDC</span>
               </label>
@@ -376,11 +218,10 @@ const DataModal = ({ onClose, onShowPayment, state, onStateChange }: DataModalPr
           </div>
 
           <button
-            className="w-full py-4 bg-[#0080FF] text-white rounded-md font-medium disabled:bg-gray-500"
+            className="w-full py-4 bg-[#0080FF] text-white rounded-md font-medium"
             onClick={handlePayment}
-            disabled={isLoadingBillers || isLoadingBillItems || isLoadingPayment}
           >
-            {isLoadingPayment ? "Processing..." : "Make Payment"}
+            Make Payment
           </button>
         </div>
       </div>

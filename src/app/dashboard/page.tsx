@@ -1,3 +1,4 @@
+// app/dashboard/page.tsx
 "use client";
 
 import { useEffect } from "react";
@@ -6,8 +7,7 @@ import { useAppKitAccount } from "@reown/appkit/react";
 import { useAccount } from "wagmi";
 import { DashboardContent } from "@/components/Dashboard/dashboard-content";
 import { DashboardHeader } from "@/components/Dashboard/dashboard-header";
-import { BalanceProvider } from "@/context/balance-context";
-import { toast } from 'react-toastify';
+import { BalanceProvider } from "@/context/balance-context"; // Updated import
 
 export default function Dashboard() {
   const router = useRouter();
@@ -17,10 +17,6 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (!isConnected) {
-      toast.warn('Please connect your wallet to access the dashboard', {
-        position: "bottom-right",
-        autoClose: 3000,
-      });
       router.push("/");
     }
   }, [isConnected, router]);

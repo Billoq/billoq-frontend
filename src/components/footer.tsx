@@ -97,9 +97,6 @@ export function Footer() {
                 {/* Copyright Section */}
                 <div className="border-t border-gray-800 mt-12 pt-8 text-center text-sm">
                     <p>© {new Date().getFullYear()} Billoq. All rights reserved.</p>
-                    <p className="mt-2">
-                        Power by LISK 
-                    </p>
                     <div className="flex justify-center space-x-6 mt-4">
                         {['Terms', 'Privacy', 'Cookies'].map((item) => (
                             <Link key={item} href="#" className="hover:text-blue-400">

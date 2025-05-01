@@ -1,6 +1,7 @@
 import type React from "react"
 import {
   Lightbulb,
+  BookOpen,
   Smartphone,
   Globe,
   Droplet,
