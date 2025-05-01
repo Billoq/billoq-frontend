@@ -1,5 +1,5 @@
 // src/config.ts
-import { mainnet, sepolia,liskSepolia, polygon, base } from 'wagmi/chains'
+import { sepolia,liskSepolia } from 'wagmi/chains'
 import { http, createConfig } from 'wagmi';
 export const CONTRACT_ADDRESSES = {
   SEPOLIA_USDT: process.env.NEXT_PUBLIC_SEPOLIA_USDT_ADDRESS as `0x${string}`,
@@ -12,12 +12,9 @@ export const CONTRACT_ADDRESSES = {
 
 
 export const wagmiConfig =  createConfig({
-    chains: [mainnet, sepolia, polygon, base,liskSepolia],
+    chains: [sepolia,liskSepolia],
     transports: {
-      [mainnet.id]: http(),
       [sepolia.id]: http(),
-      [polygon.id]: http(),
-      [base.id]: http(),
       [liskSepolia.id]: http()
     },
   });

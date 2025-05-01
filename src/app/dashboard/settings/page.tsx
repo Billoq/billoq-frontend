@@ -4,7 +4,7 @@ import React from 'react'
 
 const page = () => {
   return (
-    <div  className="flex-1 bg-[#0f172a]">
+    <div  className=" flex-1  h-screen  overflow-hidden bg-[#0f172a] ">
       <DashboardHeader/>
       <DashboardSettings/>
     
