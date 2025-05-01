@@ -10,7 +10,7 @@ interface TransactionContextType {
   transactions: Transaction[];
   loading: boolean;
   error: string | null;
-  refreshTransactions: () => Promise<void>;
+  refetch: () => Promise<void>;
   getTransactionById: (id: string) => Promise<Transaction | null>;
 }
 
@@ -128,7 +128,7 @@ export const TransactionProvider = ({ children }: { children: React.ReactNode })
         transactions,
         loading: loading || billDataLoading,
         error,
-        refreshTransactions: fetchTransactions,
+        refetch: fetchTransactions,
         getTransactionById
       }}
     >

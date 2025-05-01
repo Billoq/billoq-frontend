@@ -8,8 +8,9 @@ import { useAccount, useWalletClient, useConfig } from "wagmi";
 import { useBilloq } from "@/hooks/useBilloq";
 import { contractConfig } from "@/config/contract";
 import { erc20Abi } from "viem";
-import {ethers} from "ethers";
+import { ethers } from "ethers";
 import { getEthersSigner } from "@/config/adapter";
+import { toast } from "react-toastify";
 
 interface PaymentModalProps {
   onClose: () => void;
@@ -24,30 +25,29 @@ interface PaymentModalProps {
 }
 
 const BillType = {
-  "airtime": 0,
-  "data": 1,
-  "cable": 2,
-  "electricity": 3,
-  "others": 4
-}
+  airtime: 0,
+  data: 1,
+  cable: 2,
+  electricity: 3,
+  others: 4,
+};
 
 const tokenAddresses = {
-  "USDT": process.env.NEXT_PUBLIC_SEPOLIA_USDT_ADDRESS as `0x${string}`,
-  "USDC": process.env.NEXT_PUBLIC_SEPOLIA_USDC_ADDRESS as `0x${string}`
-}
+  USDT: process.env.NEXT_PUBLIC_SEPOLIA_USDT_ADDRESS as `0x${string}`,
+  USDC: process.env.NEXT_PUBLIC_SEPOLIA_USDC_ADDRESS as `0x${string}`,
+};
 
 const PaymentModal: React.FC<PaymentModalProps> = ({
   onClose,
   onBack,
   provider,
   billPlan,
-  subscriberId, 
-  amountInNaira, 
+  subscriberId,
+  amountInNaira,
   token,
   source,
-  quoteId
+  quoteId,
 }) => {
-
   // Simulated conversion (replace with real conversion logic if needed)
   const convertedAmount = (parseFloat(amountInNaira || "0") / 1612).toFixed(6);
 
@@ -58,7 +58,6 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
   const [txHash, setTxHash] = useState<`0x${string}` | undefined>(undefined);
   const [transactionId, setTransactionId] = useState<string>("");
   const [userAddress, setUserAddress] = useState<string>("");
-  const [txStatus, setTxStatus] = useState<boolean>(false);
   const { address } = useAccount();
   const { data: walletClient } = useWalletClient();
   const [billContract, setBillContract] = useState<ethers.Contract | null>(null);
@@ -66,11 +65,9 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
   const { initiatePayment } = useBilloq();
   const config = useConfig();
 
-  // Convert Naira to token amount (using a fixed rate for example)
-  
   const tokenAmount = BigInt(Math.floor(parseFloat(convertedAmount) * 1e18));
   const billContractInterface = new ethers.Interface(contractConfig.abi);
- 
+
   const initializeContracts = useCallback(async () => {
     if (!walletClient || !address) {
       setBillContract(null);
@@ -80,8 +77,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
 
     try {
       const signer = await getEthersSigner(config);
-      
-      // Initialize bill payment contract
+
       const billInstance = new ethers.Contract(
         contractConfig.address,
         contractConfig.abi,
@@ -89,17 +85,17 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
       );
       setBillContract(billInstance);
 
-      // Initialize token contract
-      const tokenInstance = new ethers.Contract(
-        paymentToken,
-        erc20Abi,
-        signer
-      );
+      const tokenInstance = new ethers.Contract(paymentToken, erc20Abi, signer);
       setTokenContract(tokenInstance);
     } catch (error) {
       console.error("Contract initialization failed:", error);
       setBillContract(null);
       setTokenContract(null);
+      toast.error("Failed to initialize contracts. Please try again.", {
+        position: "bottom-right",
+        autoClose: 5000,
+        theme: "dark",
+      });
     }
   }, [walletClient, address, config, paymentToken]);
 
@@ -107,13 +103,29 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
     initializeContracts();
   }, [initializeContracts]);
 
-  const payBill = async () => {
-    if (!billContract || !tokenContract) {
-      console.error("Contract not initialized");
-      return;
+  const approveToken = async () => {
+    if (!tokenContract) {
+      throw new Error("Token contract not initialized");
     }
     try {
-      console.log('Processing bill payment:');
+      console.log("Approving token transfer...");
+      const tx = await tokenContract.approve(contractConfig.address, tokenAmount);
+      console.log("Approval transaction hash:", tx.hash);
+      const receipt = await tx.wait();
+      console.log("Approval transaction confirmed:", receipt.hash);
+      return receipt;
+    } catch (error: any) {
+      console.error("Error approving token transfer:", error.message, error.stack);
+      throw error;
+    }
+  };
+
+  const payBill = async () => {
+    if (!billContract) {
+      throw new Error("Bill contract not initialized");
+    }
+    try {
+      console.log("Processing bill payment...");
       const tx = await billContract.payBill(
         billType,
         subscriberId,
@@ -122,107 +134,107 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
         provider,
         paymentToken
       );
-      console.log('Bill Transaction hash:', tx.hash);
+      console.log("Bill transaction hash:", tx.hash);
       const receipt = await tx.wait();
-      console.log('Bill Transaction confirmed:', receipt.hash);
+      console.log("Bill transaction confirmed:", receipt.hash);
       setTxHash(receipt.transactionHash);
-      console.log("Receipt:", receipt);
 
       let transactionId: bigint | null = null;
-
       setUserAddress(receipt.from);
 
       for (const log of receipt.logs) {
         try {
-          // Try to parse the log as a BillPaid event
           const parsedLog = billContractInterface.parseLog(log);
-          
           if (parsedLog && parsedLog.name === "BillPaid") {
-            // The first indexed argument is transactionId
             transactionId = parsedLog.args[0];
             setTransactionId(transactionId?.toString() || "");
-            console.log('Found transactionId:', transactionId?.toString());
+            console.log("Found transactionId:", transactionId?.toString());
             break;
           }
         } catch (e) {
-          // This log wasn't a BillPaid event, continue checking
           continue;
         }
       }
-  
+
       if (!transactionId) {
         throw new Error("Could not find transactionId in event logs");
       }
 
+      return { receipt, transactionId: transactionId.toString() };
+    } catch (error: any) {
+      console.error("Error processing bill payment:", error.message, error.stack);
+      throw error;
+    }
+  };
+
+  const handlePayBill = async () => {
+    if (!provider || !subscriberId || !amountInNaira || !billContract || !tokenContract) {
+      toast.error("Missing required payment details or contracts not initialized!", {
+        position: "bottom-right",
+        autoClose: 5000,
+        theme: "dark",
+      });
+      return;
+    }
+
+    setIsProcessing(true);
+    toast.info("PROCESSING PAYMENT, PLEASE DO NOT CLOSE THIS PAGE", {
+      position: "bottom-right",
+      autoClose: false,
+      theme: "dark",
+    });
+
+    try {
+      // Step 1: Approve token transfer
+      await approveToken();
+
+      // Step 2: Pay bill via smart contract
+      const { receipt, transactionId } = await payBill();
+
+      // Step 3: Notify backend
       if (receipt.status === 1) {
+        console.log("Initiating backend payment...");
         await initiatePayment({
           quoteId: quoteId,
           transaction_hash: receipt.hash,
-          transactionid: transactionId.toString(), // Use the extracted transactionId
+          transactionid: transactionId,
           userAddress: receipt.from,
           cryptocurrency: token,
-          cryptoAmount: convertedAmount
+          cryptoAmount: convertedAmount,
         });
+        console.log("Backend payment initiated successfully");
+
+        toast.dismiss(); // Dismiss the processing toast
+        toast.success("Payment completed successfully!", {
+          position: "bottom-right",
+          autoClose: 5000,
+          theme: "dark",
+        });
+
+        setIsProcessing(false);
+        onClose(); // Close modal on success
+      } else {
+        throw new Error("Transaction failed");
       }
-
-    } catch (error) {
-      console.error('Error processing bill payment:', error);
-    }
-  }
-
-  const approveToken = async () => {
-    if (!tokenContract) {
-      console.error("Token contract not initialized");
-      return
-    }
-    try {
-      console.log('Approving token transfer...');
-      const tx = await tokenContract.approve(
-        contractConfig.address,
-        tokenAmount
+    } catch (error: any) {
+      console.error("Payment process failed:", error.message, error.stack);
+      toast.dismiss(); // Dismiss the processing toast
+      toast.error(
+        error.message === "Token contract not initialized" ||
+        error.message === "Bill contract not initialized"
+          ? "Contracts not initialized. Please reconnect your wallet."
+          : error.message === "Could not find transactionId in event logs"
+          ? "Failed to retrieve transaction ID. Please try again."
+          : "Failed to process payment. Please try again.",
+        {
+          position: "bottom-right",
+          autoClose: 5000,
+          theme: "dark",
+        }
       );
-      console.log('Approval transaction hash:', tx.hash);
-      const receipt = await tx.wait();
-      console.log('Approval transaction confirmed:', receipt.hash);
-    } catch (error) {
-      console.error('Error approving token transfer:', error);
+      setIsProcessing(false);
     }
-  }
-  // const handleSuccessfulPayment = async () => {
-
-  //   // if (!txStatus){
-  //   //   console.error("Bill Transaction failed");
-  //   //   return;}
-  //   try {
-  //     console.log('Payment successful, sending data to backend...');
-  //     await initiatePayment({
-  //       quoteId: quoteId,
-  //       transaction_hash: txHash!,
-  //       transactionid: transactionId, // Using transaction ID from events
-  //       userAddress: userAddress, // Sender address from receipt
-  //       cryptocurrency: paymentToken,
-  //       cryptoAmount: convertedAmount
-  //     });
-
-  //     console.log('Payment completed successfully!');
-  //     onClose(); // Close modal on success
-  //   } catch (error) {
-  //     console.error('Backend integration failed:', error);
-  //     console.error('Payment completed but backend integration failed');
-  //   } finally {
-  //     setIsProcessing(false);
-  //   }
-  // };
-  
-
-  const handlePayBill = async () => {
-    if (!provider || !subscriberId || !amountInNaira) return;
-    setIsProcessing(true);
-    await approveToken();
-    await payBill();
-    // await handleSuccessfulPayment();
   };
-      
 
   const handleBackClick = () => {
     onBack();
@@ -234,7 +246,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
 
   const handleConfirmClose = () => {
     setShowConfirmation(false);
-    onClose(); // Triggers handleClosePaymentModal, resetting all modal states
+    onClose();
   };
 
   const handleCancelClose = () => {
@@ -247,7 +259,6 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
     }
   };
 
-  // Enhanced bill type detection
   const getBillType = () => {
     if (provider.includes("DSTV") || provider.includes("GOTV") || provider.includes("STARTIMES")) {
       return "Cable TV";
@@ -273,6 +284,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                 size="icon"
                 className="text-gray-400 hover:text-white hover:bg-gray-800"
                 onClick={handleBackClick}
+                disabled={isProcessing}
               >
                 <ChevronLeft className="h-5 w-5" />
               </Button>
@@ -282,6 +294,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                 size="icon"
                 className="text-gray-400 hover:text-white hover:bg-gray-800"
                 onClick={handleCloseAttempt}
+                disabled={isProcessing}
               >
                 <X className="h-5 w-5" />
               </Button>
@@ -315,11 +328,17 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
 
               <div className="flex items-start gap-2 text-xs text-gray-400 bg-gray-800/50 p-3 rounded">
                 <Info className="h-4 w-4 flex-shrink-0 mt-0.5" />
-                <p>All payments are routed through secure smart contracts, and will be recorded onchain.</p>
-                <p>Total amounts include fees for electricity and TV payments</p>
+                <p>
+                  All payments are routed through secure smart contracts, and will be recorded onchain.
+                  Total amounts include fees for electricity and TV payments.
+                </p>
               </div>
 
-              <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-5" onClick={handlePayBill} disabled={isProcessing}>
+              <Button
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-5"
+                onClick={handlePayBill}
+                disabled={isProcessing || !billContract || !tokenContract}
+              >
                 {isProcessing ? (
                   <span className="flex items-center justify-center">
                     Processing...
@@ -340,7 +359,6 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
         </Card>
       </div>
 
-      {/* Confirmation Dialog */}
       {showConfirmation && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/70 z-50">
           <Card className="w-full max-w-sm bg-gray-900 border-gray-800">
@@ -354,12 +372,14 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                   variant="outline"
                   className="flex-1 bg-transparent text-white hover:bg-gray-800 hover:text-white"
                   onClick={handleCancelClose}
+                  disabled={isProcessing}
                 >
                   No, Continue
                 </Button>
                 <Button
                   className="flex-1 bg-red-600 hover:bg-red-700 text-white"
                   onClick={handleConfirmClose}
+                  disabled={isProcessing}
                 >
                   Yes, Quit
                 </Button>
