@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { X } from "lucide-react";
+import { X, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useBilloq } from "@/hooks/useBilloq";
+import { toast } from "react-toastify";
 
 interface CableModalProps {
   onClose: () => void;
@@ -47,10 +48,17 @@ interface Biller {
   name: string;
 }
 
-
-const CableModal: React.FC<CableModalProps> = ({ onClose, onShowPayment, state, onStateChange }) => {
+const CableModal: React.FC<CableModalProps> = ({
+  onClose,
+  onShowPayment,
+  state,
+  onStateChange,
+}) => {
   const [billers, setBillers] = useState<Biller[]>([]);
   const [billItems, setBillItems] = useState<any[]>([]);
+  const [isLoadingBillers, setIsLoadingBillers] = useState(false);
+  const [isLoadingBillItems, setIsLoadingBillItems] = useState(false);
+  const [isLoadingPayment, setIsLoadingPayment] = useState(false);
   const { getBillersByCategory, getBillItems, getQuote } = useBilloq();
 
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -61,11 +69,40 @@ const CableModal: React.FC<CableModalProps> = ({ onClose, onShowPayment, state, 
 
   useEffect(() => {
     const fetchBillers = async () => {
+      setIsLoadingBillers(true);
       try {
-        const billers = await getBillersByCategory("CABLEBILLS");
-        setBillers(billers.data);
-      } catch (error) {
-        console.error("Error fetching billers:", error);
+        const timeout = setTimeout(() => {
+          setIsLoadingBillers(false);
+          toast.error("Loading providers timed out. Please try again.", {
+            position: "bottom-right",
+            autoClose: 5000,
+            theme: "dark",
+          });
+        }, 10000); // 10-second timeout
+
+        const billersResponse = await getBillersByCategory("CABLEBILLS");
+        console.log("Billers response:", billersResponse);
+
+        if (!billersResponse?.data || !Array.isArray(billersResponse.data)) {
+          throw new Error("Invalid billers data format");
+        }
+
+        setBillers(billersResponse.data);
+        clearTimeout(timeout);
+      } catch (error: any) {
+        console.error("Error fetching billers:", error.message, error.stack);
+        toast.error(
+          error.message === "Invalid billers data format"
+            ? "Received invalid provider data. Please try again."
+            : "Failed to load providers. Please try again.",
+          {
+            position: "bottom-right",
+            autoClose: 5000,
+            theme: "dark",
+          }
+        );
+      } finally {
+        setIsLoadingBillers(false);
       }
     };
 
@@ -75,14 +112,49 @@ const CableModal: React.FC<CableModalProps> = ({ onClose, onShowPayment, state, 
   useEffect(() => {
     const fetchBillItems = async () => {
       if (state.provider) {
+        setIsLoadingBillItems(true);
         try {
-          const currentBiller = billers.find((biller) => biller.name === state.provider);
-          if (currentBiller) {
-            const items = await getBillItems("CABLE", currentBiller.biller_code);
-            setBillItems(items.data);
+          const timeout = setTimeout(() => {
+            setIsLoadingBillItems(false);
+            toast.error("Loading plans timed out. Please try again.", {
+              position: "bottom-right",
+              autoClose: 5000,
+              theme: "dark",
+            });
+          }, 10000); // 10-second timeout
+
+          const currentBiller = billers.find(
+            (biller) => biller.name === state.provider
+          );
+          if (!currentBiller) {
+            throw new Error("Selected provider not found");
           }
-        } catch (error) {
-          console.error("Error fetching bill items:", error);
+
+          const itemsResponse = await getBillItems("CABLE", currentBiller.biller_code);
+          console.log("Bill items response:", itemsResponse);
+
+          if (!itemsResponse?.data || !Array.isArray(itemsResponse.data)) {
+            throw new Error("Invalid bill items data format");
+          }
+
+          setBillItems(itemsResponse.data);
+          clearTimeout(timeout);
+        } catch (error: any) {
+          console.error("Error fetching bill items:", error.message, error.stack);
+          toast.error(
+            error.message === "Invalid bill items data format"
+              ? "Received invalid plan data. Please try again."
+              : error.message === "Selected provider not found"
+              ? "Selected provider not found. Please choose another."
+              : "Failed to load plans. Please try again.",
+            {
+              position: "bottom-right",
+              autoClose: 5000,
+              theme: "dark",
+            }
+          );
+        } finally {
+          setIsLoadingBillItems(false);
         }
       }
     };
@@ -91,7 +163,9 @@ const CableModal: React.FC<CableModalProps> = ({ onClose, onShowPayment, state, 
   }, [state.provider, billers]);
 
   useEffect(() => {
-    const selectedBillItem = billItems.find((item) => item.name === state.billItem);
+    const selectedBillItem = billItems.find(
+      (item) => item.name === state.billItem
+    );
     if (selectedBillItem) {
       onStateChange({ ...state, amount: selectedBillItem.amount });
     }
@@ -105,11 +179,46 @@ const CableModal: React.FC<CableModalProps> = ({ onClose, onShowPayment, state, 
   }, []);
 
   const handleMakePayment = async () => {
-    if (!state.provider || !state.accountNumber || !state.billItem || !state.amount) return;
+    // Validate required fields
+    if (
+      !state.provider ||
+      !state.accountNumber ||
+      !state.billItem ||
+      !state.amount ||
+      !state.paymentOption
+    ) {
+      toast.error("Please fill in all required fields!", {
+        position: "bottom-right",
+        autoClose: 5000,
+        theme: "dark",
+      });
+      return;
+    }
+
+    setIsLoadingPayment(true);
     const billItem = billItems.find((item) => item.name === state.billItem);
-    try{
-      const quote = await getQuote({amount: parseFloat(state.amount) , item_code: billItem.item_code, customer: state.accountNumber});
+
+    try {
+      const timeout = setTimeout(() => {
+        setIsLoadingPayment(false);
+        toast.error("Payment processing timed out. Please try again.", {
+          position: "bottom-right",
+          autoClose: 5000,
+          theme: "dark",
+        });
+      }, 10000); // 10-second timeout
+
+      const quote = await getQuote({
+        amount: parseFloat(state.amount),
+        item_code: billItem.item_code,
+        customer: state.accountNumber,
+      });
       console.log("Quote response:", quote);
+
+      if (!quote?.data || !quote.data.totalAmount || !quote.data._id) {
+        throw new Error("Invalid quote data format");
+      }
+
       const totalAmount = quote.data.totalAmount.toString();
       const quoteId = quote.data._id;
 
@@ -122,8 +231,22 @@ const CableModal: React.FC<CableModalProps> = ({ onClose, onShowPayment, state, 
         source: "cable",
         quoteId: quoteId,
       });
-    } catch (error) {
-      console.error("Error fetching quote:", error);
+
+      clearTimeout(timeout);
+    } catch (error: any) {
+      console.error("Error fetching quote:", error.message, error.stack);
+      toast.error(
+        error.message === "Invalid quote data format"
+          ? "Received invalid payment data. Please try again."
+          : "Failed to process payment. Please try again.",
+        {
+          position: "bottom-right",
+          autoClose: 5000,
+          theme: "dark",
+        }
+      );
+    } finally {
+      setIsLoadingPayment(false);
     }
   };
 
@@ -144,24 +267,39 @@ const CableModal: React.FC<CableModalProps> = ({ onClose, onShowPayment, state, 
         </button>
 
         <div className="flex flex-col items-center">
-          <h2 className="text-2xl font-medium text-blue-500 mb-8">Cable Service</h2>
+          <h2 className="text-2xl font-medium text-blue-500 mb-8">
+            Cable Service
+          </h2>
 
           <div className="w-full space-y-6">
             <div className="w-full">
               <p className="text-white mb-3">Provider</p>
               <Select
                 value={state.provider}
-                onValueChange={(value: string) => onStateChange({ ...state, provider: value })}
+                onValueChange={(value: string) =>
+                  onStateChange({ ...state, provider: value })
+                }
+                disabled={isLoadingBillers || isLoadingBillItems || isLoadingPayment}
               >
-                <SelectTrigger className="w-full bg-[#1a2236] border-[#3A414A] text-gray-300">
+                <SelectTrigger className="w-full bg-[#1a2236] border-[#3A414A] text-gray-300 relative">
                   <SelectValue placeholder="Select provider" />
+                  {isLoadingBillers && (
+                    <Loader2
+                      size={20}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 animate-spin"
+                    />
+                  )}
                 </SelectTrigger>
                 <SelectContent className="bg-[#1a2236] border-[#2a3349] text-gray-300">
-                  {billers.map((item) => (
-                    <SelectItem key={item.biller_code} value={item.name}>
-                      {item.name}
-                    </SelectItem>
-                  ))}
+                  {billers.length === 0 ? (
+                    <div className="text-gray-500 p-2">No providers available</div>
+                  ) : (
+                    billers.map((item) => (
+                      <SelectItem key={item.biller_code} value={item.name}>
+                        {item.name}
+                      </SelectItem>
+                    ))
+                  )}
                 </SelectContent>
               </Select>
             </div>
@@ -170,9 +308,12 @@ const CableModal: React.FC<CableModalProps> = ({ onClose, onShowPayment, state, 
               <p className="text-white mb-3">Smart Card Number</p>
               <Input
                 value={state.accountNumber}
-                onChange={(e) => onStateChange({ ...state, accountNumber: e.target.value })}
+                onChange={(e) =>
+                  onStateChange({ ...state, accountNumber: e.target.value })
+                }
                 placeholder="XXX XXXX XXXX"
-                className="w-full p-4 bg-[#1a2236] border border-[#3A414A] rounded-md text-white"
+                className="w-full p-4 bg-[#1a2236] border-[#3A414A] rounded-md text-white"
+                disabled={isLoadingBillers || isLoadingBillItems || isLoadingPayment}
               />
             </div>
 
@@ -180,17 +321,30 @@ const CableModal: React.FC<CableModalProps> = ({ onClose, onShowPayment, state, 
               <p className="text-white mb-3">Plan</p>
               <Select
                 value={state.billItem}
-                onValueChange={(value: string) => onStateChange({ ...state, billItem: value })}
+                onValueChange={(value: string) =>
+                  onStateChange({ ...state, billItem: value })
+                }
+                disabled={isLoadingBillers || isLoadingBillItems || isLoadingPayment}
               >
-                <SelectTrigger className="w-full bg-[#1a2236] border-[#3A414A] text-gray-300">
+                <SelectTrigger className="w-full bg-[#1a2236] border-[#3A414A] text-gray-300 relative">
                   <SelectValue placeholder="Select plan" />
+                  {isLoadingBillItems && (
+                    <Loader2
+                      size={20}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 animate-spin"
+                    />
+                  )}
                 </SelectTrigger>
                 <SelectContent className="bg-[#1a2236] border-[#2a3349] text-gray-300">
-                  {billItems.map((item) => (
-                    <SelectItem key={item.id} value={item.name}>
-                      {item.name}
-                    </SelectItem>
-                  ))}
+                  {billItems.length === 0 ? (
+                    <div className="text-gray-500 p-2">No plans available</div>
+                  ) : (
+                    billItems.map((item) => (
+                      <SelectItem key={item.id} value={item.name}>
+                        {item.name}
+                      </SelectItem>
+                    ))
+                  )}
                 </SelectContent>
               </Select>
             </div>
@@ -203,9 +357,11 @@ const CableModal: React.FC<CableModalProps> = ({ onClose, onShowPayment, state, 
                 </div>
                 <Input
                   value={state.amount}
-                  onChange={(e) => onStateChange({ ...state, amount: e.target.value })}
+                  onChange={(e) =>
+                    onStateChange({ ...state, amount: e.target.value })
+                  }
                   disabled
-                  className="w-full p-4 pl-10 bg-[#1a2236] border border-[#3A414A] rounded-md text-white"
+                  className="w-full p-4 pl-10 bg-[#1a2236] border-[#3A414A] rounded-md text-white"
                   placeholder="Bill Amount"
                 />
               </div>
@@ -216,8 +372,12 @@ const CableModal: React.FC<CableModalProps> = ({ onClose, onShowPayment, state, 
               <RadioGroup
                 value={state.paymentOption}
                 onValueChange={(value) =>
-                  onStateChange({ ...state, paymentOption: value as "USDT" | "USDC" })
+                  onStateChange({
+                    ...state,
+                    paymentOption: value as "USDT" | "USDC",
+                  })
                 }
+                disabled={isLoadingBillers || isLoadingBillItems || isLoadingPayment}
                 className="flex flex-col space-y-2"
               >
                 <div className="flex items-center space-x-2">
@@ -246,8 +406,9 @@ const CableModal: React.FC<CableModalProps> = ({ onClose, onShowPayment, state, 
             <Button
               className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-medium"
               onClick={handleMakePayment}
+              disabled={isLoadingBillers || isLoadingBillItems || isLoadingPayment}
             >
-              Make Payment
+              {isLoadingPayment ? "Processing..." : "Make Payment"}
             </Button>
           </div>
         </div>

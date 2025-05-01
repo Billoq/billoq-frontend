@@ -24,7 +24,7 @@ import { useAccount, useDisconnect, useConnectors, useSwitchChain } from "wagmi"
 import { useRouter } from "next/navigation"
 import { sepolia, liskSepolia } from 'wagmi/chains'
 import Image from "next/image"
-import { toast } from 'react-toastify'
+import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
 const supportedChains = [sepolia, liskSepolia]
@@ -73,41 +73,65 @@ export default function DashboardSettings() {
   }
 
   const getChainIcon = () => {
-    if (chain?.iconUrl) {
-      return (
-        <Image
-          src={chain.iconUrl}
-          alt={chain.name || "Network"}
-          width={24}
-          height={24}
-          className="w-6 h-6 rounded-full"
-          unoptimized
-        />
-      )
-    }
-    return <div className={`w-3 h-3 rounded-full ${chain?.id === sepolia.id ? 'bg-[#627EEA]' : 'bg-[#8247E5]'}`} />
+    return <div className={`w-3 h-3 rounded-full ${chain?.id === sepolia.id ? 'bg-green-500' : 'bg-[#8247E5]'}`} />
   }
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text)
     setCopied(true)
-    toast.success("Address copied to clipboard!")
+    toast.success("Address copied to clipboard!", {
+      position: "bottom-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "dark",
+    })
     setTimeout(() => setCopied(false), 2000)
   }
 
   const handleDisconnect = () => {
     disconnect()
     router.push('/')
-    toast.info("Wallet disconnected")
+    toast.info("Wallet disconnected", {
+      position: "bottom-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "dark",
+    })
   }
 
   const handleSwitchChain = async (chainId: number) => {
     try {
       await switchChain({ chainId })
-      toast.success(`Switched to ${supportedChains.find(c => c.id === chainId)?.name} network`)
+      toast.success(`Switched to ${supportedChains.find(c => c.id === chainId)?.name} network`, {
+        position: "bottom-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      })
     } catch (error) {
       console.error("Error switching chain:", error)
-      toast.error("Failed to switch network")
+      toast.error("Failed to switch network", {
+        position: "bottom-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      })
     }
   }
 
@@ -115,12 +139,40 @@ export default function DashboardSettings() {
     setIsSaving(true)
     setTimeout(() => {
       setIsSaving(false)
-      toast.success("Settings saved successfully!")
+      toast.success("Settings saved successfully!", {
+        position: "bottom-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      })
     }, 1000)
   }
 
   return (
     <div className="p-4 md:p-6 h-full max-w-6xl mx-auto">
+      {/* Toast Container */}
+      <ToastContainer
+        position="bottom-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+        toastStyle={{
+          backgroundColor: '#0F172A',
+          border: '1px solid #1E293B',
+          borderRadius: '0.5rem',
+        }}
+      />
+
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-white">
           <span className="text-[#3B82F6]">Settings</span>
@@ -221,7 +273,7 @@ export default function DashboardSettings() {
                                 variant="outline"
                                 size="sm"
                                 className="border-[#1E293B] bg-[#111C2F] hover:bg-[#1E293B] text-white"
-                                onClick={() => window.open(`${chain.blockExplorers.default.url}/address/${address}`, "_blank")}
+                                onClick={() => chain?.blockExplorers?.default?.url && window.open(`${chain.blockExplorers.default.url}/address/${address}`, "_blank")}
                               >
                                 <ExternalLink className="mr-2 h-4 w-4" />
                                 Explorer
@@ -253,18 +305,7 @@ export default function DashboardSettings() {
                               }`}
                               disabled={!switchChain}
                             >
-                              {network.iconUrl ? (
-                                <Image
-                                  src={network.iconUrl}
-                                  alt={network.name}
-                                  width={24}
-                                  height={24}
-                                  className="w-6 h-6 rounded-full"
-                                  unoptimized
-                                />
-                              ) : (
-                                <div className={`h-3 w-3 rounded-full ${network.id === sepolia.id ? 'bg-[#627EEA]' : 'bg-[#8247E5]'}`} />
-                              )}
+                              <div className={`h-3 w-3 rounded-full ${network.id === sepolia.id ? 'bg-[#627EEA]' : 'bg-[#8247E5]'}`} />
                               <span className="text-white">{network.name}</span>
                               {network.id === chain?.id && <Check className="ml-auto h-4 w-4 text-[#3B82F6]" />}
                             </button>
