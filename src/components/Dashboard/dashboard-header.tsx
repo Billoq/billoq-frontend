@@ -9,8 +9,9 @@ import { useAppKitAccount, useAppKit } from "@reown/appkit/react";
 import { useDisconnect } from "@reown/appkit/react";
 import { useWalletInfo } from "@reown/appkit/react";
 import { useAccount, useDisconnect as useWagmiDisconnect } from "wagmi";
-import { ChevronDown, ExternalLink, LogOut, Settings, Wallet } from "lucide-react";
+import { ChevronDown, ExternalLink, LogOut, Settings, Wallet, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 
 interface DashboardHeaderProps {
   username?: string;
@@ -28,11 +29,12 @@ export function DashboardHeader({
   const [error] = useState<Error | null>(null);
   const pathname = usePathname();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   
   // AppKit hooks
   const { address: appkitAddress, isConnected: appkitIsConnected } = useAppKitAccount();
-  const {  close } = useAppKit();
+  const { close } = useAppKit();
   const { walletInfo } = useWalletInfo();
   const { disconnect: appkitDisconnect } = useDisconnect();
   
@@ -123,6 +125,7 @@ export function DashboardHeader({
     if (onSearch) {
       onSearch(query);
     }
+    setIsMobileSearchOpen(false);
   };
 
   if (error) {
@@ -149,20 +152,47 @@ export function DashboardHeader({
 
   return (
     <header className="flex h-16 items-center justify-between bg-[#0f172a] px-4 md:px-6">
-      <h1 className="text-2xl font-bold text-white">{getPageTitle()}</h1>
+      {/* Left section with page title - positioned with enough space for the menu button */}
+      <h1 className="text-xl md:text-2xl font-bold text-white ml-12 md:ml-16 lg:ml-0">
+        {getPageTitle()}
+      </h1>
 
-      <div className="flex items-center gap-4">
-        <div className="lg:flex hidden md:block">
+      <div className="flex items-center gap-2 md:gap-4">
+        {/* Desktop search */}
+        <div className="hidden lg:flex">
           <SearchInput onSearch={handleSearch} />
+        </div>
+        
+        {/* Mobile search button and expandable search input */}
+        <div className="lg:hidden relative">
+          {isMobileSearchOpen ? (
+            <div className="absolute right-0 top-0 z-10 w-screen max-w-xs -mr-4">
+              <SearchInput 
+                onSearch={handleSearch} 
+                autoFocus={true}
+                onBlur={() => setIsMobileSearchOpen(false)}
+              />
+            </div>
+          ) : (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsMobileSearchOpen(true)}
+              className="text-gray-400 hover:text-white"
+            >
+              <Search className="h-5 w-5" />
+              <span className="sr-only">Search</span>
+            </Button>
+          )}
         </div>
 
         {isConnected ? (
           <div className="relative" ref={dropdownRef}>
             <button
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="flex items-center gap-2 bg-[#2A3B5A] rounded-full px-4 py-2 hover:bg-[#374d6e] transition-colors"
+              className="flex items-center gap-2 bg-[#2A3B5A] rounded-full px-2 py-2 md:px-4 hover:bg-[#374d6e] transition-colors"
             >
-              <span className="text-white font-medium">{truncateAddress(address)}</span>
+              <span className="hidden md:inline text-white font-medium">{truncateAddress(address)}</span>
               {getWalletIcon()}
               <ChevronDown className="w-4 h-4 text-white" />
             </button>
