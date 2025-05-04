@@ -1,19 +1,19 @@
 "use client";
+
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { Input } from "@/components/ui/input";
-import { Search, CheckCircle, XCircle, Clock, Calendar, Loader2, AlertCircle, Copy } from "lucide-react";
+import { Search, CheckCircle, XCircle, Clock, Calendar, Loader2, AlertCircle, Copy, RefreshCw } from "lucide-react";
 import { LuArrowDownUp } from "react-icons/lu";
 import { GiSettingsKnobs } from "react-icons/gi";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
-import { format } from "date-fns";
+import { format, parse } from "date-fns";
 import { useTransactions } from "@/context/transaction-context";
 import { Transaction } from "@/types/transaction";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "react-toastify";
-import { usePathname } from "next/navigation";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 type TransactionDisplay = {
@@ -43,8 +43,8 @@ const mapToDisplayFormat = (tx: Transaction): TransactionDisplay => ({
 });
 
 const truncateTransactionId = (id: string): string => {
-  if (id.length <= 10) return id; // Handle short IDs
-  return `${id.slice(0, 6)}...${id.slice(-4)}`; // e.g., 0x123456...7890
+  if (id.length <= 10) return id;
+  return `${id.slice(0, 6)}...${id.slice(-4)}`;
 };
 
 const FilterControls = ({
@@ -71,6 +71,7 @@ const FilterControls = ({
   isSearching,
   contextLoading,
   handleSearch,
+  handleRefresh,
 }: {
   searchQuery: string;
   setSearchQuery: (value: string) => void;
@@ -95,6 +96,7 @@ const FilterControls = ({
   isSearching: boolean;
   contextLoading: boolean;
   handleSearch: () => void;
+  handleRefresh: () => void;
 }) => {
   const getStatusIcon = (status: StatusFilter) => {
     switch (status) {
@@ -126,6 +128,7 @@ const FilterControls = ({
                   className="p-2 rounded-lg bg-[#1E293B] text-white hover:bg-gradient-to-r hover:from-[#1E293B] hover:to-[#111C2F] transition-all duration-200 shadow-lg shadow-blue-900/10 transform hover:scale-105"
                   onClick={handleSortByDate}
                   disabled={contextLoading}
+                  aria-label="Sort by date"
                 >
                   <LuArrowDownUp className="h-5 w-5" />
                 </button>
@@ -143,6 +146,7 @@ const FilterControls = ({
                     className="p-2 rounded-lg bg-[#1E293B] text-white hover:bg-gradient-to-r hover:from-[#1E293B] hover:to-[#111C2F] transition-all duration-200 shadow-lg shadow-blue-900/10 transform hover:scale-105"
                     onClick={() => setShowDateRangeMenu(!showDateRangeMenu)}
                     disabled={contextLoading}
+                    aria-label="Filter by date range"
                   >
                     <Calendar className="h-5 w-5" />
                   </button>
@@ -153,7 +157,7 @@ const FilterControls = ({
               </Tooltip>
             </TooltipProvider>
             {showDateRangeMenu && (
-              <div className="absolute right-0 mt-2 w-64 bg-[#111C2F]/95 backdrop-blur-lg rounded-lg shadow-xl z-20 border border-[#1E293B]">
+              <div className="absolute lg:right-0 right-[-50px] mt-2 lg:w-64 bg-[#111C2F]/95 backdrop-blur-lg rounded-lg shadow-xl z-20 border border-[#1E293B]">
                 {(["All", "Weekly", "Monthly", "Yearly", "Custom"] as DateRange[]).map((range) => (
                   <div key={range} className="border-b border-[#1E293B] last:border-0">
                     <button
@@ -165,14 +169,14 @@ const FilterControls = ({
                       {range}
                     </button>
                     {range === "Custom" && dateRangeFilter === "Custom" && (
-                      <div className="p-3 bg-[#182235] flex flex-col gap-3">
+                      <div className="mx-auto p-3 bg-[#182235] flex flex-col gap-3">
                         <div>
                           <label className="text-sm text-[#94A3B8]">Start Date</label>
                           <Popover>
                             <PopoverTrigger asChild>
                               <Button
                                 variant="outline"
-                                className="w-full justify-start text-left bg-[#111C2F] border-[#1E293B] text-white hover:bg-[#1E293B]"
+                                className="w-full justify-center text-left bg-[#111C2F] border-[#1E293B] text-white hover:bg-[#1E293B]"
                               >
                                 {customStartDate instanceof Date && !isNaN(customStartDate.getTime()) ? (
                                   format(customStartDate, "PPP")
@@ -197,7 +201,7 @@ const FilterControls = ({
                             <PopoverTrigger asChild>
                               <Button
                                 variant="outline"
-                                className="w-full justify-start text-left bg-[#111C2F] border-[#1E293B] text-white hover:bg-[#1E293B]"
+                                className="lg:w-full justify-start text-left bg-[#111C2F] border-[#1E293B] text-white hover:bg-[#1E293B]"
                               >
                                 {customEndDate instanceof Date && !isNaN(customEndDate.getTime()) ? (
                                   format(customEndDate, "PPP")
@@ -217,7 +221,7 @@ const FilterControls = ({
                           </Popover>
                         </div>
                         <Button
-                          className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white border-none shadow-lg shadow-blue-900/20 transform hover:scale-105"
+                          className="bg-gradient-to-r from-blue-500 hover:from-blue-600 hover:to-indigo-700 text-white border-none shadow-lg shadow-blue-900/20 transform hover:scale-105"
                           onClick={() => setShowDateRangeMenu(false)}
                         >
                           Apply
@@ -289,6 +293,7 @@ const FilterControls = ({
                     className="p-2 rounded-lg bg-[#1E293B] text-white hover:bg-gradient-to-r hover:from-[#1E293B] hover:to-[#111C2F] transition-all duration-200 shadow-lg shadow-blue-900/10 transform hover:scale-105"
                     onClick={() => setShowStatusMenu(!showStatusMenu)}
                     disabled={contextLoading}
+                    aria-label="Filter by status"
                   >
                     <GiSettingsKnobs className="h-5 w-5" />
                   </button>
@@ -299,7 +304,7 @@ const FilterControls = ({
               </Tooltip>
             </TooltipProvider>
             {showStatusMenu && (
-              <div className="absolute right-0 mt-2 w-48 bg-[#111C2F]/95 backdrop-blur-lg rounded-lg shadow-xl z-10 border border-[#1E293B]">
+              <div className="absolute right-[0px] lg:right-0 mt-2 lg:w-48 bg-[#111C2F]/95 backdrop-blur-lg rounded-lg shadow-xl z-10 border border-[#1E293B]">
                 {(["All", "Successful", "Failed", "Pending"] as StatusFilter[]).map((status) => (
                   <button
                     key={status}
@@ -309,15 +314,6 @@ const FilterControls = ({
                     onClick={() => {
                       setStatusFilter(status);
                       setShowStatusMenu(false);
-                      toast.success(`Filtered by status: ${status}`, {
-                        position: "bottom-right",
-                        autoClose: 3000,
-                        hideProgressBar: false,
-                        closeOnClick: true,
-                        pauseOnHover: true,
-                        draggable: true,
-                        theme: "dark",
-                      });
                     }}
                   >
                     {status !== "All" && getStatusIcon(status)}
@@ -327,6 +323,23 @@ const FilterControls = ({
               </div>
             )}
           </div>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  className="p-2 rounded-lg bg-[#1E293B] text-white hover:bg-gradient-to-r hover:from-[#1E293B] hover:to-[#111C2F] transition-all duration-200 shadow-lg shadow-blue-900/10 transform hover:scale-105"
+                  onClick={handleRefresh}
+                  disabled={contextLoading}
+                  aria-label="Refresh transactions"
+                >
+                  <RefreshCw className="h-5 w-5" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent className="bg-[#111C2F] text-white border-[#1E293B]">
+                Refresh transactions
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
       </div>
       <div className="flex flex-col sm:flex-row items-center gap-3">
@@ -342,7 +355,7 @@ const FilterControls = ({
           />
         </div>
         <Button
-          className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white w-full sm:w-auto transition-all duration-200 transform hover:scale-105 shadow-lg shadow-blue-900/20 font-medium"
+          className="bg-[#1D4ED8] hover:bg-blue-600 text-white w-full sm:w-auto transition-all duration-200 transform hover:scale-105 shadow-lg shadow-blue-900/20 font-medium"
           onClick={handleSearch}
           disabled={isSearching || contextLoading}
         >
@@ -366,12 +379,14 @@ const TransactionTable = ({
   refetch,
   isSearching,
   paginatedTransactionDisplays,
+  hasRealError,
 }: {
   contextLoading: boolean;
   contextError: string | null;
   refetch: () => void;
   isSearching: boolean;
   paginatedTransactionDisplays: TransactionDisplay[];
+  hasRealError: boolean;
 }) => {
   const getStatusIcon = (status: StatusFilter) => {
     switch (status) {
@@ -439,7 +454,8 @@ const TransactionTable = ({
   console.log("TransactionTable: contextLoading =", contextLoading);
 
   return (
-    <div className="relative flex-1 min-h-0 overflow-x-hidden hover:overflow-x-visible overflow-y-auto border border-[#1E293B] rounded-lg bg-[#0A1525]/60 backdrop-blur-sm table-container shadow-xl shadow-blue-900/5 transition-all duration-300">      {contextLoading && (
+    <div className="relative flex-1 min-h-0 overflow-x-hidden hover:overflow-x-visible overflow-y-auto border border-[#1E293B] rounded-lg bg-[#0A1525]/60 backdrop-blur-sm table-container shadow-xl shadow-blue-900/5 transition-all duration-300">
+      {contextLoading && (
         <div className="absolute inset-0 bg-[#0A1525]/90 backdrop-blur-md flex items-center justify-center z-50">
           <div className="flex flex-col items-center gap-4 p-6 bg-[#111C2F]/80 rounded-lg shadow-2xl shadow-blue-900/20">
             <Loader2 className="h-16 w-16 animate-spin text-blue-500" />
@@ -458,7 +474,7 @@ const TransactionTable = ({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {contextError ? (
+          {hasRealError ? (
             <TableRow className="bg-[#111C2F] hover:bg-[#111C2F]">
               <TableCell colSpan={5} className="py-8 text-center text-[#94A3B8]">
                 <div className="flex flex-col items-center justify-center gap-4">
@@ -466,7 +482,7 @@ const TransactionTable = ({
                   <p className="text-lg font-medium text-white">Failed to load transactions</p>
                   <p className="text-sm text-[#94A3B8]">{contextError}</p>
                   <Button
-                    className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white transition-all duration-200 transform hover:scale-105 shadow-lg shadow-blue-900/20 font-medium"
+                    className="bg-[#1D4ED8] hover:bg-blue-600 text-white transition-all duration-200 transform hover:scale-105 shadow-lg shadow-blue-900/20 font-medium"
                     onClick={() => {
                       refetch();
                       toast.info("Retrying to fetch transactions...", {
@@ -502,7 +518,7 @@ const TransactionTable = ({
             paginatedTransactionDisplays.map((tx, index) => (
               <TableRow
                 key={index}
-                className="bg-[#111C2F] overflow-x-hidden hover:overflow-x-hidden  border-b border-[#1E293B] hover:bg-[#1E293B]/80  duration-200"
+                className="bg-[#111C2F] border-b border-[#1E293B] hover:bg-[#1E293B]/80 duration-200"
               >
                 <TableCell className="font-medium text-white py-4 text-sm">{tx.date}</TableCell>
                 <TableCell className="text-[#94A3B8] py-4 text-sm">{tx.description}</TableCell>
@@ -514,7 +530,7 @@ const TransactionTable = ({
                   </div>
                 </TableCell>
                 <TableCell className="py-4">
-                  <div className="flex items-center ">
+                  <div className="flex items-center">
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
@@ -522,7 +538,7 @@ const TransactionTable = ({
                             href={tx.explorerUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-blue-400 hover:text-blue-300 underline-offset-4 he transition-colors font-mono text-sm"
+                            className="text-blue-400 hover:text-blue-300 underline-offset-4 transition-colors font-mono text-sm"
                             onClick={() => {
                               toast.info("Opening transaction in explorer", {
                                 position: "bottom-right",
@@ -641,7 +657,7 @@ const Pagination = ({
                 size="sm"
                 className={`${
                   currentPage === page
-                    ? "bg-gradient-to-r from-blue-500 to-indigo-600 text-white"
+                    ? "bg-[#1D4ED8] text-white"
                     : "bg-[#111C2F] border-[#1E293B] text-white hover:bg-[#1E293B]"
                 } transform hover:scale-105 transition-all`}
                 onClick={() => handlePageChange(page)}
@@ -679,7 +695,7 @@ const Pagination = ({
 
 export default function DashboardTransactions() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("All");
   const [dateRangeFilter, setDateRangeFilter] = useState<DateRange>("All");
   const [showStatusMenu, setShowStatusMenu] = useState(false);
@@ -693,25 +709,17 @@ export default function DashboardTransactions() {
   const [filteredTransactions, setFilteredTransactions] = useState<TransactionDisplay[]>([]);
   const [displayTransactions, setDisplayTransactions] = useState<TransactionDisplay[]>([]);
   const [isSearching, setIsSearching] = useState(false);
-  const pathname = usePathname();
 
+  const hasRealError = useMemo(() => {
+    return !!(contextError && !contextError.toLowerCase().includes("no transactions"));
+  }, [contextError]);
 
-  // Fetch transactions on initial load and when navigating back to the page
   useEffect(() => {
-    console.log("DashboardTransactions: pathname =", pathname, "contextLoading =", contextLoading, "transactions =", transactions.length);
-    if (!contextLoading && transactions.length === 0) {
-      console.log("No transactions, triggering refetch");
-      refetch();
-    }
-  }, [pathname, refetch, contextLoading, transactions.length]);
-
-  // Log loading and error states
-  useEffect(() => {
-    console.log("DashboardTransactions: contextLoading =", contextLoading, "contextError =", contextError);
+    console.log("DashboardTransactions: contextLoading =", contextLoading, "contextError =", contextError, "transactions =", transactions.length);
     if (contextLoading) {
       console.log("Loading state is active, should see overlay in TransactionTable");
     }
-    if (contextError) {
+    if (hasRealError) {
       toast.error(`Failed to load transactions: ${contextError}`, {
         position: "bottom-right",
         autoClose: 5000,
@@ -722,9 +730,11 @@ export default function DashboardTransactions() {
         theme: "dark",
       });
     }
-  }, [contextLoading, contextError]);
+    if (!contextLoading && !contextError && transactions.length === 0) {
+      console.log("No transactions found, should render empty state");
+    }
+  }, [contextLoading, contextError, hasRealError, transactions.length]);
 
-  // Update transactions when fetched
   useEffect(() => {
     if (transactions.length > 0) {
       const formatted = transactions.map(mapToDisplayFormat);
@@ -752,8 +762,8 @@ export default function DashboardTransactions() {
       const today = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
 
       return data.filter((tx) => {
-        const [day, month, year] = tx.date.split("/").map(Number);
-        const txDate = new Date(year, month - 1, day);
+        const [day, txMonth, txYear] = tx.date.split("/").map(Number);
+        const txDate = new Date(txYear, txMonth - 1, day);
 
         switch (range) {
           case "Weekly":
@@ -762,20 +772,17 @@ export default function DashboardTransactions() {
             return txDate >= weekAgo && txDate <= today;
 
           case "Monthly":
-            const parsedMonth = month;
-            const monthYear = year;
-            if (!isNaN(parsedMonth)) {
-              const startOfMonth = new Date(monthYear, parsedMonth , 1);
-              const endOfMonth = new Date(monthYear, parsedMonth, 31);
+            if (month instanceof Date && !isNaN(month.getTime())) {
+              const startOfMonth = new Date(month.getFullYear(), month.getMonth(), 1);
+              const endOfMonth = new Date(month.getFullYear(), month.getMonth() + 1, 0); // Last day of the month
               return txDate >= startOfMonth && txDate <= endOfMonth;
             }
             return false;
 
           case "Yearly":
-            const parsedYear = year;
-            if (!isNaN(parsedYear)) {
-              const startOfYear = new Date(parsedYear, 0, 1);
-              const endOfYear = new Date(parsedYear, 11, 31);
+            if (year instanceof Date && !isNaN(year.getTime())) {
+              const startOfYear = new Date(year.getFullYear(), 0, 1);
+              const endOfYear = new Date(year.getFullYear(), 11, 31);
               return txDate >= startOfYear && txDate <= endOfYear;
             }
             return false;
@@ -810,9 +817,35 @@ export default function DashboardTransactions() {
       results = applyDateRangeFilter(results, dateRange);
 
       results.sort((a, b) => {
-        const dateA = new Date(a.date.split("/").reverse().join("/"));
-        const dateB = new Date(b.date.split("/").reverse().join("/"));
-        return direction === "desc" ? dateB.getTime() - dateA.getTime() : dateA.getTime() - dateB.getTime();
+        const parseDate = (dateStr: string): Date => {
+          try {
+            const parts = dateStr.split("/");
+            if (parts.length !== 3) throw new Error("Invalid date format");
+            const day = parts[0].padStart(2, "0");
+            const month = parts[1].padStart(2, "0");
+            const year = parts[2];
+            const normalizedDate = `${day}/${month}/${year}`;
+            const date = parse(normalizedDate, "dd/MM/yyyy", new Date());
+            if (isNaN(date.getTime())) {
+              console.warn(`Invalid date parsed: ${dateStr} -> ${normalizedDate}`);
+              return new Date(0);
+            }
+            return date;
+          } catch (error) {
+            console.warn(`Failed to parse date: ${dateStr}`, error);
+            return new Date(0);
+          }
+        };
+
+        const dateA = parseDate(a.date);
+        const dateB = parseDate(b.date);
+
+        const dateDiff = direction === "desc" ? dateB.getTime() - dateA.getTime() : dateA.getTime() - dateB.getTime();
+        if (dateDiff !== 0) return dateDiff;
+
+        const amountA = parseFloat(a.amount.replace("NGN", ""));
+        const amountB = parseFloat(b.amount.replace("NGN", ""));
+        return direction === "desc" ? amountB - amountA : amountA - amountB;
       });
 
       setFilteredTransactions(results);
@@ -825,15 +858,6 @@ export default function DashboardTransactions() {
     const newDirection = sortDirection === "asc" ? "desc" : "asc";
     setSortDirection(newDirection);
     setCurrentPage(1);
-    toast.info(`Sorted by date: ${newDirection === "asc" ? "Oldest first" : "Newest first"}`, {
-      position: "bottom-right",
-      autoClose: 3000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      theme: "dark",
-    });
   }, [sortDirection]);
 
   const handleDateRangeFilter = useCallback(
@@ -845,15 +869,6 @@ export default function DashboardTransactions() {
       }
       setShowDateRangeMenu(false);
       setCurrentPage(1);
-      toast.success(`Filtered by date range: ${range}`, {
-        position: "bottom-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "dark",
-      });
     },
     []
   );
@@ -864,15 +879,6 @@ export default function DashboardTransactions() {
       if (!searchQuery.trim()) {
         applyFilters(statusFilter, sortDirection, dateRangeFilter);
         setIsSearching(false);
-        toast.info("Search cleared, showing all transactions", {
-          position: "bottom-right",
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          theme: "dark",
-        });
         return;
       }
 
@@ -889,15 +895,6 @@ export default function DashboardTransactions() {
       setFilteredTransactions(filteredResults);
       setCurrentPage(1);
       setIsSearching(false);
-      toast.success(`Found ${filteredResults.length} matching transactions`, {
-        position: "bottom-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "dark",
-      });
     }, 500);
   }, [searchQuery, displayTransactions, statusFilter, dateRangeFilter, applyDateRangeFilter, applyFilters, sortDirection]);
 
@@ -906,19 +903,23 @@ export default function DashboardTransactions() {
       if (page >= 1 && page <= totalPages) {
         setCurrentPage(page);
         document.querySelector(".table-container")?.scrollTo(0, 0);
-        toast.info(`Navigated to page ${page}`, {
-          position: "bottom-right",
-          autoClose: 2000,
-          hideProgressBar: true,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          theme: "dark",
-        });
       }
     },
     [totalPages]
   );
+
+  const handleRefresh = useCallback(() => {
+    refetch();
+    toast.info("Retrying to fetch transactions...", {
+      position: "bottom-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      theme: "dark",
+    });
+  }, [refetch]);
 
   useEffect(() => {
     applyFilters(statusFilter, sortDirection, dateRangeFilter);
@@ -964,6 +965,7 @@ export default function DashboardTransactions() {
           isSearching={isSearching}
           contextLoading={contextLoading}
           handleSearch={handleSearch}
+          handleRefresh={handleRefresh}
         />
         <div className="flex flex-wrap items-center gap-3 text-sm text-[#94A3B8]">
           {statusFilter !== "All" && (
@@ -1017,6 +1019,7 @@ export default function DashboardTransactions() {
           refetch={refetch}
           isSearching={isSearching}
           paginatedTransactionDisplays={paginatedTransactionDisplays}
+          hasRealError={hasRealError}
         />
         <Pagination
           contextLoading={contextLoading}
