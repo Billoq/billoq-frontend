@@ -314,7 +314,6 @@ const FilterControls = ({
                     onClick={() => {
                       setStatusFilter(status);
                       setShowStatusMenu(false);
-                     
                     }}
                   >
                     {status !== "All" && getStatusIcon(status)}
@@ -356,7 +355,7 @@ const FilterControls = ({
           />
         </div>
         <Button
-          className=" bg-[#1D4ED8] hover:bg-blue-600 text-white w-full sm:w-auto transition-all duration-200 transform hover:scale-105 shadow-lg shadow-blue-900/20 font-medium"
+          className="bg-[#1D4ED8] hover:bg-blue-600 text-white w-full sm:w-auto transition-all duration-200 transform hover:scale-105 shadow-lg shadow-blue-900/20 font-medium"
           onClick={handleSearch}
           disabled={isSearching || contextLoading}
         >
@@ -380,12 +379,14 @@ const TransactionTable = ({
   refetch,
   isSearching,
   paginatedTransactionDisplays,
+  hasRealError,
 }: {
   contextLoading: boolean;
   contextError: string | null;
   refetch: () => void;
   isSearching: boolean;
   paginatedTransactionDisplays: TransactionDisplay[];
+  hasRealError: boolean;
 }) => {
   const getStatusIcon = (status: StatusFilter) => {
     switch (status) {
@@ -473,7 +474,7 @@ const TransactionTable = ({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {contextError ? (
+          {hasRealError ? (
             <TableRow className="bg-[#111C2F] hover:bg-[#111C2F]">
               <TableCell colSpan={5} className="py-8 text-center text-[#94A3B8]">
                 <div className="flex flex-col items-center justify-center gap-4">
@@ -481,10 +482,18 @@ const TransactionTable = ({
                   <p className="text-lg font-medium text-white">Failed to load transactions</p>
                   <p className="text-sm text-[#94A3B8]">{contextError}</p>
                   <Button
-                    className="bg-[#1D4ED8] hover:bg-blue-600  text-white transition-all duration-200 transform hover:scale-105 shadow-lg shadow-blue-900/20 font-medium"
+                    className="bg-[#1D4ED8] hover:bg-blue-600 text-white transition-all duration-200 transform hover:scale-105 shadow-lg shadow-blue-900/20 font-medium"
                     onClick={() => {
                       refetch();
-                      
+                      toast.info("Retrying to fetch transactions...", {
+                        position: "bottom-right",
+                        autoClose: 3000,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        theme: "dark",
+                      });
                     }}
                   >
                     Retry
@@ -648,8 +657,8 @@ const Pagination = ({
                 size="sm"
                 className={`${
                   currentPage === page
-                    ? "bg-[#1D4ED8]  text-white"
-                    : "bg-[#0b398a] border-[#1E293B] text-white hover:bg-[#1E293B]"
+                    ? "bg-[#1D4ED8] text-white"
+                    : "bg-[#111C2F] border-[#1E293B] text-white hover:bg-[#1E293B]"
                 } transform hover:scale-105 transition-all`}
                 onClick={() => handlePageChange(page)}
                 aria-label={`Page ${page}`}
@@ -701,12 +710,16 @@ export default function DashboardTransactions() {
   const [displayTransactions, setDisplayTransactions] = useState<TransactionDisplay[]>([]);
   const [isSearching, setIsSearching] = useState(false);
 
+  const hasRealError = useMemo(() => {
+    return !!(contextError && !contextError.toLowerCase().includes("no transactions"));
+  }, [contextError]);
+
   useEffect(() => {
-    console.log("DashboardTransactions: contextLoading =", contextLoading, "contextError =", contextError);
+    console.log("DashboardTransactions: contextLoading =", contextLoading, "contextError =", contextError, "transactions =", transactions.length);
     if (contextLoading) {
       console.log("Loading state is active, should see overlay in TransactionTable");
     }
-    if (contextError) {
+    if (hasRealError) {
       toast.error(`Failed to load transactions: ${contextError}`, {
         position: "bottom-right",
         autoClose: 5000,
@@ -717,7 +730,10 @@ export default function DashboardTransactions() {
         theme: "dark",
       });
     }
-  }, [contextLoading, contextError]);
+    if (!contextLoading && !contextError && transactions.length === 0) {
+      console.log("No transactions found, should render empty state");
+    }
+  }, [contextLoading, contextError, hasRealError, transactions.length]);
 
   useEffect(() => {
     if (transactions.length > 0) {
@@ -746,8 +762,8 @@ export default function DashboardTransactions() {
       const today = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
 
       return data.filter((tx) => {
-        const [day, month, year] = tx.date.split("/").map(Number);
-        const txDate = new Date(year, month - 1, day);
+        const [day, txMonth, txYear] = tx.date.split("/").map(Number);
+        const txDate = new Date(txYear, txMonth - 1, day);
 
         switch (range) {
           case "Weekly":
@@ -755,24 +771,21 @@ export default function DashboardTransactions() {
             weekAgo.setDate(weekAgo.getDate() - 7);
             return txDate >= weekAgo && txDate <= today;
 
-            case "Monthly":
-              const parsedMonth = month;
-              const monthYear = year;
-              if (!isNaN(parsedMonth)) {
-                const startOfMonth = new Date(monthYear, parsedMonth , 1);
-                const endOfMonth = new Date(monthYear, parsedMonth, 31);
-                return txDate >= startOfMonth && txDate <= endOfMonth;
-              }
-              return false;
-  
-            case "Yearly":
-              const parsedYear = year;
-              if (!isNaN(parsedYear)) {
-                const startOfYear = new Date(parsedYear, 0, 1);
-                const endOfYear = new Date(parsedYear, 11, 31);
-                return txDate >= startOfYear && txDate <= endOfYear;
-              }
-              return false;
+          case "Monthly":
+            if (month instanceof Date && !isNaN(month.getTime())) {
+              const startOfMonth = new Date(month.getFullYear(), month.getMonth(), 1);
+              const endOfMonth = new Date(month.getFullYear(), month.getMonth() + 1, 0); // Last day of the month
+              return txDate >= startOfMonth && txDate <= endOfMonth;
+            }
+            return false;
+
+          case "Yearly":
+            if (year instanceof Date && !isNaN(year.getTime())) {
+              const startOfYear = new Date(year.getFullYear(), 0, 1);
+              const endOfYear = new Date(year.getFullYear(), 11, 31);
+              return txDate >= startOfYear && txDate <= endOfYear;
+            }
+            return false;
 
           case "Custom":
             if (
@@ -845,7 +858,6 @@ export default function DashboardTransactions() {
     const newDirection = sortDirection === "asc" ? "desc" : "asc";
     setSortDirection(newDirection);
     setCurrentPage(1);
-    
   }, [sortDirection]);
 
   const handleDateRangeFilter = useCallback(
@@ -857,7 +869,6 @@ export default function DashboardTransactions() {
       }
       setShowDateRangeMenu(false);
       setCurrentPage(1);
-     
     },
     []
   );
@@ -868,7 +879,6 @@ export default function DashboardTransactions() {
       if (!searchQuery.trim()) {
         applyFilters(statusFilter, sortDirection, dateRangeFilter);
         setIsSearching(false);
-      
         return;
       }
 
@@ -885,7 +895,6 @@ export default function DashboardTransactions() {
       setFilteredTransactions(filteredResults);
       setCurrentPage(1);
       setIsSearching(false);
-     
     }, 500);
   }, [searchQuery, displayTransactions, statusFilter, dateRangeFilter, applyDateRangeFilter, applyFilters, sortDirection]);
 
@@ -894,7 +903,6 @@ export default function DashboardTransactions() {
       if (page >= 1 && page <= totalPages) {
         setCurrentPage(page);
         document.querySelector(".table-container")?.scrollTo(0, 0);
-       
       }
     },
     [totalPages]
@@ -902,7 +910,15 @@ export default function DashboardTransactions() {
 
   const handleRefresh = useCallback(() => {
     refetch();
-    
+    toast.info("Retrying to fetch transactions...", {
+      position: "bottom-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      theme: "dark",
+    });
   }, [refetch]);
 
   useEffect(() => {
@@ -1003,6 +1019,7 @@ export default function DashboardTransactions() {
           refetch={refetch}
           isSearching={isSearching}
           paginatedTransactionDisplays={paginatedTransactionDisplays}
+          hasRealError={hasRealError}
         />
         <Pagination
           contextLoading={contextLoading}

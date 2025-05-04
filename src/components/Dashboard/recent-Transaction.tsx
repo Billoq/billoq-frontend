@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useMemo } from "react";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { useTransactions } from "@/context/transaction-context";
@@ -32,6 +33,43 @@ const mapToRecentDisplayFormat = (tx: Transaction): RecentTransactionDisplay => 
 
 export function RecentTransactions({ searchQuery = "" }: RecentTransactionsProps) {
   const { transactions, loading, error, refetch } = useTransactions();
+
+  // Determine if error is real (not "no transactions")
+  const hasRealError = useMemo(() => {
+    return !!(error && !error.toLowerCase().includes("no transactions"));
+  }, [error]);
+
+  // Debug logging
+  useEffect(() => {
+    console.log("RecentTransactions: loading =", loading, "error =", error, "transactions =", transactions.length);
+    if (loading) {
+      console.log("Loading state is active, showing skeletons");
+    }
+    if (hasRealError) {
+      toast.error(`Failed to load transactions: ${error}`, {
+        position: "bottom-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "dark",
+      });
+    }
+    if (!loading && !error && transactions.length === 0) {
+      console.log("No transactions found, should render empty state");
+      // Optional: Toast for empty state (comment out if not desired)
+      // toast.info("No transactions found", {
+      //   position: "bottom-right",
+      //   autoClose: 3000,
+      //   hideProgressBar: true,
+      //   closeOnClick: true,
+      //   pauseOnHover: true,
+      //   draggable: true,
+      //   theme: "dark",
+      // });
+    }
+  }, [loading, error, hasRealError, transactions.length]);
 
   // Filter and sort transactions
   const recentTransactions = transactions
@@ -79,7 +117,7 @@ export function RecentTransactions({ searchQuery = "" }: RecentTransactionsProps
       // Secondary sort: Higher amountInNaira first (e.g., 500 > 50)
       return b.amountInNaira - a.amountInNaira;
     })
-    .slice(0, 9); // Limit to 10 transactions
+    .slice(0, 9); // Limit to 9 transactions
 
   const handleRetry = () => {
     refetch();
@@ -161,7 +199,7 @@ export function RecentTransactions({ searchQuery = "" }: RecentTransactionsProps
                         </td>
                       </tr>
                     ))
-                ) : error ? (
+                ) : hasRealError ? (
                   // Error state
                   <tr>
                     <td colSpan={4} className="py-8 text-center text-[#94A3B8]">
@@ -170,7 +208,7 @@ export function RecentTransactions({ searchQuery = "" }: RecentTransactionsProps
                         <p className="text-lg font-medium text-white">Failed to load transactions</p>
                         <p className="text-sm text-[#94A3B8]">{error}</p>
                         <Button
-                          className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white transition-all duration-200 transform hover:scale-105 shadow-lg shadow-blue-900/20 font-medium"
+                          className="bg-[#1D4ED8] hover:bg-blue-600 text-white transition-all duration-200 transform hover:scale-105 shadow-lg shadow-blue-900/20 font-medium"
                           onClick={handleRetry}
                         >
                           Retry
