@@ -158,33 +158,37 @@ export function DashboardHeader({
       </h1>
 
       <div className="flex items-center gap-2 md:gap-4">
-        {/* Desktop search */}
-        <div className="hidden lg:flex">
-          <SearchInput onSearch={handleSearch} />
-        </div>
+        {/* Desktop search - only on /dashboard */}
+        {pathname === "/dashboard" && (
+          <div className="hidden lg:flex">
+            <SearchInput onSearch={handleSearch} />
+          </div>
+        )}
         
-        {/* Mobile search button and expandable search input */}
-        <div className="lg:hidden relative">
-          {isMobileSearchOpen ? (
-            <div className="absolute right-0 top-0 z-10 w-screen max-w-xs -mr-4">
-              <SearchInput 
-                onSearch={handleSearch} 
-                autoFocus={true}
-                onBlur={() => setIsMobileSearchOpen(false)}
-              />
-            </div>
-          ) : (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsMobileSearchOpen(true)}
-              className="text-gray-400 hover:text-white"
-            >
-              <Search className="h-5 w-5" />
-              <span className="sr-only">Search</span>
-            </Button>
-          )}
-        </div>
+        {/* Mobile search button and expandable search input - only on /dashboard */}
+        {pathname === "/dashboard" && (
+          <div className="lg:hidden relative">
+            {isMobileSearchOpen ? (
+              <div className="fixed inset-x-0 top-16 z-50 mx-auto w-full max-w-md px-4 py-2 bg-[#0f172a] shadow-lg">
+                <SearchInput 
+                  onSearch={handleSearch} 
+                  autoFocus={true}
+                  onBlur={() => setIsMobileSearchOpen(false)}
+                />
+              </div>
+            ) : (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsMobileSearchOpen(true)}
+                className="text-gray-400 hover:text-white"
+              >
+                <Search className="h-5 w-5" />
+                <span className="sr-only">Search</span>
+              </Button>
+            )}
+          </div>
+        )}
 
         {isConnected ? (
           <div className="relative" ref={dropdownRef}>

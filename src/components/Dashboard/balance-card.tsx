@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useBalance } from "@/context/balance-context";
 import Link from "next/link";
-import { toast } from 'react-toastify';
+
 
 export function BalanceCard() {
   const {
@@ -27,7 +27,6 @@ export function BalanceCard() {
 
   const handleToggleVisibility = () => {
     toggleBalanceVisibility();
-    toast.info(`Balances ${hideBalances ? 'shown' : 'hidden'}`);
   };
 
   return (

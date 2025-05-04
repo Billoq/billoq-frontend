@@ -8,33 +8,78 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "react-toastify";
+import { parse } from "date-fns";
 
 type RecentTransactionDisplay = {
   date: string;
   description: string;
   amount: string;
   status: "completed" | "pending" | "failed";
+  amountInNaira: number; // Added for sorting
 };
 
+interface RecentTransactionsProps {
+  searchQuery?: string;
+}
+
 const mapToRecentDisplayFormat = (tx: Transaction): RecentTransactionDisplay => ({
-  date: tx.date, // Already in DD/MM/YYYY format
+  date: tx.date, // Expected in DD/MM/YYYY format
   description: tx.description,
   amount: `₦${tx.amountInNaira.toFixed(2)}`, // Format as NGN
   status: tx.status, // completed, failed, or pending
+  amountInNaira: tx.amountInNaira, // Keep raw amount for sorting
 });
 
-export function RecentTransactions() {
+export function RecentTransactions({ searchQuery = "" }: RecentTransactionsProps) {
   const { transactions, loading, error, refetch } = useTransactions();
 
-  // Sort transactions by date (newest first) and take the first 10
+  // Filter and sort transactions
   const recentTransactions = transactions
     .map(mapToRecentDisplayFormat)
+    .filter((tx) =>
+      searchQuery
+        ? tx.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          tx.date.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          tx.amount.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          tx.status.toLowerCase().includes(searchQuery.toLowerCase())
+        : true
+    )
     .sort((a, b) => {
-      const dateA = new Date(a.date.split("/").reverse().join("/"));
-      const dateB = new Date(b.date.split("/").reverse().join("/"));
-      return dateB.getTime() - dateA.getTime(); // Newest first
+      // Handle date parsing with date-fns
+      const parseDate = (dateStr: string): Date => {
+        try {
+          // Normalize date format (e.g., "4/5/2025" -> "04/05/2025")
+          const parts = dateStr.split("/");
+          if (parts.length !== 3) throw new Error("Invalid date format");
+
+          const day = parts[0].padStart(2, "0");
+          const month = parts[1].padStart(2, "0");
+          const year = parts[2];
+          const normalizedDate = `${day}/${month}/${year}`;
+
+          const date = parse(normalizedDate, "dd/MM/yyyy", new Date());
+          if (isNaN(date.getTime())) {
+            console.warn(`Invalid date parsed: ${dateStr} -> ${normalizedDate}`);
+            return new Date(0); // Fallback to epoch
+          }
+          return date;
+        } catch (error) {
+          console.warn(`Failed to parse date: ${dateStr}`, error);
+          return new Date(0); // Fallback to epoch
+        }
+      };
+
+      const dateA = parseDate(a.date);
+      const dateB = parseDate(b.date);
+
+      // Primary sort: Newest date first
+      const dateDiff = dateB.getTime() - dateA.getTime();
+      if (dateDiff !== 0) return dateDiff;
+
+      // Secondary sort: Higher amountInNaira first (e.g., 500 > 50)
+      return b.amountInNaira - a.amountInNaira;
     })
-    .slice(0, 10);
+    .slice(0, 9); // Limit to 10 transactions
 
   const handleRetry = () => {
     refetch();
@@ -54,7 +99,7 @@ export function RecentTransactions() {
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold text-white">Recent Transactions</h2>
         <Link
-          href="dashboard/transactions"
+          href="/dashboard/transactions"
           className="text-sm font-medium text-blue-400 hover:text-blue-300 transition-colors flex items-center"
         >
           View All
@@ -162,12 +207,18 @@ export function RecentTransactions() {
                     </tr>
                   ))
                 ) : (
-                  // No transactions
+                  // No transactions or no search results
                   <tr>
                     <td colSpan={4} className="py-8 text-center text-[#94A3B8]">
                       <div className="flex flex-col items-center justify-center gap-2">
-                        <p className="text-lg font-medium">No transactions found</p>
-                        <p className="text-sm">Your recent transactions will appear here</p>
+                        <p className="text-lg font-medium">
+                          {searchQuery ? "No matching transactions found" : "No transactions found"}
+                        </p>
+                        <p className="text-sm">
+                          {searchQuery
+                            ? "Try a different search term"
+                            : "Your recent transactions will appear here"}
+                        </p>
                       </div>
                     </td>
                   </tr>
