@@ -134,7 +134,7 @@ export default function DashboardSupport() {
                 className="ml-4 bg-transparent outline-none text-white text-lg w-full placeholder-slate-400 focus:placeholder-slate-500 transition-colors"
               />
             </div>
-            <Button className="w-full md:w-auto bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-lg font-medium px-8 py-6 h-auto rounded-xl shadow-lg shadow-blue-900/20 transition-all hover:shadow-blue-900/30 hover:scale-[1.02]">
+            <Button className="w-full md:w-auto bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-lg font-medium px-8 py-4 h-auto rounded-xl shadow-lg shadow-blue-900/20 transition-all hover:shadow-blue-900/30 hover:scale-[1.02]">
               Search
             </Button>
           </div>
