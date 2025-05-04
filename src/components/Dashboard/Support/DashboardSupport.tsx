@@ -77,14 +77,14 @@ const guides = [
 ]
 
 const communityLinks = [
-  {
-    title: "Join Billoq Discord",
-    link: "#",
-    icon: <MessageCircle className="h-5 w-5" />,
-  },
+  // {
+  //   title: "Join Billoq Discord",
+  //   link: "#",
+  //   icon: <MessageCircle className="h-5 w-5" />,
+  // },
   {
     title: "Follow on Twitter",
-    link: "#",
+    link: "https://x.com/Billoqapp?t=Rz3dhYlGmWo0K7Lv5eHwqQ&s=09",
     icon: <ExternalLink className="h-5 w-5" />,
   },
   {
@@ -255,7 +255,7 @@ export default function DashboardSupport() {
       {/* Contact Support */}
       <div className="mt-12 text-center">
         <p className="text-slate-400 mb-4">Can&apos;t find what you&apos;re looking for?</p>
-        <Button className="bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-8 py-6 h-auto text-lg font-medium rounded-xl shadow-lg shadow-blue-900/20 transition-all hover:shadow-blue-900/30">
+        <Button className="bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-8 py-4 h-auto text-lg font-medium rounded-xl shadow-lg shadow-blue-900/20 transition-all hover:shadow-blue-900/30">
           <MessageCircle className="mr-2 h-5 w-5" />
           Contact Support Team
         </Button>
