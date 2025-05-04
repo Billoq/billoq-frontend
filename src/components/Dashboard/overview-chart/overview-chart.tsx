@@ -8,6 +8,7 @@ import { TimeframeDropdown } from "./timeframe-dropdown";
 import { ChartError } from "./chart-error";
 import { ChartSkeleton } from "./chart-skeleton";
 import { ChartTooltip } from "./chart-tooltips";
+import { toast } from "react-toastify";
 
 export type TimeframeOption = "daily" | "weekly" | "monthly" | "yearly";
 
@@ -41,9 +42,46 @@ export function OverviewChart({
   strokeColor = "#22c55e", // Green color
 }: OverviewChartProps) {
   const [selectedTimeframe, setSelectedTimeframe] = useState<TimeframeOption>("daily"); // Default to daily
-  const { transactions, loading, error } = useTransactions();
+  const { transactions, loading, error, refetch } = useTransactions();
   const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
   const [totalValue, setTotalValue] = useState<number>(0);
+
+  // Determine if error is real (not "no transactions")
+  const hasRealError = useMemo(() => {
+    return !!(error && !error.toLowerCase().includes("no transactions"));
+  }, [error]);
+
+  // Debug logging
+  useEffect(() => {
+    console.log("OverviewChart: loading =", loading, "error =", error, "transactions =", transactions.length);
+    if (loading) {
+      console.log("Loading state is active, showing chart skeleton");
+    }
+    if (hasRealError) {
+      toast.error(`Failed to load chart data: ${error}`, {
+        position: "bottom-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "dark",
+      });
+    }
+    if (!loading && !error && transactions.length === 0) {
+      console.log("No transactions found, should render empty state");
+      // Optional: Toast for empty state (comment out if not desired)
+      // toast.info("No transaction data available", {
+      //   position: "bottom-right",
+      //   autoClose: 3000,
+      //   hideProgressBar: true,
+      //   closeOnClick: true,
+      //   pauseOnHover: true,
+      //   draggable: true,
+      //   theme: "dark",
+      // });
+    }
+  }, [loading, error, hasRealError, transactions.length]);
 
   // Custom formatter for Naira with shortened format
   const formatNaira = (value: number): string => {
@@ -102,7 +140,7 @@ export function OverviewChart({
 
   // Process transaction data based on selected timeframe
   useEffect(() => {
-    if (loading || error || !transactions) {
+    if (loading || hasRealError || !transactions) {
       setChartData([]);
       setTotalValue(0);
       return;
@@ -110,8 +148,6 @@ export function OverviewChart({
 
     const now = new Date();
     let startDate: Date;
-    // let dateFormat: string;
-    // let groupingFormat: string;
     let endDate: Date;
 
     // Set date range and format based on timeframe
@@ -119,32 +155,22 @@ export function OverviewChart({
       case "daily":
         startDate = subDays(now, 7); // Last 7 days, inclusive of today
         endDate = now; // Always include up to today
-        // dateFormat = "dd MMM"; // e.g., "24 Apr"
-        // groupingFormat = "yyyy-MM-dd";
         break;
       case "weekly":
         startDate = subWeeks(now, 4); // Last 4 weeks
         endDate = now;
-        // dateFormat = "'W'w yyyy"; // e.g., "W18 2025"
-        // groupingFormat = "yyyy-'W'w";
         break;
       case "monthly":
         startDate = subMonths(now, 6); // Last 6 months
         endDate = now;
-        // dateFormat = "MMM yyyy"; // e.g., "Apr 2025"
-        // groupingFormat = "yyyy-MM";
         break;
       case "yearly":
         startDate = subMonths(now, 12); // Last 12 months
         endDate = now;
-        // dateFormat = "MMM yyyy"; // e.g., "Apr 2025"
-        // groupingFormat = "yyyy-MM";
         break;
       default:
         startDate = subDays(now, 7);
         endDate = now;
-        // dateFormat = "dd MMM";
-        // groupingFormat = "yyyy-MM-dd";
     }
 
     // Filter transactions by date range and status
@@ -244,7 +270,7 @@ export function OverviewChart({
     const total = filteredTransactions.reduce((acc, tx) => acc + tx.amountInNaira, 0);
     setTotalValue(total);
     setChartData(datePoints);
-  }, [transactions, selectedTimeframe, loading, error]);
+  }, [transactions, selectedTimeframe, loading, hasRealError, refetch]);
 
   // Format the domain for the Y axis
   const getYAxisDomain = () => {
@@ -285,8 +311,8 @@ export function OverviewChart({
         <TimeframeDropdown value={selectedTimeframe} onChange={handleTimeframeChange} />
       </CardHeader>
       <CardContent className="p-0 pt-2">
-        {error ? (
-          <ChartError message={error} />
+        {hasRealError ? (
+          <ChartError message={error!} />
         ) : loading ? (
           <ChartSkeleton height={height} />
         ) : chartData.length > 0 ? (
