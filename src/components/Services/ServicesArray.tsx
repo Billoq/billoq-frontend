@@ -7,7 +7,8 @@ import {
   Video,
   GraduationCap,
   Monitor,
-  Fuel
+  Fuel,
+  Trophy
 } from "lucide-react"
 
 export type ServiceType = {
@@ -71,6 +72,13 @@ const services: ServiceType[] = [
     description: "Pay your education fees instantly",
     icon: GraduationCap,
     providers: ["Navient", "Nelnet", "Great Lakes"],
+    comingSoon: true,
+  },
+  {
+    title: "Betting",
+    description: "Pay your betting",
+    icon: Trophy,
+    providers: ["Sporty", "Stake", "Bet9ja"],
     comingSoon: true,
   },
 ]
