@@ -290,7 +290,7 @@ export function Navbar() {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
-  const router = useRouter(); // Add router for navigation
+  const router = useRouter();
 
   // AppKit hooks
   const { address: appkitAddress, isConnected: appkitIsConnected } = useAppKitAccount();
@@ -305,7 +305,6 @@ export function Navbar() {
   const address = appkitAddress || wagmiAddress;
   const isConnected = appkitIsConnected || wagmiIsConnected;
 
-  // Redirect to dashboard on wallet connection
   useEffect(() => {
     if (isConnected && pathname !== "/dashboard") {
       router.push("/dashboard");
@@ -318,29 +317,24 @@ export function Navbar() {
     addr ? `${addr.slice(0, 6)}...${addr.slice(-4)}` : "";
 
   const getWalletIcon = () => {
-    // Helper function to sanitize image URLs
     const sanitizeImageUrl = (url: string) => {
       if (!url) return null;
       
       try {
-        // Remove any leading/trailing whitespace
         const trimmedUrl = url.trim();
         
-        // If it's a data URI, validate it
         if (trimmedUrl.startsWith('data:')) {
           return trimmedUrl;
         }
         
-        // For regular URLs, ensure they're properly formatted
-        new URL(trimmedUrl); // This will throw if invalid
+        new URL(trimmedUrl);
         return trimmedUrl;
-      } catch (error) {
+      } catch {
         console.warn('Invalid wallet icon URL:', url);
         return null;
       }
     };
 
-    // Check for wallet info icon
     if (walletInfo?.icon) {
       const sanitizedUrl = sanitizeImageUrl(walletInfo.icon);
       if (sanitizedUrl) {
@@ -361,7 +355,6 @@ export function Navbar() {
       }
     }
 
-    // Check for connector icon
     if (connector?.icon) {
       const sanitizedUrl = sanitizeImageUrl(connector.icon);
       if (sanitizedUrl) {
@@ -382,7 +375,6 @@ export function Navbar() {
       }
     }
 
-    // Default wallet icon
     return <Wallet className="w-6 h-6 text-blue-500" />;
   };
 
@@ -391,8 +383,8 @@ export function Navbar() {
   const handleConnect = async () => {
     try {
       await open();
-    } catch (error) {
-      console.error("Connection error:", error);
+    } catch (error: unknown) {
+      console.error("Connection error:", error instanceof Error ? error.message : String(error));
     }
   };
 
@@ -409,9 +401,9 @@ export function Navbar() {
         wagmiDisconnect();
       }
       close();
-      router.push("/"); // Redirect to home after disconnect
-    } catch (error) {
-      console.error("Disconnect error:", error);
+      router.push("/");
+    } catch (error: unknown) {
+      console.error("Disconnect error:", error instanceof Error ? error.message : String(error));
     }
   };
 
