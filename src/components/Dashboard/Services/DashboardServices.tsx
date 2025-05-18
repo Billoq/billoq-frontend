@@ -16,6 +16,7 @@ import {
   Search,
   TrendingUp,
   Clock,
+  Trophy,
 } from "lucide-react"
 import { motion } from "framer-motion"
 import { Card, CardContent } from "@/components/ui/card"
@@ -468,6 +469,15 @@ const DashboardServices = () => {
                 label="Streaming service"
                 description="Pay for streaming subscriptions"
                 onSelect={() => handleServiceSelect("Streaming service")}
+                comingSoon={true}
+              />
+            )}
+             {filterServices("Betting") && (
+              <ServiceItem
+                icon={<Trophy  className="h-6 w-6" />}
+                label="Betting"
+                description="Place your bets"
+                onSelect={() => handleServiceSelect("Betting")}
                 comingSoon={true}
               />
             )}

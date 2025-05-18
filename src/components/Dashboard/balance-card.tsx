@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useBalance } from "@/context/balance-context";
 import Link from "next/link";
-import { toast } from 'react-toastify';
+
 
 export function BalanceCard() {
   const {
@@ -27,7 +27,6 @@ export function BalanceCard() {
 
   const handleToggleVisibility = () => {
     toggleBalanceVisibility();
-    toast.info(`Balances ${hideBalances ? 'shown' : 'hidden'}`);
   };
 
   return (
@@ -98,7 +97,7 @@ export function BalanceCard() {
       </Card>
 
       <Link href="/dashboard/services">
-        <Button className="w-full h-14 bg-gradient-to-r from-[#1D4ED8] to-[#1D4ED8]/70 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl shadow-md transition-all transform hover:-translate-y-0.5">
+        <Button className="w-full h-14 bg-gradient-to-r from-[#1D4ED8] to-[#1D4ED8]/70 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl shadow-md transition-all transform hover:-translate-y-0.5 cursor-pointer">
           <div className="flex items-center gap-2">
             <Plus className="h-4 w-4" />
             <span>Pay Bill</span>

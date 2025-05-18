@@ -41,19 +41,23 @@ export function AppSidebar() {
 
   return (
     <>
-      {/* Mobile sidebar backdrop */}
+      {/* Mobile backdrop overlay */}
       {isOpen && (
-        <div className="fixed inset-0 z-20 bg-[#111C2F] lg:hidden" onClick={() => toggle()} aria-hidden="true" />
+        <div 
+          className="fixed inset-0 z-30 bg-black/60 backdrop-blur-sm lg:hidden" 
+          onClick={toggle} 
+          aria-hidden="true" 
+        />
       )}
 
-      {/* Sidebar - removed fixed positioning here since it's handled in layout */}
+      {/* Sidebar */}
       <aside
-        className={`flex h-full w-64 flex-col border-r border-slate-800 bg-[#111C2F] transition-transform duration-300 ease-in-out lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-40 w-64 flex-col border-r border-slate-800 bg-[#111C2F] transition-transform duration-300 ease-in-out ${
           isOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        } lg:sticky lg:top-0 lg:translate-x-0 lg:h-screen flex`}
       >
         {/* Sidebar header */}
-        <div className="flex h-16 items-center bg-[#111C2F] border-slate-800 px-4">
+        <div className="flex h-16 items-center border-b border-slate-800 px-4">
           <Link href="/" className="flex items-center text-2xl font-bold text-blue-500">
             <div className="text-blue-500 font-bold text-2xl flex gap-2 items-center">
               <Image
@@ -66,16 +70,33 @@ export function AppSidebar() {
               Billoq
             </div>
           </Link>
+          
+          {/* Close button - visible only on mobile */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggle}
+            className="ml-auto text-slate-300 hover:text-white hover:bg-slate-700/50 rounded-md lg:hidden"
+          >
+            <Menu className="h-5 w-5" />
+            <span className="sr-only">Close sidebar</span>
+          </Button>
         </div>
 
         {/* Sidebar navigation */}
-        <nav className="flex-1 space-y-3 px-2 py-12">
+        <nav className="flex-1 space-y-3 overflow-y-auto px-2 py-8">
           {navItems.map((item) => {
             const isActive = pathname === item.href
             return (
               <Link
                 key={item.name}
                 href={item.href}
+                onClick={() => {
+                  // Close sidebar on mobile when clicking a nav item
+                  if (window.innerWidth < 1024) {
+                    toggle()
+                  }
+                }}
                 className={`flex items-center rounded-md px-3 py-3 text-md font-medium transition-colors ${
                   isActive ? "bg-slate-800 text-white" : "text-slate-300 hover:bg-slate-800/50 hover:text-white"
                 }`}
@@ -87,17 +108,6 @@ export function AppSidebar() {
           })}
         </nav>
       </aside>
-
-      {/* Mobile toggle button */}
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={toggle}
-        className="fixed left-4 top-4 z-40 rounded-md bg-slate-800 p-2 lg:hidden"
-      >
-        <Menu className="h-5 w-5" />
-        <span className="sr-only">Toggle sidebar</span>
-      </Button>
     </>
   )
 }
