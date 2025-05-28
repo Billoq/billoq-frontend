@@ -2522,7 +2522,7 @@ const FilterControls = ({
           />
         </div>
         <Button
-          className="bg-[#1D4ED8] hover:bg-blue-600 text-white w-full sm:w-auto transition-all duration-200 transform hover:scale-105 shadow-lg shadow-blue-900/20 font-medium"
+          className="bg-[#1B89A4] text-white w-full sm:w-auto transition-all duration-200 transform hover:scale-105 shadow-lg shadow-blue-900/20 font-medium cursor-pointer"
           onClick={handleSearch}
           disabled={isSearching || contextLoading}
         >
@@ -2799,11 +2799,11 @@ const Pagination = ({
       )}
     </div>
     {!contextLoading && !contextError && filteredTransactions.length > 0 && (
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 cursor-pointer">
         <Button
           variant="outline"
           size="sm"
-          className="bg-[#111C2F] border-[#1E293B] text-white hover:bg-[#1E293B] disabled:opacity-50 transform hover:scale-105 transition-all"
+          className="bg-[#1B89A4] border-[#1B89A4] text-white hover:bg-[#1B89A4]/5 disabled:opacity-50 transform hover:scale-105 transition-all cursor-pointer"
           onClick={() => handlePageChange(1)}
           disabled={currentPage === 1}
           aria-label="First page"
@@ -2813,7 +2813,7 @@ const Pagination = ({
         <Button
           variant="outline"
           size="sm"
-          className="bg-[#111C2F] border-[#1E293B] text-white hover:bg-[#1E293B] disabled:opacity-50 transform hover:scale-105 transition-all"
+          className="bg-[#1B89A4] border-[#1B89A4] text-white hover:bg-[#1B89A4]/5 disabled:opacity-50 transform hover:scale-105 transition-all"
           onClick={() => handlePageChange(currentPage - 1)}
           disabled={currentPage === 1}
           aria-label="Previous page"
@@ -2831,8 +2831,8 @@ const Pagination = ({
                 size="sm"
                 className={`${
                   currentPage === page
-                    ? "bg-[#1D4ED8] text-white"
-                    : "bg-[#111C2F] border-[#1E293B] text-white hover:bg-[#1E293B]"
+                    ? "bg-[#1B89A4] text-white"
+                    : "bg-[#1B89A4] border-[#1B89A4] text-white hover:bg-[#1B89A4]/5"
                 } transform hover:scale-105 transition-all`}
                 onClick={() => handlePageChange(page)}
                 aria-label={`Page ${page}`}
@@ -2845,7 +2845,7 @@ const Pagination = ({
         <Button
           variant="outline"
           size="sm"
-          className="bg-[#111C2F] border-[#1E293B] text-white hover:bg-[#1E293B] disabled:opacity-50 transform hover:scale-105 transition-all"
+          className="bg-[#1B89A4] border-[#1B89A4] text-white hover:bg-[#1B89A4]/5 disabled:opacity-50 transform hover:scale-105 transition-all"
           onClick={() => handlePageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
           aria-label="Next page"
@@ -2855,7 +2855,7 @@ const Pagination = ({
         <Button
           variant="outline"
           size="sm"
-          className="bg-[#111C2F] border-[#1E293B] text-white hover:bg-[#1E293B] disabled:opacity-50 transform hover:scale-105 transition-all"
+          className="bg-[#1B89A4] border-[#1B89A4] text-white hover:bg-[#1B89A4]/5 disabled:opacity-50 transform hover:scale-105 transition-all cursor-pointer"
           onClick={() => handlePageChange(totalPages)}
           disabled={currentPage === totalPages}
           aria-label="Last page"
