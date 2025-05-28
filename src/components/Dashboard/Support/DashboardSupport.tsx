@@ -116,7 +116,7 @@ export default function DashboardSupport() {
         <div className="absolute -bottom-32 -left-32 w-80 h-80 bg-[#2563eb]/5 rounded-full blur-3xl"></div>
 
         <div className="relative z-10 max-w-3xl">
-          <h1 className="text-3xl md:text-4xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-blue-600">
+          <h1 className="text-3xl md:text-4xl font-bold mb-4 bg-clip-text text-transparent bg-[#1B89A4]">
             Support Center
           </h1>
           <p className="text-xl md:text-2xl font-medium text-slate-300 mb-8">
@@ -134,7 +134,7 @@ export default function DashboardSupport() {
                 className="ml-4 bg-transparent outline-none text-white text-lg w-full placeholder-slate-400 focus:placeholder-slate-500 transition-colors"
               />
             </div>
-            <Button className="w-full md:w-auto bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-lg font-medium px-8 py-4 h-auto rounded-xl shadow-lg shadow-blue-900/20 transition-all hover:shadow-blue-900/30 hover:scale-[1.02]">
+            <Button className="w-full md:w-auto bg-[#1B89A4] text-white text-lg font-medium px-8 py-4 h-auto rounded-xl shadow-lg shadow-blue-900/20 transition-all hover:shadow-blue-900/30 hover:scale-[1.02]">
               Search
             </Button>
           </div>
@@ -164,7 +164,7 @@ export default function DashboardSupport() {
       <div className="mb-12">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold">Common Topics</h2>
-          <Button variant="ghost" className="text-blue-400 hover:text-blue-300 hover:bg-[#1e293b]">
+          <Button variant="ghost" className="text-[#1B89A4] hover:bg-[#1e293b]">
             View all <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         </div>
@@ -190,7 +190,7 @@ export default function DashboardSupport() {
                       </div>
                       <h3 className="font-semibold text-lg text-white">{topic.title}</h3>
                       <p className="text-sm text-slate-400">{topic.description}</p>
-                      <Button variant="link" className="text-blue-400 hover:text-blue-300 p-0">
+                      <Button variant="link" className="text-[#1B89A4]  p-0">
                         Read more <ArrowRight className="ml-1 h-3 w-3" />
                       </Button>
                     </div>
@@ -255,7 +255,7 @@ export default function DashboardSupport() {
       {/* Contact Support */}
       <div className="mt-12 text-center">
         <p className="text-slate-400 mb-4">Can&apos;t find what you&apos;re looking for?</p>
-        <Button className="bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-8 py-4 h-auto text-lg font-medium rounded-xl shadow-lg shadow-blue-900/20 transition-all hover:shadow-blue-900/30">
+        <Button className="bg-[#1B89A4]  text-white px-8 py-4 h-auto text-lg font-medium rounded-xl shadow-lg shadow-blue-900/20 transition-all hover:shadow-blue-900/30">
           <MessageCircle className="mr-2 h-5 w-5" />
           Contact Support Team
         </Button>
