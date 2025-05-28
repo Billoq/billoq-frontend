@@ -145,7 +145,7 @@ export default function DashboardSettings() {
   // }
 
   return (
-    <div className="p-4 md:p-6 h-full max-w-6xl mx-auto">
+    <div className="p-4 md:p-6 h-full max-w-6xl mx-auto overflow-y-auto">
       {/* Toast Container */}
       <ToastContainer
         position="bottom-right"
@@ -165,37 +165,37 @@ export default function DashboardSettings() {
         }}
       />
 
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-white">
+      <div className="mb-6">
+        <h1 className="text-2xl md:text-3xl font-bold text-white">
           <span className="text-[#3B82F6]">Settings</span>
         </h1>
         <p className="text-[#94A3B8]">Manage your wallet and account preferences</p>
       </div>
 
       <Tabs defaultValue="wallet" className="space-y-6">
-        <div className="flex flex-col md:flex-row gap-6">
+        <div className="flex flex-col md:flex-row gap-4 md:gap-6">
           {/* Sidebar Navigation */}
-          <div className="md:w-56">
+          <div className="w-full md:w-56">
             <TabsList className="flex flex-row md:flex-col w-full bg-[#111C2F] border border-[#1E293B] rounded-lg p-1 h-auto">
               <TabsTrigger
                 value="wallet"
-                className="flex items-center justify-start w-full px-4 py-3 gap-3 data-[state=active]:bg-[#1E293B] data-[state=active]:text-white text-[#94A3B8] hover:bg-[#1E293B]/50 transition-colors"
+                className="flex items-center cursor-pointer justify-start w-full px-3 md:px-4 py-2 md:py-3 gap-2 md:gap-3 data-[state=active]:bg-[#1E293B] data-[state=active]:text-white text-[#94A3B8] hover:bg-[#1E293B]/50 transition-colors"
               >
-                <Wallet className="h-5 w-5 flex-shrink-0" />
+                <Wallet className="h-4 w-4 md:h-5 md:w-5 flex-shrink-0" />
                 <span className="truncate">Wallet</span>
               </TabsTrigger>
               <TabsTrigger
                 value="notifications"
-                className="flex items-center justify-start w-full px-4 py-3 gap-3 data-[state=active]:bg-[#1E293B] data-[state=active]:text-white text-[#94A3B8] hover:bg-[#1E293B]/50 transition-colors"
+                className="flex items-center  cursor-pointer justify-start w-full px-3 md:px-4 py-2 md:py-3 gap-2 md:gap-3 data-[state=active]:bg-[#1E293B] data-[state=active]:text-white text-[#94A3B8] hover:bg-[#1E293B]/50 transition-colors"
               >
-                <Bell className="h-5 w-5 flex-shrink-0" />
+                <Bell className="h-4 w-4 md:h-5 md:w-5 flex-shrink-0" />
                 <span className="truncate">Notifications</span>
               </TabsTrigger>
               <TabsTrigger
                 value="security"
-                className="flex items-center justify-start w-full px-4 py-3 gap-3 data-[state=active]:bg-[#1E293B] data-[state=active]:text-white text-[#94A3B8] hover:bg-[#1E293B]/50 transition-colors"
+                className="flex items-center  cursor-pointer justify-start w-full px-3 md:px-4 py-2 md:py-3 gap-2 md:gap-3 data-[state=active]:bg-[#1E293B] data-[state=active]:text-white text-[#94A3B8] hover:bg-[#1E293B]/50 transition-colors"
               >
-                <Shield className="h-5 w-5 flex-shrink-0" />
+                <Shield className="h-4 w-4 md:h-5 md:w-5 flex-shrink-0" />
                 <span className="truncate">Security</span>
               </TabsTrigger>
             </TabsList>
@@ -204,24 +204,24 @@ export default function DashboardSettings() {
           {/* Main Content */}
           <div className="flex-1">
             {/* Wallet Settings */}
-            <TabsContent value="wallet" className="space-y-6">
+            <TabsContent value="wallet" className="space-y-4 md:space-y-6 mt-4 md:mt-0">
               <Card className="border-[#1E293B] bg-[#0A1525]">
-                <CardHeader>
-                  <CardTitle className="text-xl text-white flex items-center gap-3">
+                <CardHeader className="px-4 py-4 md:px-6 md:py-6">
+                  <CardTitle className="text-lg md:text-xl text-white flex items-center gap-3">
                     <div className="p-2 rounded-lg bg-[#1E293B]">
-                      <Wallet className="h-5 w-5 text-[#3B82F6]" />
+                      <Wallet className="h-4 w-4 md:h-5 md:w-5 text-[#3B82F6]" />
                     </div>
                     Wallet Settings
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-6">
+                <CardContent className="space-y-4 md:space-y-6 px-4 md:px-6">
                   {isConnected ? (
                     <>
-                      <div className="bg-[#111C2F] border border-[#1E293B] rounded-lg p-6 relative overflow-hidden">
+                      <div className="bg-[#111C2F] border border-[#1E293B] rounded-lg p-4 md:p-6 relative overflow-hidden">
                         <div className="absolute -top-20 -right-20 w-40 h-40 bg-[#3B82F6]/10 rounded-full blur-3xl"></div>
                         
-                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 relative">
-                          <div className="flex items-center gap-4">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative">
+                          <div className="flex items-center gap-3 md:gap-4">
                             <div className="relative">
                               {getWalletIcon()}
                               <div className="absolute -bottom-1 -right-1">
@@ -230,13 +230,13 @@ export default function DashboardSettings() {
                             </div>
                             <div>
                               <div className="flex items-center gap-2">
-                                <h3 className="font-medium text-white">{chain?.name || "Unknown Network"}</h3>
-                                <Badge className="bg-green-900/20 text-green-400 border-green-800">
+                                <h3 className="font-medium text-sm md:text-base text-white">{chain?.name || "Unknown Network"}</h3>
+                                <Badge className="bg-green-900/20 text-green-400 border-green-800 text-xs">
                                   Connected
                                 </Badge>
                               </div>
                               <div className="flex items-center gap-2 mt-1">
-                                <p className="text-sm text-[#94A3B8] font-mono">
+                                <p className="text-xs md:text-sm text-[#94A3B8] font-mono">
                                   {truncateAddress(address)}
                                 </p>
                                 <TooltipProvider>
@@ -245,7 +245,7 @@ export default function DashboardSettings() {
                                       <Button
                                         variant="ghost"
                                         size="icon"
-                                        className="h-6 w-6 text-[#94A3B8] hover:text-white"
+                                        className="h-5 w-5 md:h-6 md:w-6 text-[#94A3B8] cursor-pointer p-0"
                                         onClick={() => address && copyToClipboard(address)}
                                       >
                                         {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
@@ -259,22 +259,22 @@ export default function DashboardSettings() {
                               </div>
                             </div>
                           </div>
-                          <div className="flex gap-3">
+                          <div className="flex gap-2 md:gap-3 mt-2 sm:mt-0">
                             {chain?.blockExplorers?.default?.url && (
                               <Button
                                 variant="outline"
                                 size="sm"
-                                className="border-[#1E293B] bg-[#111C2F] hover:bg-[#1E293B] text-white"
+                                className="border-[#1E293B] bg-[#111C2F]  cursor-pointer  text-white text-xs md:text-sm py-1 px-2 md:px-3 h-8"
                                 onClick={() => chain?.blockExplorers?.default?.url && window.open(`${chain.blockExplorers.default.url}/address/${address}`, "_blank")}
                               >
-                                <ExternalLink className="mr-2 h-4 w-4" />
+                                <ExternalLink className="mr-1 md:mr-2 h-3 w-3 md:h-4 md:w-4" />
                                 Explorer
                               </Button>
                             )}
                             <Button
                               variant="destructive"
                               size="sm"
-                              className="bg-red-900/20 hover:bg-red-900/30 text-white border-red-900/30"
+                              className="bg-red-900/20 hover:bg-red-900/30 text-white border-red-900/30 text-xs md:text-sm py-1 px-2 md:px-3 h-8 cursor-pointer"
                               onClick={handleDisconnect}
                             >
                               Disconnect
@@ -283,35 +283,35 @@ export default function DashboardSettings() {
                         </div>
                       </div>
 
-                      <div className="space-y-4">
-                        <h3 className="text-lg font-medium text-white">Default Network</h3>
-                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+                      <div className="space-y-3 md:space-y-4">
+                        <h3 className="text-base md:text-lg font-medium text-white">Default Network</h3>
+                        <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 md:gap-3 w-full">
                           {supportedChains.map(network => (
                             <button
                               key={network.id}
                               onClick={() => handleSwitchChain(network.id)}
-                              className={`flex items-center gap-3 p-3 rounded-lg border transition-all ${
+                              className={`flex items-center gap-2 md:gap-3 p-2 md:p-3 rounded-lg border transition-all w-full  cursor-pointer ${
                                 network.id === chain?.id
                                   ? "bg-[#1E293B] border-[#3B82F6] shadow-[0_0_0_1px_#3B82F6]"
                                   : "bg-[#111C2F] border-[#1E293B] hover:border-[#3B82F6]/50"
                               }`}
                               disabled={!switchChain}
                             >
-                              <div className={`h-3 w-3 rounded-full ${network.id === sepolia.id ? 'bg-[#627EEA]' : 'bg-[#8247E5]'}`} />
-                              <span className="text-white">{network.name}</span>
-                              {network.id === chain?.id && <Check className="ml-auto h-4 w-4 text-[#3B82F6]" />}
+                              <div className={`h-2 w-2 md:h-3 md:w-3 rounded-full flex-shrink-0 ${network.id === sepolia.id ? 'bg-[#627EEA]' : 'bg-[#8247E5]'}`} />
+                              <span className="text-white text-sm md:text-base truncate">{network.name}</span>
+                              {network.id === chain?.id && <Check className="ml-auto h-3 w-3 md:h-4 md:w-4 text-[#3B82F6] flex-shrink-0" />}
                             </button>
                           ))}
                         </div>
                       </div>
                     </>
                   ) : (
-                    <div className="text-center py-12">
-                      <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-[#1E293B] mb-6">
-                        <Wallet className="h-8 w-8 text-[#3B82F6]" />
+                    <div className="text-center py-8 md:py-12">
+                      <div className="inline-flex h-12 w-12 md:h-16 md:w-16 items-center justify-center rounded-full bg-[#1E293B] mb-4 md:mb-6">
+                        <Wallet className="h-6 w-6 md:h-8 md:w-8 text-[#3B82F6]" />
                       </div>
-                      <h3 className="text-xl font-medium mb-3 text-white">No Wallet Connected</h3>
-                      <p className="text-[#94A3B8] mb-6 max-w-md mx-auto">
+                      <h3 className="text-lg md:text-xl font-medium mb-2 md:mb-3 text-white">No Wallet Connected</h3>
+                      <p className="text-sm md:text-base text-[#94A3B8] mb-4 md:mb-6 max-w-md mx-auto">
                         Connect your wallet to manage your settings
                       </p>
                       <Button 
