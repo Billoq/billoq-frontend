@@ -167,7 +167,7 @@ export default function DashboardSettings() {
 
       <div className="mb-6">
         <h1 className="text-2xl md:text-3xl font-bold text-white">
-          <span className="text-[#3B82F6]">Settings</span>
+          <span className="text-[#1B89A4]">Settings</span>
         </h1>
         <p className="text-[#94A3B8]">Manage your wallet and account preferences</p>
       </div>

@@ -309,7 +309,7 @@ const DashboardServices = () => {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-blue-600">
+          <h1 className="text-3xl font-bold mb-2 bg-clip-text text-transparent bg-[#1B89A4]">
             Services
           </h1>
           <p className="text-slate-300">Pay your bills easily with cryptocurrency</p>

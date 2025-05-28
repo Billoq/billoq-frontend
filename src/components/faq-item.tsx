@@ -22,7 +22,7 @@ export function FAQItem({ question, answer, isOpen, onClick }: FAQItemProps) {
           <ChevronUp className="text-blue-500 w-5 h-5" />
         ) : (
           <Image
-            src="/plus.png"
+            src="/newcross.png"
             alt="Expand"
             width={18}
             height={18}
