@@ -732,7 +732,7 @@ const CableModal: React.FC<CableModalProps> = ({
         </button>
 
         <div className="flex flex-col items-center">
-          <h2 className="text-2xl font-medium text-blue-500 mb-8">
+          <h2 className="text-2xl font-medium text-[#1B89A4] mb-8">
             Cable Service
           </h2>
 
@@ -849,7 +849,7 @@ const CableModal: React.FC<CableModalProps> = ({
                   <RadioGroupItem
                     value="USDT"
                     id="USDT"
-                    className="border-gray-500 text-[#0080FF]"
+                    className="border-gray-500 text-[#1B89A4]"
                   />
                   <Label htmlFor="USDT" className="text-white">
                     USDT
@@ -859,7 +859,7 @@ const CableModal: React.FC<CableModalProps> = ({
                   <RadioGroupItem
                     value="USDC"
                     id="USDC"
-                    className="border-gray-500 text-[#0080FF]"
+                    className="border-gray-500 text-[#1B89A4]"
                   />
                   <Label htmlFor="USDC" className="text-white">
                     USDC
@@ -869,7 +869,7 @@ const CableModal: React.FC<CableModalProps> = ({
             </div>
 
             <Button
-              className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-medium"
+              className="w-full py-4 bg-[#1B89A4] text-white rounded-md font-medium"
               onClick={handleMakePayment}
               disabled={isLoadingBillers || isLoadingBillItems || isLoadingPayment}
             >

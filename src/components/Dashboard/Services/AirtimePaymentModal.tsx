@@ -676,7 +676,7 @@ const AirtimePaymentModal = ({ onClose, onShowPayment, state, onStateChange }: A
         </button>
 
         <div className="flex flex-col items-center">
-          <h2 className="text-2xl font-medium text-[#0080FF] mb-8">Airtime</h2>
+          <h2 className="text-2xl font-medium text-[#1B89A4] mb-8">Airtime</h2>
 
           <div className="w-full mb-6">
             <p className="text-white mb-3">Select network provider</p>
@@ -697,7 +697,7 @@ const AirtimePaymentModal = ({ onClose, onShowPayment, state, onStateChange }: A
                       key={biller.biller_code}
                       className={`p-2 border rounded-md ${
                         state.selectedNetwork === biller.name
-                          ? "border-[#0080FF]"
+                          ? "border-[#1B89A4]"
                           : "border-[#3A414A]"
                       }`}
                       onClick={() => onStateChange({ ...state, selectedNetwork: biller.name })}
@@ -762,7 +762,7 @@ const AirtimePaymentModal = ({ onClose, onShowPayment, state, onStateChange }: A
                   type="radio"
                   checked={state.paymentOption === "USDT"}
                   onChange={() => onStateChange({ ...state, paymentOption: "USDT" })}
-                  className="form-radio text-[#0080FF]"
+                  className="form-radio text-[#1B89A4]"
                   disabled={isLoadingBillers || isLoadingBillItems || isLoadingPayment}
                 />
                 <span className="text-white">USDT</span>
@@ -772,7 +772,7 @@ const AirtimePaymentModal = ({ onClose, onShowPayment, state, onStateChange }: A
                   type="radio"
                   checked={state.paymentOption === "USDC"}
                   onChange={() => onStateChange({ ...state, paymentOption: "USDC" })}
-                  className="form-radio text-[#0080FF]"
+                  className="form-radio text-[#1B89A4]"
                   disabled={isLoadingBillers || isLoadingBillItems || isLoadingPayment}
                 />
                 <span className="text-white">USDC</span>
@@ -781,7 +781,7 @@ const AirtimePaymentModal = ({ onClose, onShowPayment, state, onStateChange }: A
           </div>
 
           <button
-            className="w-full py-4 bg-[#0080FF] text-white rounded-md font-medium disabled:bg-gray-500"
+            className="w-full py-4 bg-[#1B89A4] text-white rounded-md font-medium disabled:bg-gray-500"
             onClick={handlePayment}
             disabled={isLoadingBillers || isLoadingBillItems || isLoadingPayment}
           >

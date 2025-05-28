@@ -58,10 +58,10 @@ export function AppSidebar() {
       >
         {/* Sidebar header */}
         <div className="flex h-16 items-center border-b border-slate-800 px-4">
-          <Link href="/" className="flex items-center text-2xl font-bold text-blue-500">
-            <div className="text-blue-500 font-bold text-2xl flex gap-2 items-center">
+          <Link href="/" className="flex items-center text-2xl font-bold text-[#139EBB]">
+            <div className="text-[#139EBB] font-bold text-2xl flex gap-2 items-center">
               <Image
-                src="/logo.png"
+                src="/newlogo.png"
                 alt="Billoq Logo"
                 width={40}
                 height={40}
