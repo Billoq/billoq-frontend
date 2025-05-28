@@ -63,21 +63,21 @@ const ServiceItem: React.FC<ServiceItemProps> = ({
       onClick={comingSoon ? undefined : onSelect}
     >
       <Card
-        className={`w-full h-full border-[#1e293b] bg-[#0f172a] hover:border-[#2563eb]/50 transition-all duration-300 overflow-hidden ${comingSoon ? "opacity-70 cursor-not-allowed" : ""}`}
+        className={`w-full h-full border-[#1e293b] bg-[#0f172a] hover:border-[#1B89A4] transition-all duration-300 overflow-hidden ${comingSoon ? "opacity-70 cursor-not-allowed" : ""}`}
       >
         <CardContent className="p-5 flex flex-col items-center text-center">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-[#2563eb]/5 rounded-full blur-xl transform translate-x-8 -translate-y-8 group-hover:bg-[#2563eb]/10 transition-all duration-700"></div>
+          <div className="absolute top-0 right-0 w-24 h-24 bg-[#1B89A4]/5 rounded-full blur-xl transform translate-x-8 -translate-y-8 group-hover:bg-[#2563eb]/10 transition-all duration-700"></div>
 
           <div className="relative z-10 mb-3 h-14 w-14 rounded-xl bg-[#1e293b] flex items-center justify-center group-hover:bg-[#2563eb]/20 transition-all duration-300">
-            <div className="text-[#2563eb]">{icon}</div>
+            <div className="text-[#1B89A4]">{icon}</div>
           </div>
 
-          <h3 className="text-white font-medium mb-1 group-hover:text-[#2563eb] transition-colors">{label}</h3>
+          <h3 className="text-white font-medium mb-1 group-hover:text-[#1B89A4] transition-colors">{label}</h3>
 
           {description && <p className="text-xs text-slate-400 mt-1">{description}</p>}
 
           {popular && (
-            <Badge className="absolute top-2 right-2 bg-[#2563eb]/20 text-[#2563eb] border border-[#2563eb]/30">
+            <Badge className="absolute top-2 right-2 bg-[#1B89A4]/20 text-[#1B89A4] border border-[#1B89A4]/30">
               Popular
             </Badge>
           )}
@@ -102,7 +102,7 @@ const ServiceCategory: React.FC<{
     <div className="mb-10">
       <div className="flex items-center mb-6">
         <div className="h-8 w-8 rounded-lg bg-[#1e293b] flex items-center justify-center mr-3">
-          <div className="text-[#2563eb]">{icon}</div>
+          <div className="text-[#1B89A4]">{icon}</div>
         </div>
         <h2 className="text-xl font-semibold text-white">{title}</h2>
       </div>
@@ -309,7 +309,7 @@ const DashboardServices = () => {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2 bg-clip-text text-transparent bg-[#1B89A4]">
+          <h1 className="text-3xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-[#1B89A4] to-[#1B89A4]">
             Services
           </h1>
           <p className="text-slate-300">Pay your bills easily with cryptocurrency</p>
@@ -331,11 +331,11 @@ const DashboardServices = () => {
           </div>
 
           <div className="flex gap-2">
-            <Button className="bg-[#1e293b] hover:bg-[#2e3b52] border border-[#2e3b52] text-white">
+            <Button className="bg-[#1e293b] hover:bg-[#2e3b52] border border-[#2e3b52] text-white cursor-pointer">
               <TrendingUp className="h-5 w-5 mr-2" />
               Popular
             </Button>
-            <Button className="bg-[#1e293b] hover:bg-[#2e3b52] border border-[#2e3b52] text-white">
+            <Button className="bg-[#1e293b] hover:bg-[#2e3b52] border border-[#2e3b52] text-white cursor-pointer">
               <Clock className="h-5 w-5 mr-2" />
               Recent
             </Button>
@@ -387,10 +387,10 @@ const DashboardServices = () => {
         {/* Main Content */}
         <div className="bg-gradient-to-b from-[#111827] to-[#0f172a] rounded-2xl p-6 md:p-8 shadow-xl border border-[#1e293b]">
           {/* Mobile Services Section */}
-          <ServiceCategory title="Mobile Services" icon={<Smartphone className="h-5 w-5" />}>
+          <ServiceCategory title="Mobile Services" icon={<Smartphone className="h-5 w-5 text-[#1B89A4]" />}>
             {filterServices("Mobile Recharge") && (
               <ServiceItem
-                icon={<Smartphone className="h-6 w-6" />}
+                icon={<Smartphone className="h-6 w-6 text-[#1B89A4]" />}
                 label="Mobile Recharge"
                 description="Recharge your mobile balance"
                 onSelect={() => handleServiceSelect("Mobile Recharge")}
@@ -399,7 +399,7 @@ const DashboardServices = () => {
             )}
             {filterServices("Internet") && (
               <ServiceItem
-                icon={<Globe className="h-6 w-6" />}
+                icon={<Globe className="h-6 w-6 text-[#1B89A4]" />}
                 label="Internet"
                 description="Pay for data bundles"
                 onSelect={() => handleServiceSelect("Internet")}
@@ -412,7 +412,7 @@ const DashboardServices = () => {
           <ServiceCategory title="Bill Payment" icon={<FileText className="h-5 w-5" />}>
             {filterServices("Electricity") && (
               <ServiceItem
-                icon={<Lightbulb className="h-6 w-6" />}
+                icon={<Lightbulb className="h-6 w-6 text-[#1B89A4]" />}
                 label="Electricity"
                 description="Pay your electricity bills"
                 onSelect={() => handleServiceSelect("Electricity")}
@@ -421,7 +421,7 @@ const DashboardServices = () => {
             )}
             {filterServices("Cable TV") && (
               <ServiceItem
-                icon={<Tv className="h-6 w-6" />}
+                icon={<Tv className="h-6 w-6 text-[#1B89A4]" />}
                 label="Cable TV"
                 description="Pay for TV subscriptions"
                 onSelect={() => handleServiceSelect("Cable TV")}
@@ -429,7 +429,7 @@ const DashboardServices = () => {
             )}
             {filterServices("Water bill") && (
               <ServiceItem
-                icon={<Droplet className="h-6 w-6" />}
+                icon={<Droplet className="h-6 w-6 text-[#1B89A4]" />}
                 label="Water bill"
                 description="Pay your water bills"
                 onSelect={() => handleServiceSelect("Water bill")}
@@ -438,7 +438,7 @@ const DashboardServices = () => {
             )}
             {filterServices("Gas bill") && (
               <ServiceItem
-                icon={<Flame className="h-6 w-6" />}
+                icon={<Flame className="h-6 w-6 text-[#1B89A4]" />}
                 label="Gas bill"
                 description="Pay your gas bills"
                 onSelect={() => handleServiceSelect("Gas bill")}
@@ -447,7 +447,7 @@ const DashboardServices = () => {
             )}
             {filterServices("Educational") && (
               <ServiceItem
-                icon={<Book className="h-6 w-6" />}
+                icon={<Book className="h-6 w-6 text-[#1B89A4]" />}
                 label="Educational"
                 description="Pay school fees"
                 onSelect={() => handleServiceSelect("Educational")}
@@ -456,7 +456,7 @@ const DashboardServices = () => {
             )}
             {filterServices("Waste bill") && (
               <ServiceItem
-                icon={<FileText className="h-6 w-6" />}
+                icon={<FileText className="h-6 w-6 text-[#1B89A4]" />}
                 label="Waste bill"
                 description="Pay waste management bills"
                 onSelect={() => handleServiceSelect("Waste bill")}
@@ -465,7 +465,7 @@ const DashboardServices = () => {
             )}
             {filterServices("Streaming service") && (
               <ServiceItem
-                icon={<Video className="h-6 w-6" />}
+                icon={<Video className="h-6 w-6 text-[#1B89A4]" />}
                 label="Streaming service"
                 description="Pay for streaming subscriptions"
                 onSelect={() => handleServiceSelect("Streaming service")}
@@ -474,7 +474,7 @@ const DashboardServices = () => {
             )}
              {filterServices("Betting") && (
               <ServiceItem
-                icon={<Trophy  className="h-6 w-6" />}
+                icon={<Trophy  className="h-6 w-6 text-[#1B89A4]" />}
                 label="Betting"
                 description="Place your bets"
                 onSelect={() => handleServiceSelect("Betting")}

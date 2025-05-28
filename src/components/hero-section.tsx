@@ -94,8 +94,8 @@ export function HeroSection() {
 
       {/* Background effects */}
       <div className="absolute inset-0 z-10">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/30 rounded-full filter blur-3xl"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/20 rounded-full filter blur-3xl"></div>
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#1B89A4]/30 rounded-full filter blur-3xl"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-[#1B89A4]/20 rounded-full filter blur-3xl"></div>
       </div>
 
       {/* Rolling balls - moved here to be behind the content */}
@@ -121,8 +121,8 @@ export function HeroSection() {
         <div className="container mx-auto px-6 pt-16 md:pt-24 pb-20 text-center">
           <AnimatedSection direction="down" delay={0.3}>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white max-w-4xl mx-auto leading-tight">
-              A Comprehensive <span className="text-blue-500">Web3 Payment</span>, Designed To Ease Your Subscription{" "}
-              <span className="text-blue-500">Services</span>.
+              A Comprehensive <span className="text-[#1B89A4]">Web3 Payment</span>, Designed To Ease Your Subscription{" "}
+              <span className="text-[#1B89A4]">Services</span>.
             </h1>
           </AnimatedSection>
 
@@ -135,7 +135,7 @@ export function HeroSection() {
 
           <AnimatedSection direction="up" delay={0.7}>
             <div className="mt-10 flex flex-col sm:flex-row items-center justify-center mx-6 gap-4">
-              <Button className="bg-blue-600 hover:bg-blue-700 text-white w-[230px] py-6 text-lg cursor-pointer">Get Started</Button>
+              <Button className="bg-[#1B89A4] hover:bg-[#1B89A4]/80 text-white w-[230px] py-6 text-lg cursor-pointer">Get Started</Button>
               <Button variant="outline" className="bg-transparent text-white hover:bg-gray-800 w-[230px] py-6 text-lg cursor-pointer">
                 Learn more
                 <svg

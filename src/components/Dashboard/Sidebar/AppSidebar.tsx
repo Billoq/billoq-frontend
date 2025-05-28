@@ -98,10 +98,10 @@ export function AppSidebar() {
                   }
                 }}
                 className={`flex items-center rounded-md px-3 py-3 text-md font-medium transition-colors ${
-                  isActive ? "bg-slate-800 text-white" : "text-slate-300 hover:bg-slate-800/50 hover:text-white"
+                  isActive ? "bg-slate-800 text-[#1B89A4]" : "text-slate-300 hover:bg-slate-800/50 hover:text-white"
                 }`}
               >
-                <item.icon className={`mr-3 h-6 w-6 ${isActive ? "text-blue-500" : "text-slate-400"}`} />
+                <item.icon className={`mr-3 h-6 w-6 ${isActive ? "text-[#1B89A4]" : "text-slate-400"}`} />
                 {item.name}
               </Link>
             )

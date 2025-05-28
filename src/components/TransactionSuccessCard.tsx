@@ -304,7 +304,7 @@ export function TransactionSuccessCard({
         <div className="flex gap-2 mt-4">
           <button
             onClick={onDownload}
-            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md transition-colors cursor-pointer text-sm"
+            className="flex-1 bg-[#1B89A4] hover:bg-blue-[#1B89A4] text-white py-2 rounded-md transition-colors cursor-pointer text-sm"
           >
             Download Receipt
           </button>

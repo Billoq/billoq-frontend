@@ -36,7 +36,7 @@ export function GiftCard() {
               </p>
             </div>
             <Button 
-              className="bg-[#1D4ED8] hover:bg-blue-500 text-white"
+              className="bg-[#1B89A4] hover:bg-[#1B89A4]/80 text-white cursor-pointer"
               onClick={handleGiftClick}
             >
               Gift Now

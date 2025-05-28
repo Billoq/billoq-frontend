@@ -41,7 +41,7 @@ export function FAQSection() {
       <div className="container mx-auto px-6 ">
         <div className="text-center mb-12">
           
-        <span className="inline-block text-[#60A5FA] text-sm md:text-[18px] font-semibold uppercase tracking-wide px-3 py-1 rounded-full bg-[#1D4ED840]">
+        <span className="inline-block text-[#1B89A4] text-sm md:text-[18px] font-semibold uppercase tracking-wide px-3 py-1 rounded-full bg-[#0E99BC26]">
             FAQ
           </span>
           <h2 className="text-4xl md:text-5xl font-bold text-white mt-3 mb-4">
