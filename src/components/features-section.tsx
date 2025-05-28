@@ -124,7 +124,7 @@ export function FeaturesSection() {
           {/* Header Section */}
           <div className="text-center md:text-left mb-8 md:mb-12 px-2">
             <AnimatedSection direction="down" delay={0.2}>
-              <span className="inline-block text-[#1B89A4] text-sm md:text-[18px] font-semibold uppercase tracking-wide px-3 py-1 rounded-full bg-[#1B89A4]">
+              <span className="inline-block text-[#1B89A4] text-sm md:text-[18px] font-semibold uppercase tracking-wide px-3 py-1 rounded-full bg-[#0E99BC26]">
                 KEY FEATURES
               </span>
             </AnimatedSection>
