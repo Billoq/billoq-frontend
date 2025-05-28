@@ -10,19 +10,19 @@ interface FAQItemProps {
 
 export function FAQItem({ question, answer, isOpen, onClick }: FAQItemProps) {
   return (
-    <div className="border-b border-[#0E478D] py-4">
+    <div className="border-b border-[#1B89A4] py-4">
       <button
-        className="flex justify-between items-center w-full text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 cursor-pointer"
+        className="flex justify-between items-center w-full text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1B89A4] cursor-pointer"
         onClick={onClick}
         aria-controls={`faq-answer-${question.replace(/\s+/g, "-").toLowerCase()}`}
         id={`faq-question-${question.replace(/\s+/g, "-").toLowerCase()}`}
       >
         <h4 className="text-[20px] font-normal py-5 text-white">{question}</h4>
         {isOpen ? (
-          <ChevronUp className="text-blue-500 w-5 h-5" />
+          <ChevronUp className="text-[#1B89A4] w-5 h-5" />
         ) : (
           <Image
-            src="/plus.png"
+            src="/plus.svg"
             alt="Expand"
             width={18}
             height={18}

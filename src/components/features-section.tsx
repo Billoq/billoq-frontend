@@ -115,16 +115,16 @@ export function FeaturesSection() {
       {/* Background Glow Circle - Reduced on mobile */}
       <div
         className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] md:w-[1200px] md:h-[950px] rounded-full filter blur-lg opacity-20 md:opacity-40"
-        style={{ backgroundColor: "#60A5FA" }}
+        style={{ backgroundColor: "#1B89A4" }}
       ></div>
 
       {/* Content Container */}
-      <div className="relative z-10 bg-[#161E28] py-8 md:py-16 mx-auto px-4 sm:px-6 max-w-7xl">
+      <div className="relative z-10 bg-[#11171F] py-8 md:py-16 mx-auto px-4 sm:px-6 max-w-7xl">
         <div className="container mx-auto">
           {/* Header Section */}
           <div className="text-center md:text-left mb-8 md:mb-12 px-2">
             <AnimatedSection direction="down" delay={0.2}>
-              <span className="inline-block text-[#60A5FA] text-sm md:text-[18px] font-semibold uppercase tracking-wide px-3 py-1 rounded-full bg-[#1D4ED840]">
+              <span className="inline-block text-[#1B89A4] text-sm md:text-[18px] font-semibold uppercase tracking-wide px-3 py-1 rounded-full bg-[#1B89A4]">
                 KEY FEATURES
               </span>
             </AnimatedSection>
@@ -132,7 +132,7 @@ export function FeaturesSection() {
             <AnimatedSection direction="up" delay={0.3}>
               <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mt-6 md:mt-10 leading-snug">
                 POWERFUL FEATURES FOR{" "}
-                <span className="text-[#1D4ED8]">WEB3</span> BILL PAYMENTS
+                <span className="text-[#1B89A4]">WEB3</span> BILL PAYMENTS
               </h2>
             </AnimatedSection>
           </div>

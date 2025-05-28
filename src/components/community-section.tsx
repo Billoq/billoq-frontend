@@ -10,11 +10,11 @@ export function CommunitySection() {
         <div 
           className="w-full h-full bg-cover bg-center bg-no-repeat"
           style={{
-            backgroundImage: "url('/community.png')",
+            backgroundImage: "url('/community.svg')",
           }}
         >
           {/* Dark overlay to make text more readable */}
-          <div className="absolute inset-0 bg-black/30"></div>
+          <div className="absolute inset-0 backdrop-blur-xl bg-black/30"></div>
         </div>
       </div>
 
@@ -23,16 +23,16 @@ export function CommunitySection() {
         <div className="flex flex-col md:flex-row items-center md:items-start gap-8 lg:gap-12">
           {/* Left column - Text content */}
           <div className="text-left w-full md:w-1/2">
-            <span className="text-blue-500 text-sm font-semibold uppercase tracking-wider">
-              JOIN COMMUNITY
-            </span>
+             <span className="inline-block text-[#1B89A4] text-sm md:text-[18px] font-semibold uppercase tracking-wide px-3 py-1 rounded-full bg-[#0E99BC26]">
+            JOIN COMMUNITY
+          </span>
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mt-3 mb-6">
-              Ready to Transform Your Bill Payment Experience?
+              Ready to  <span className="text-[#1B89A4]">Transform</span> Your Bill Payment Experience?
             </h2>
             <p className="text-gray-400 text-lg mb-10">
               Join thousands of users who are already enjoying the benefits of blockchain- {" "} <br/> <span>powered bill payments.</span>
             </p>
-            <Button className="bg-blue-600 hover:bg-blue-700 text-white px-6 sm:px-12 md:px-16 py-4 md:py-6 text-base md:text-lg cursor-pointer">
+            <Button className="bg-[#1B89A4] hover:bg-[#38C3D8]/30 text-white px-6 sm:px-12 md:px-16 py-4 md:py-6 text-base md:text-lg cursor-pointer">
               Get Started
             </Button>
           </div>
