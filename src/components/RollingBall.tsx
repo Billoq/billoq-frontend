@@ -76,13 +76,13 @@ export const RollingBall: React.FC<RollingBallProps> = ({
 // Usage example component
 export const RollingBallDemo: React.FC = () => {
   return (
-    <div className="relative min-h-screen w-full bg-gray-900 flex items-center justify-center">
+    <div className="relative min-h-screen w-full bg-[#3B82F6] flex items-center justify-center">
       <h1 className="text-4xl text-white font-bold z-10">Rolling Ball Animation</h1>
       
       {/* Multiple balls with different sizes, speeds and positions */}
-      <RollingBall size={40} color="#3B82F6" duration={7} yPosition="30%" />
-      <RollingBall size={60} color="#8B5CF6" duration={10} delay={2} yPosition="50%" />
-      <RollingBall size={30} color="#EC4899" duration={5} delay={1} yPosition="70%" />
+      <RollingBall size={40} color="#1B89A4" duration={7} yPosition="30%" />
+      <RollingBall size={60} color="#1B89A4" duration={10} delay={2} yPosition="50%" />
+      <RollingBall size={30} color="#1B89A4" duration={5} delay={1} yPosition="70%" />
     </div>
   );
 };
