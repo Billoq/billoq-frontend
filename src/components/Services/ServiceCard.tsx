@@ -11,7 +11,7 @@ const ServiceCard: React.FC<ServiceType> = ({
   icon: Icon,
   providers,
   comingSoon = false,
-  featured = false,
+  featured = true,
 }) => {
   return (
     <motion.div
@@ -24,7 +24,7 @@ const ServiceCard: React.FC<ServiceType> = ({
       }}
       className={`rounded-xl p-6 h-[320px] flex flex-col cursor-pointer relative overflow-hidden border border-neutral-900`}
       style={{
-        backgroundColor: "#000",
+        backgroundColor: "#00000066",
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
@@ -41,13 +41,13 @@ const ServiceCard: React.FC<ServiceType> = ({
 
       <div
         className={`p-3 rounded-full w-14 h-14 flex items-center justify-center mb-4 ${
-          featured ? "bg-[#1B89A4]/40" : "bg-[#1B89A4]/30"
+          featured ? "bg-[#00000066]" : "bg-[#00000066]/30"
         }`}
       >
         <Icon className="w-7 h-7 text-white" />
       </div>
 
-      <h3 className="font-semibold mb-1 text-black text-lg leading-tight">{title}</h3>
+      <h3 className="font-semibold mb-1 text-[#1B89A4] text-lg leading-tight">{title}</h3>
       <div className={`w-12 h-1 bg-[#1B89A4] rounded-full mb-3`}></div>
       <p className="text-sm mb-4 text-neutral-200 opacity-80">{description}</p>
 
@@ -64,7 +64,7 @@ const ServiceCard: React.FC<ServiceType> = ({
       </div>
 
       <button
-        className={`mt-auto py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
+        className={`mt-auto py-2.5 rounded-lg text-sm font-medium transition-all duration-200 mb-6 ${
           comingSoon
             ? "bg-[#1B89A4]/50 text-white cursor-not-allowed border border-[#1B89A4]/30 hover:bg-[#1B89A4]/60"
             : "bg-[#1B89A4] hover:bg-[#15738A] text-white hover:shadow-lg hover:shadow-[#1B89A4]/20 border border-[#1B89A4]/30"
