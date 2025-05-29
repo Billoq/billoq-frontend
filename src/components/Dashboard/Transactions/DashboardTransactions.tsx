@@ -2514,7 +2514,7 @@ const FilterControls = ({
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#94A3B8]" />
           <Input
             placeholder="Search transactions..."
-            className="w-full pl-10 pr-4 py-2 rounded-lg bg-[#111C2F]/90 backdrop-blur-md border border-[#1E293B] text-white placeholder-[#94A3B8] focus:ring-2 focus:ring-blue-500/50 transition-all duration-200 shadow-lg shadow-blue-900/5"
+            className="w-full pl-10 pr-4 py-2 rounded-lg bg-[#1A2028]/90 backdrop-blur-md border border-[#1E293B] text-white placeholder-[#94A3B8] focus:ring-2 focus:ring-blue-500/50 transition-all duration-200 shadow-lg shadow-blue-900/5"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSearch()}
@@ -2623,17 +2623,17 @@ const TransactionTable = ({
   console.log("TransactionTable: contextLoading =", contextLoading)
 
   return (
-    <div className="relative flex-1 min-h-0 overflow-x-hidden hover:overflow-x-visible overflow-y-auto border border-[#1E293B] rounded-lg bg-[#0A1525]/60 backdrop-blur-sm table-container shadow-xl shadow-blue-900/5 transition-all duration-300">
+    <div className="relative flex-1 min-h-0 overflow-x-hidden hover:overflow-x-visible overflow-y-auto border border-[#1E293B] rounded-lg bg-[#11171F]/60 backdrop-blur-sm table-container shadow-xl shadow-blue-900/5 transition-all duration-300">
       {contextLoading && (
         <div className="absolute inset-0 bg-[#0A1525]/90 backdrop-blur-md flex items-center justify-center z-50">
           <div className="flex flex-col items-center gap-4 p-6 bg-[#111C2F]/80 rounded-lg shadow-2xl shadow-blue-900/20">
-            <Loader2 className="h-16 w-16 animate-spin text-blue-500" />
+            <Loader2 className="h-16 w-16 animate-spin text-[#1B89A4]" />
             <p className="text-xl font-semibold text-white">Fetching transactions...</p>
           </div>
         </div>
       )}
       <Table className="w-full">
-        <TableHeader className="bg-[#0A1525] sticky top-0 z-10 border-b border-[#1E293B]">
+        <TableHeader className="bg-[#1B89A412] z-50 border-b border-[#1B89A4]">
           <TableRow className="hover:bg-[#0A1525]">
             <TableHead className="w-[120px] text-white font-semibold py-4 text-sm">Date</TableHead>
             <TableHead className="text-white font-semibold py-4 text-sm">Description</TableHead>
@@ -2642,7 +2642,7 @@ const TransactionTable = ({
             <TableHead className="text-white font-semibold py-4 text-sm">Transaction ID</TableHead>
           </TableRow>
         </TableHeader>
-        <TableBody>
+        <TableBody className="bg-[#11171F]">
           {hasRealError ? (
             <TableRow className="bg-[#111C2F] hover:bg-[#111C2F]">
               <TableCell colSpan={5} className="py-8 text-center text-[#94A3B8]">
@@ -2651,7 +2651,7 @@ const TransactionTable = ({
                   <p className="text-lg font-medium text-white">Failed to load transactions</p>
                   <p className="text-sm text-[#94A3B8]">{contextError}</p>
                   <Button
-                    className="bg-[#1D4ED8] hover:bg-blue-600 text-white transition-all duration-200 transform hover:scale-105 shadow-lg shadow-blue-900/20 font-medium"
+                    className="bg-[#1B89A4] hover:bg-[#1B89A4]/60 text-white transition-all duration-200 transform hover:scale-105 shadow-lg shadow-blue-900/20 font-medium"
                     onClick={() => {
                       refetch()
                       toast.info("Retrying to fetch transactions...", {
@@ -2678,7 +2678,7 @@ const TransactionTable = ({
             <TableRow className="bg-[#111C2F] hover:bg-[#111C2F]">
               <TableCell colSpan={5} className="py-8 text-center text-[#94A3B8]">
                 <div className="flex flex-col items-center justify-center gap-3">
-                  <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+                  <Loader2 className="h-8 w-8 animate-spin text-[#1B89A4]" />
                   <p className="text-lg font-medium">Searching transactions...</p>
                 </div>
               </TableCell>
@@ -2708,7 +2708,7 @@ const TransactionTable = ({
                             href={tx.explorerUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-blue-400 hover:text-blue-300 underline-offset-4 transition-colors font-mono text-sm"
+                            className="text-[#1B89A4] hover:text-[#1B89A4]/30 underline-offset-4 transition-colors font-mono text-sm"
                             onClick={(e) => {
                               e.stopPropagation()
                               toast.info("Opening transaction in explorer", {
@@ -2733,7 +2733,7 @@ const TransactionTable = ({
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <button
-                            className="p-1 rounded-full bg-[#1E293B] text-white hover:bg-blue-500/50 transition-colors"
+                            className="p-1 rounded-full bg-[#1E293B] text-white hover:bg-[#1B89A4]/50 transition-colors"
                             onClick={(e) => {
                               e.stopPropagation()
                               copyToClipboard(tx.transactionId)
@@ -2787,7 +2787,7 @@ const Pagination = ({
     <div className="text-sm text-[#94A3B8]">
       {contextLoading ? (
         <div className="flex items-center gap-2">
-          <Loader2 className="h-4 w-4 animate-spin text-blue-500" />
+          <Loader2 className="h-4 w-4 animate-spin text-[#1B89A4]" />
           <span>Loading transactions...</span>
         </div>
       ) : contextError ? (
@@ -3156,7 +3156,7 @@ export default function DashboardTransactions() {
   }
 
   return (
-    <div className="flex flex-col h-full w-full mx-auto bg-[#0f172a] min-h-0 overflow-hidden">
+    <div className="flex flex-col h-full w-full mx-auto bg-[#11171F] min-h-0 overflow-hidden">
       <div className="flex-1 flex flex-col p-4 sm:p-6 gap-4 font-sans overflow-hidden">
         <FilterControls
           searchQuery={searchQuery}
@@ -3203,7 +3203,7 @@ export default function DashboardTransactions() {
           {dateRangeFilter !== "All" && (
             <div className="flex items-center gap-1">
               <span>Date Range:</span>
-              <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border border-blue-500/40 text-blue-400 bg-[#111C2F]/80 backdrop-blur-md shadow-sm">
+              <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border border-[#1B89A4]/40 text-[#1B89A4] bg-[#111C2F]/80 backdrop-blur-md shadow-sm">
                 <Calendar className="h-3 w-3" />
                 {dateRangeFilter}
                 {dateRangeFilter === "Custom" &&
