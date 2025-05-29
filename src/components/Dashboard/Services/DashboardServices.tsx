@@ -347,7 +347,7 @@ const DashboardServices = () => {
           <div className="mb-10">
             <div className="flex items-center mb-6">
               <div className="h-8 w-8 rounded-lg bg-[#1A202885] flex items-center justify-center mr-3">
-                <Clock className="h-4 w-4 text-[#2563eb]" />
+                <Clock className="h-4 w-4 text-[#38C3D8]" />
               </div>
               <h2 className="text-xl font-semibold text-white">Recent Services</h2>
             </div>
