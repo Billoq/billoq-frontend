@@ -169,10 +169,10 @@ function About() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-16 md:pt-24 pb-12 text-center">
         <AnimatedSection direction="down" delay={0.2}>
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-white max-w-4xl mx-auto leading-tight">
-            Powering Your <span className="text-[#3B82F6]">Bills</span> With
+            Powering Your <span className="text-[#1B89A4]">Bills</span> With
             Cryptocurrency
             <br />
-            Meet <span className="text-[#3B82F6]">Billoq</span>
+            Meet <span className="text-[#1B89A4]">Billoq</span>
           </h1>
         </AnimatedSection>
 
@@ -201,30 +201,30 @@ function About() {
         {/* Progress Dots */}
         <AnimatedSection direction="up" delay={0.5}>
           <div className="w-full flex items-center justify-between mt-6 md:mt-8">
-            <div className="h-4 w-4 rounded-full bg-blue-700"></div>
+            <div className="h-4 w-4 rounded-full bg-[#1B89A4]"></div>
             <div className="h-px flex-1 bg-[#42556C]"></div>
-            <div className="h-4 w-4 rounded-full bg-blue-700"></div>
+            <div className="h-4 w-4 rounded-full bg-[#1B89A4]"></div>
             <div className="h-px flex-1 bg-[#42556C]"></div>
-            <div className="h-4 w-4 rounded-full bg-blue-700"></div>
+            <div className="h-4 w-4 rounded-full bg-[#1B89A4]"></div>
           </div>
         </AnimatedSection>
       </div>
 
       {/* About Us Section */}
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-10">
         <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-16">
           {/* Left Side: Text */}
           <div className="flex-1">
             <AnimatedSection direction="right" delay={0.2}>
               <div className="inline-block mb-4">
-                <span className="text-[#3B82F6] text-sm md:text-base font-semibold uppercase tracking-wide px-3 py-1 rounded-full bg-[#1D4ED820]">
+                <span className="uppercase text-sm font-semibold md:text-[18px] text-[#1B89A4] px-4 py-1.5 rounded-full bg-[#0E99BC26] inline-block mb-4 tracking-wider">
                   ABOUT US
                 </span>
               </div>
             </AnimatedSection>
             <AnimatedSection direction="up" delay={0.3}>
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-white mt-2 leading-tight">
-                Who <span className="text-[#3B82F6]">We</span> Are
+                Who <span className="text-[#1B89A4]">We</span> Are
               </h2>
             </AnimatedSection>
             <AnimatedSection direction="up" delay={0.4}>
