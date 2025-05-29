@@ -5,10 +5,10 @@ import {
   Globe,
   Droplet,
   Video,
-  GraduationCap,
   Monitor,
   Fuel,
-  Trophy
+  Trophy,
+  BookOpen
 } from "lucide-react"
 
 export type ServiceType = {
@@ -35,12 +35,6 @@ const services: ServiceType[] = [
     providers: ["Comcast Xfinity", "Spectrum", "DirecTV"],
   },
   {
-    title: "Mobile Recharge",
-    description: "Recharge your mobile service",
-    icon: Smartphone,
-    providers: ["Verizon Wireless", "AT&T", "T-Mobile"],
-  },
-  {
     title: "Internet Connection",
     description: "Pay your internet bills instantly",
     icon: Globe,
@@ -51,28 +45,30 @@ const services: ServiceType[] = [
     description: "Pay your water bills instantly",
     icon: Droplet,
     providers: ["American Water", "Aqua America", "California Water Service"],
-    comingSoon: true,
   },
   {
-    title: "Gas",
-    description: "Pay your natural gas bills instantly",
-    icon: Fuel,
-    providers: ["Southern Company Gas", "National Fuel", "Dominion Energy"],
-    comingSoon: true,
+    title: "Education",
+    description: "Pay your education fees instantly",
+    icon: BookOpen,
+    providers: ["Navient", "Nelnet", "Great Lakes"],
   },
   {
     title: "Streaming Services",
     description: "Pay for streaming subscriptions",
     icon: Video,
     providers: ["Netflix", "Disney+", "Amazon Prime Video"],
-    comingSoon: true,
   },
   {
-    title: "Education",
-    description: "Pay your education fees instantly",
-    icon: GraduationCap,
-    providers: ["Navient", "Nelnet", "Great Lakes"],
-    comingSoon: true,
+    title: "Mobile Recharge",
+    description: "Recharge your mobile service",
+    icon: Smartphone,
+    providers: ["Verizon Wireless", "AT&T", "T-Mobile"],
+  },
+  {
+    title: "Gas",
+    description: "Pay your natural gas bills instantly",
+    icon: Fuel,
+    providers: ["Southern Company Gas", "National Fuel", "Dominion Energy"],
   },
   {
     title: "Betting",

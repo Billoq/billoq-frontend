@@ -26,8 +26,8 @@ export function HeroSection() {
           <div>
             <AnimatedSection direction="down" delay={0.3}>
               <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white max-w-6xl mx-auto leading-tight">
-                Pay For Any <span className="text-blue-500">Service</span> With Your{" "}
-                <span className="text-blue-500">Crypto</span>.
+                Pay For Any <span className="text-500 text-[#1B89A4]">Service</span> With Your{" "}
+                <span className="text-500 text-[#1B89A4]">Crypto</span>.
               </h1>
             </AnimatedSection>
 

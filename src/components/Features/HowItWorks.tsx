@@ -246,11 +246,11 @@ export function HowItWorks() {
       className="bg-[#121520] flex flex-col items-center py-16 px-4"
     >
       <div className="text-center mb-12">
-        <div className="inline-block bg-[#243880] text-blue-300 text-sm font-medium px-4 py-1 rounded-full mb-4">
+        <div className="uppercase text-sm font-semibold md:text-[18px] text-[#1B89A4] px-4 py-1.5 rounded-full bg-[#0E99BC26] inline-block mb-4 tracking-wider">
           KEY STEPS
         </div>
         <h1 className="text-4xl font-bold text-white">
-          How It <span className="text-[#1D4ED8]">Works</span>
+          How It <span className="text-[#1B89A4]">Works</span>
         </h1>
       </div>
 
