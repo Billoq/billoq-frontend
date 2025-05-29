@@ -501,6 +501,7 @@ export function TransactionSuccessCard({
           link.click()
           document.body.removeChild(link)
           URL.revokeObjectURL(url)
+          onDownload()
         }
       }, "image/png")
     } catch (error) {

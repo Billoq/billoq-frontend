@@ -1178,11 +1178,11 @@ const mapToSuccessCardFormat = (tx: TransactionDisplay, originalTx: Transaction)
   id: tx.transactionId, // Use the full transaction hash as ID
   billType: originalTx.billType || "Utility Bill",
   amountInNaira: originalTx.amountInNaira,
-  amountInUSDT: originalTx.amountInUSDT || 0,
+  amountInUSDT: originalTx.amountInCrypto || 0,
   paymentMethod: originalTx.paymentMethod || "USDC/USDT",
   date: tx.date,
   hash: tx.transactionId, // Use the full transaction hash
-  gasFee: originalTx.gasFee || "2999Gwei",
+  gasFee: "2999Gwei",
   explorerUrl: tx.explorerUrl,
 })
 
