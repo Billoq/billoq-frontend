@@ -1,8 +1,6 @@
 export type BillType = "Airtime" | "Data" | "Cable TV" | "Electricity" | "Others";
 
 export interface Transaction {
-  gasFee: string;
-  amountInUSDT: number;
   id: string;
   billType: BillType;
   status: "pending" | "completed" | "failed";

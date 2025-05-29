@@ -329,7 +329,7 @@ export function FeatureSection() {
         <div className="container mx-auto px-6 pt-16 md:pt-24 pb-20 text-center">
           <AnimatedSection direction="down" delay={0.3}>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white max-w-4xl mx-auto leading-tight">
-              Powerful <span className="text-blue-500">Features{" "}</span>For Web3 Bill {" "}<span className="text-blue-500">Payments.</span>
+              Powerful <span className="text-[#1B89A4]">Features{" "}</span>For Web3 Bill {" "}<span className="text-[#1B89A4]">Payments.</span>
             </h1>
           </AnimatedSection>
 

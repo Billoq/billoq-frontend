@@ -344,7 +344,7 @@ export function DashboardHeader({
         </div>
       );
     }
-    return <Wallet className="w-6 h-6 text-blue-500" />;
+    return <Wallet className="w-6 h-6 text-[#1B89A4]" />;
   };
 
   const getWalletName = () => 
