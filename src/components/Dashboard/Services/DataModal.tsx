@@ -680,7 +680,7 @@ const DataModal = ({ onClose, onShowPayment, state, onStateChange }: DataModalPr
         </button>
 
         <div className="flex flex-col items-center">
-          <h2 className="text-2xl font-medium text-[#0080FF] mb-8">Mobile Data</h2>
+          <h2 className="text-2xl font-medium text-[#1B89A4] mb-8">Mobile Data</h2>
 
           <div className="w-full mb-6">
             <p className="text-white mb-3">Select network provider</p>
@@ -807,8 +807,10 @@ const DataModal = ({ onClose, onShowPayment, state, onStateChange }: DataModalPr
             </div>
           </div>
 
+          
+
           <button
-            className="w-full py-4 bg-[#0080FF] text-white rounded-md font-medium disabled:bg-gray-500"
+            className="w-full py-4 bg-[#1B89A4] text-white rounded-md font-medium disabled:bg-gray-500"
             onClick={handlePayment}
             disabled={isLoadingBillers || isLoadingBillItems || isLoadingPayment}
           >

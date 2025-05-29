@@ -101,11 +101,11 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
               <p>All payments are routed through secure smart contracts, and will be recorded onchain.</p>
             </div>
 
-            <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-5">Confirm Payment</Button>
+            <Button className="w-full bg-[#1B89A4]  text-white py-5">Confirm Payment</Button>
 
             <div className="text-center text-sm">
               <span className="text-gray-400">Need help?</span>{" "}
-              <a href="#" className="text-blue-400 hover:underline">
+              <a href="#" className="text-[#1B89A4] hover:underline">
                 Chat with Support
               </a>
             </div>
