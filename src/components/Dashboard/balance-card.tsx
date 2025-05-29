@@ -23,7 +23,7 @@ export function BalanceCard() {
       : "0.00";
 
   const isUnsupportedChain =
-    currentChain !== "Sepolia" && currentChain !== "Lisk Sepolia";
+    currentChain !== "Sepolia" && currentChain !== "Lisk Sepolia" && currentChain !== "Arbitrum Sepolia" && currentChain !== "BSC Testnet";
 
   const handleToggleVisibility = () => {
     toggleBalanceVisibility();
@@ -40,7 +40,9 @@ export function BalanceCard() {
             <CardTitle className="text-xl font-semibold text-white/90 flex items-center gap-2">
               <div className={`w-3 h-3 rounded-full ${
                 currentChain === "Sepolia" ? 'bg-green-500' : 
-                currentChain === "Lisk Sepolia" ? 'bg-purple-500' : 'bg-red-500'
+                currentChain === "Lisk Sepolia" ? 'bg-purple-500' :
+                currentChain === "Arbitrum Sepolia" ? 'bg-blue-500': 
+                currentChain === "BSC Testnet"? 'bg-yellow-500' : 'bg-red-500'
               }`} />
               Total Balance
             </CardTitle>
@@ -60,7 +62,7 @@ export function BalanceCard() {
             {isUnsupportedChain ? (
               <div className="bg-red-900/20 border border-red-800/50 rounded-lg p-3">
                 <p className="text-sm font-medium text-red-300 text-center">
-                  Unsupported network. Switch to Sepolia or Lisk Sepolia.
+                  Unsupported network. Switch to a supported chain in settings.
                 </p>
               </div>
             ) : hideBalances || !usdcBalance || !usdtBalance ? (

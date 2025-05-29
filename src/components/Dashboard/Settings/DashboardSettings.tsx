@@ -15,12 +15,12 @@ import { Badge } from "@/components/ui/badge"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { useAccount, useDisconnect, useSwitchChain } from "wagmi"
 import { useRouter } from "next/navigation"
-import { sepolia, liskSepolia } from 'wagmi/chains'
+import { sepolia, liskSepolia, arbitrumSepolia, bscTestnet } from 'wagmi/chains'
 import Image from "next/image"
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
-const supportedChains = [sepolia, liskSepolia]
+const supportedChains = [sepolia, liskSepolia, arbitrumSepolia, bscTestnet]
 
 export default function DashboardSettings() {
   const router = useRouter()
