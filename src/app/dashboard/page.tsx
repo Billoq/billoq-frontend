@@ -31,7 +31,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="flex-1 bg-[#0f172a]">
+    <div className="flex-1 bg-[#11171F]">
       <DashboardHeader onSearch={handleSearch} />
       <BalanceProvider>
         <DashboardContent searchQuery={searchQuery} />

@@ -99,7 +99,7 @@ export function BalanceCard() {
       </Card>
 
       <Link href="/dashboard/services">
-        <Button className="w-full h-14 bg-gradient-to-r from-[#1D4ED8] to-[#1D4ED8]/70 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl shadow-md transition-all transform hover:-translate-y-0.5 cursor-pointer">
+        <Button className="w-full h-14 bg-gradient-to-r from-[#1B89A4] to-[#1B89A4]/70 hover:from-[#1B89A4]/80 hover:to-[#1B89A4]/80 text-white rounded-xl shadow-md transition-all transform hover:-translate-y-0.5 cursor-pointer">
           <div className="flex items-center gap-2">
             <Plus className="h-4 w-4" />
             <span>Pay Bill</span>

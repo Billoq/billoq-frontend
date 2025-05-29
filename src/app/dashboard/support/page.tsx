@@ -4,7 +4,7 @@ import React from 'react'
 
 function page() {
   return (
-    <div  className="flex-1 bg-[#0f172a]">
+    <div  className="flex-1 bg-[#11171F]">
       <DashboardHeader/>
       <DashboardSupport/>
 

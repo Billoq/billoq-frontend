@@ -344,7 +344,7 @@ export function DashboardHeader({
         </div>
       );
     }
-    return <Wallet className="w-6 h-6 text-blue-500" />;
+    return <Wallet className="w-6 h-6 text-[#1B89A4]" />;
   };
 
   const getWalletName = () => 
@@ -426,7 +426,7 @@ export function DashboardHeader({
   }
 
   return (
-    <header className="flex h-16 items-center justify-between bg-[#0f172a] px-4 md:px-6">
+    <header className="flex h-16 items-center justify-between bg-[#11171F] px-4 md:px-6">
       {/* Left section with page title - positioned with enough space for the menu button */}
       <h1 className="text-xl md:text-2xl font-bold text-white ml-12 md:ml-16 lg:ml-0">
         {getPageTitle()}
@@ -444,7 +444,7 @@ export function DashboardHeader({
         {pathname === "/dashboard" && (
           <div className="lg:hidden relative">
             {isMobileSearchOpen ? (
-              <div className="fixed inset-x-0 top-16 z-50 mx-auto w-full max-w-md px-4 py-2 bg-[#0f172a] shadow-lg">
+              <div className="fixed inset-x-0 top-16 z-50 mx-auto w-full max-w-md px-4 py-2 bg-[#19202A] shadow-lg">
                 <SearchInput 
                   onSearch={handleSearch} 
                   autoFocus={true}
@@ -469,7 +469,7 @@ export function DashboardHeader({
           <div className="relative" ref={dropdownRef}>
             <button
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="flex items-center gap-2 bg-[#2A3B5A] rounded-full px-2 py-2 md:px-4 hover:bg-[#374d6e] transition-colors"
+              className="flex items-center gap-2 bg-[#11171F] rounded-full px-2 py-2 md:px-4 hover:bg-[#374d6e] transition-colors"
             >
               <span className="hidden md:inline text-white font-medium">{truncateAddress(address)}</span>
               {getWalletIcon()}
@@ -516,7 +516,7 @@ export function DashboardHeader({
         ) : (
           <button
             onClick={() => router.push('/')}
-            className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md transition-colors"
+            className="bg-[#1B89A4] hover:bg-[#1B89A4]/60 text-white py-2 px-4 rounded-md transition-colors"
           >
             Connect Wallet
           </button>

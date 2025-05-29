@@ -37,7 +37,7 @@ export function StableAssets() {
   ];
 
   return (
-    <Card className="border-0 bg-gradient-to-b from-[#111C2F]/80 to-[#252E3A]/80 rounded-2xl backdrop-blur-sm shadow-lg shadow-blue-900/10">
+    <Card className="border-0 bg-gradient-to-b from-[#152238B2]/80 to-[#111C2F]/80 rounded-2xl backdrop-blur-sm shadow-lg shadow-blue-900/10">
       <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
         <div className="flex items-center gap-2">
           <ChainIcon chain={currentChain} className="h-3 w-3" />

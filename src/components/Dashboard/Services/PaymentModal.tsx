@@ -358,7 +358,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
         className="fixed inset-0 flex items-center justify-center bg-slate-800/80 p-4 z-50"
         onClick={handleOverlayClick}
       >
-        <Card className="w-full max-w-md mx-auto overflow-hidden bg-transparent border-0 text-blue-400">
+          <Card className="w-full max-w-md mx-auto overflow-hidden bg-transparent border-0 text-[#38C3D8]">
           <Card className="bg-gray-900 border-0 shadow-xl">
             <div className="flex items-center justify-between p-4 border-b border-gray-800">
               <Button
@@ -417,13 +417,13 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
               </div>
 
               {isProcessing ? (
-                <div className="w-full bg-blue-600/50 text-white py-5 flex items-center justify-center gap-2 rounded">
+                <div className="w-full bg-[#38C3D8]/50 text-white py-5 flex items-center justify-center gap-2 rounded">
                   <Loader2 className="h-5 w-5 animate-spin" />
                   <span>{processingStep || "Processing..."}</span>
                 </div>
               ) : (
                 <Button
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-5"
+                  className="w-full bg-[#1B89A4] text-white py-5"
                   onClick={handlePayBill}
                   disabled={!areContractsReady}
                 >
@@ -437,7 +437,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                     href={`https://sepolia.etherscan.io/tx/${txHash}`} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="text-blue-400 hover:underline"
+                    className="text-[#1B89A4] hover:underline"
                   >
                     View Transaction on Etherscan
                   </a>
@@ -446,7 +446,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
 
               <div className="text-center text-sm">
                 <span className="text-gray-400">Need help?</span>{" "}
-                <a href="#" className="text-blue-400 hover:underline">
+                <a href="#" className="text-[#1B89A4] hover:underline">
                   Chat with Support
                 </a>
               </div>

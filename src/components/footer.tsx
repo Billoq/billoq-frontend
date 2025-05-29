@@ -17,17 +17,11 @@ export function Footer() {
           <div className="sm:col-span-2 lg:col-span-1">
             <div className="flex items-center mb-4">
               <Link href="/" className="flex items-center">
-                <Image
-                  src="/logo.png"
-                  alt="Billoq Logo"
-                  width={36}
-                  height={36}
-                  className="w-9 h-9"
-                />
-                <span className="text-blue-500 font-bold text-2xl ml-2">
-                  Billoq
-                </span>
-              </Link>
+          <div className="text-[#1B89A4] font-bold text-2xl flex gap-1 items-center">
+            <Image src="/logo.svg" alt="Billoq Logo" width={40} height={40} className="w-10 h-10" />
+            Billoq
+          </div>
+        </Link>
             </div>
             <p className="text-sm mb-6 max-w-xs">
               A decentralized bill payment platform on the blockchain. Pay for
@@ -61,7 +55,7 @@ export function Footer() {
                 <li key={item}>
                   <Link
                     href="#"
-                    className="hover:text-blue-400 transition-colors text-sm sm:text-base"
+                    className="hover:text-[#1B89A4] transition-colors text-sm sm:text-base"
                   >
                     {item}
                   </Link>
@@ -79,7 +73,7 @@ export function Footer() {
                   <li key={service}>
                     <Link
                       href="#"
-                      className="hover:text-blue-400 transition-colors text-sm sm:text-base"
+                      className="hover:text-[#1B89A4] transition-colors text-sm sm:text-base"
                     >
                       {service}
                     </Link>
@@ -98,7 +92,7 @@ export function Footer() {
                   <li key={resource}>
                     <Link
                       href="#"
-                      className="hover:text-blue-400 transition-colors text-sm sm:text-base"
+                      className="hover:text-[#1B89A4] transition-colors text-sm sm:text-base"
                     >
                       {resource}
                     </Link>
@@ -124,7 +118,7 @@ export function Footer() {
           </div>
           <div className="flex justify-center space-x-6 mt-4">
             {["Terms", "Privacy", "Cookies"].map((item) => (
-              <Link key={item} href="#" className="hover:text-blue-400">
+              <Link key={item} href="#" className="hover:text--400">
                 {item}
               </Link>
             ))}

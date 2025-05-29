@@ -17,7 +17,7 @@ export default function ClientInitializer({
   if (!mounted) {
     return (
       <div className="fixed inset-0 bg-colors-OffWhite flex items-center justify-center w-full h-full">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-500"></div>
+        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-[#1B89A4]"></div>
       </div>
     )
   }

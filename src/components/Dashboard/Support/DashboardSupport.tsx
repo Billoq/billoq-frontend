@@ -109,14 +109,14 @@ export default function DashboardSupport() {
   )
 
   return (
-    <div className="bg-[#0f172a] text-white p-6 md:p-8 lg:p-10 min-h-screen">
+    <div className="bg-[#11171F] text-white p-6 md:p-8 lg:p-10 min-h-screen">
       {/* Hero Section */}
-      <div className="relative mb-12 overflow-hidden rounded-2xl bg-gradient-to-r from-[#111827] to-[#0f172a] p-8 md:p-10">
-        <div className="absolute -top-24 -right-24 w-64 h-64 bg-[#2563eb]/10 rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-32 -left-32 w-80 h-80 bg-[#2563eb]/5 rounded-full blur-3xl"></div>
+      <div className="relative mb-12 overflow-hidden rounded-2xl bg-gradient-to-r from-[#1A2028] to-[#0f172a] p-8 md:p-10">
+        <div className="absolute -top-24 -right-24 w-64 h-64 bg-[#1A2028]/10 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-32 -left-32 w-80 h-80 bg-[#1A2028]/5 rounded-full blur-3xl"></div>
 
         <div className="relative z-10 max-w-3xl">
-          <h1 className="text-3xl md:text-4xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-blue-600">
+          <h1 className="text-3xl md:text-4xl font-bold mb-4 bg-clip-text text-transparent bg-[#1B89A4]">
             Support Center
           </h1>
           <p className="text-xl md:text-2xl font-medium text-slate-300 mb-8">
@@ -134,7 +134,7 @@ export default function DashboardSupport() {
                 className="ml-4 bg-transparent outline-none text-white text-lg w-full placeholder-slate-400 focus:placeholder-slate-500 transition-colors"
               />
             </div>
-            <Button className="w-full md:w-auto bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-lg font-medium px-8 py-4 h-auto rounded-xl shadow-lg shadow-blue-900/20 transition-all hover:shadow-blue-900/30 hover:scale-[1.02]">
+            <Button className="w-full md:w-auto bg-[#1B89A4] text-white text-lg font-medium px-8 py-4 h-auto rounded-xl shadow-lg shadow-blue-900/20 transition-all hover:shadow-blue-900/30 hover:scale-[1.02]">
               Search
             </Button>
           </div>
@@ -150,7 +150,7 @@ export default function DashboardSupport() {
               onClick={() => setActiveCategory(category)}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                 activeCategory === category
-                  ? "bg-[#2563eb] text-white shadow-lg shadow-blue-900/20"
+                  ? "bg-[#1B89A4] text-white shadow-lg shadow-blue-900/20"
                   : "bg-[#1e293b] text-slate-300 hover:bg-[#2e3b52]"
               }`}
             >
@@ -164,7 +164,7 @@ export default function DashboardSupport() {
       <div className="mb-12">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold">Common Topics</h2>
-          <Button variant="ghost" className="text-blue-400 hover:text-blue-300 hover:bg-[#1e293b]">
+          <Button variant="ghost" className="text-[#1B89A4] hover:bg-[#1e293b]">
             View all <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         </div>
@@ -177,20 +177,20 @@ export default function DashboardSupport() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
             >
-              <Card className="bg-[#1e293b] border-[#2e3b52] hover:border-[#2563eb]/50 hover:shadow-lg hover:shadow-blue-900/10 transition-all duration-300 h-full">
+              <Card className="bg-[#1A2028] border-[#2e3b52] hover:border-[#2563eb]/50 hover:shadow-lg hover:shadow-blue-900/10 transition-all duration-300 h-full">
                 <CardContent className="p-6">
                   <div className="flex items-start gap-4">
-                    <div className="h-10 w-10 rounded-lg bg-[#2563eb]/20 flex items-center justify-center text-blue-400">
+                    <div className="h-10 w-10 rounded-lg bg-[#2563eb]/20 flex items-center justify-center text-[#1B89A4]">
                       {topic.icon}
                     </div>
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
-                        <Badge className="bg-[#111827] text-blue-400 hover:bg-[#1e293b]">{topic.category}</Badge>
+                        <Badge className="bg-[#1A2028] text-[#1B89A4] hover:bg-[#1e293b]">{topic.category}</Badge>
                         <span className="text-xs text-slate-400">{topic.views} views</span>
                       </div>
                       <h3 className="font-semibold text-lg text-white">{topic.title}</h3>
                       <p className="text-sm text-slate-400">{topic.description}</p>
-                      <Button variant="link" className="text-blue-400 hover:text-blue-300 p-0">
+                      <Button variant="link" className="text-[#1B89A4]  p-0">
                         Read more <ArrowRight className="ml-1 h-3 w-3" />
                       </Button>
                     </div>
@@ -208,11 +208,11 @@ export default function DashboardSupport() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {guides.map((guide) => (
             <motion.div key={guide.id} whileHover={{ scale: 1.03 }} transition={{ type: "spring", stiffness: 300 }}>
-              <Card className="bg-gradient-to-br from-[#1e293b] to-[#111827] border-[#2e3b52] hover:border-[#2563eb]/50 overflow-hidden group">
+              <Card className="bg-gradient-to-br from-[#1A2028] to-[#1e293b] border-[#2e3b52] hover:border-[#2563eb]/50 overflow-hidden group">
                 <CardContent className="p-6 relative">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-[#2563eb]/5 rounded-full blur-2xl transform translate-x-16 -translate-y-16 group-hover:bg-[#2563eb]/10 transition-all duration-700"></div>
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-[[#1e293b]]/5 rounded-full blur-2xl transform translate-x-16 -translate-y-16 group-hover:bg-[#2563eb]/10 transition-all duration-700"></div>
 
-                  <div className="h-12 w-12 rounded-xl bg-[#2563eb]/20 flex items-center justify-center text-blue-400 mb-4">
+                  <div className="h-12 w-12 rounded-xl bg-[#2563eb]/20 flex items-center justify-center text-[#1B89A4] mb-4">
                     {guide.icon}
                   </div>
 
@@ -221,7 +221,7 @@ export default function DashboardSupport() {
 
                   <a
                     href={guide.link}
-                    className="inline-flex items-center text-blue-400 hover:text-blue-300 font-medium transition-colors"
+                    className="inline-flex items-center text-[#1B89A4] hover:text-[#1B89A4]/50 font-medium transition-colors"
                   >
                     Read article <ArrowRight className="ml-2 h-4 w-4" />
                   </a>
@@ -233,20 +233,20 @@ export default function DashboardSupport() {
       </div>
 
       {/* Community & Updates */}
-      <div className="rounded-2xl bg-[#111827] border border-[#2e3b52] p-8">
+      <div className="rounded-2xl bg-[#1A2028] border border-[#2e3b52] p-8">
         <h2 className="text-2xl font-bold mb-6">Community & Updates</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {communityLinks.map((item, index) => (
             <a
               key={index}
               href={item.link}
-              className="flex items-center gap-4 p-4 rounded-xl bg-[#1e293b] hover:bg-[#2e3b52] border border-[#2e3b52] hover:border-[#2563eb]/50 transition-all group"
+              className="flex items-center gap-4 p-4 rounded-xl bg-[#1A2028]/10 hover:bg-[#2e3b52] border border-[#2e3b52] hover:border-[#2563eb]/50 transition-all group"
             >
-              <div className="h-10 w-10 rounded-full bg-[#2563eb]/20 flex items-center justify-center text-blue-400 group-hover:bg-[#2563eb]/30 transition-colors">
+              <div className="h-10 w-10 rounded-full bg-[#2563eb]/20 flex items-center justify-center text-[#1B89A4] group-hover:bg-[#1B89A4]/30 transition-colors">
                 {item.icon}
               </div>
               <span className="text-lg font-medium text-white">{item.title}</span>
-              <ArrowRight className="ml-auto h-5 w-5 text-blue-400 transform group-hover:translate-x-1 transition-transform" />
+              <ArrowRight className="ml-auto h-5 w-5 text-[#1B89A4] transform group-hover:translate-x-1 transition-transform" />
             </a>
           ))}
         </div>
@@ -255,7 +255,7 @@ export default function DashboardSupport() {
       {/* Contact Support */}
       <div className="mt-12 text-center">
         <p className="text-slate-400 mb-4">Can&apos;t find what you&apos;re looking for?</p>
-        <Button className="bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-8 py-4 h-auto text-lg font-medium rounded-xl shadow-lg shadow-blue-900/20 transition-all hover:shadow-blue-900/30">
+        <Button className="bg-[#1B89A4]  text-white px-8 py-4 h-auto text-lg font-medium rounded-xl shadow-lg shadow-blue-900/20 transition-all hover:shadow-blue-900/30">
           <MessageCircle className="mr-2 h-5 w-5" />
           Contact Support Team
         </Button>

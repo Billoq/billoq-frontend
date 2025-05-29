@@ -45,7 +45,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-slate-800/80 p-4 z-50">
-      <Card className="w-full max-w-md mx-auto overflow-hidden bg-transparent border-0 text-blue-400">
+      <Card className="w-full max-w-md mx-auto overflow-hidden bg-transparent border-0 text-[#38C3D8]">
         <Card className="bg-gray-900 border-0 shadow-xl">
           <div className="flex items-center justify-between p-4 border-b border-gray-800">
             <Button 
@@ -101,11 +101,11 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
               <p>All payments are routed through secure smart contracts, and will be recorded onchain.</p>
             </div>
 
-            <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-5">Confirm Payment</Button>
+            <Button className="w-full bg-[#38C3D8] hover:bg-[#38C3D8] text-white py-5">Confirm Payment</Button>
 
             <div className="text-center text-sm">
               <span className="text-gray-400">Need help?</span>{" "}
-              <a href="#" className="text-blue-400 hover:underline">
+              <a href="#" className="text-[#38C3D8] hover:underline">
                 Chat with Support
               </a>
             </div>
