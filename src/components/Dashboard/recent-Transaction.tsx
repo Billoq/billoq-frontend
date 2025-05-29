@@ -138,7 +138,7 @@ export function RecentTransactions({ searchQuery = "" }: RecentTransactionsProps
         <h2 className="text-xl font-semibold text-white">Recent Transactions</h2>
         <Link
           href="/dashboard/transactions"
-          className="text-sm font-medium text-blue-400 hover:text-blue-300 transition-colors flex items-center"
+          className="text-sm font-medium text-[#38C3D8] hover:text-[#38C3D8]/60 transition-colors flex items-center"
         >
           View All
           <svg
@@ -158,11 +158,11 @@ export function RecentTransactions({ searchQuery = "" }: RecentTransactionsProps
         </Link>
       </div>
 
-      <Card className="border-0 bg-gradient-to-b from-[#252E3A]/80 to-[#111C2F]/80 rounded-xl backdrop-blur-sm shadow-lg shadow-blue-900/10">
+      <Card className="border-0 bg-gradient-to-b from-[#152238B2]/80 to-[#111C2F]/80 rounded-xl backdrop-blur-sm shadow-lg shadow-blue-900/10">
         <CardContent className="p-0 rounded-xl overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gradient-to-r from-blue-900/30 to-[#1e293b]/30">
+              <thead className="bg-[#1A202880]">
                 <tr>
                   <th className="px-6 py-4 text-left text-xs font-medium text-blue-200 uppercase tracking-wider">
                     Date

@@ -5,7 +5,7 @@ import React from "react";
 
 const Page = () => {
   return (
-    <div className="flex flex-col h-screen bg-[#0f172a] overflow-hidden">
+    <div className="flex flex-col h-screen  overflow-hidden">
       <DashboardHeader />
       <div className="flex-1 overflow-hidden">
         <DashboardTransactions />

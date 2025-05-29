@@ -61,7 +61,7 @@ export default function DashboardSettings() {
         />
       )
     }
-    return <Wallet className="w-6 h-6 text-blue-500" />
+    return <Wallet className="w-6 h-6 text-[#1B89A4]" />
   }
 
   const getChainIcon = () => {
@@ -176,7 +176,7 @@ export default function DashboardSettings() {
         <div className="flex flex-col md:flex-row gap-4 md:gap-6">
           {/* Sidebar Navigation */}
           <div className="w-full md:w-56">
-            <TabsList className="flex flex-row md:flex-col w-full bg-[#111C2F] border border-[#1E293B] rounded-lg p-1 h-auto">
+            <TabsList className="flex flex-row md:flex-col w-full bg-[#1A202885] border border-[#1E293B] rounded-lg p-1 h-auto">
               <TabsTrigger
                 value="wallet"
                 className="flex items-center cursor-pointer justify-start w-full px-3 md:px-4 py-2 md:py-3 gap-2 md:gap-3 data-[state=active]:bg-[#1E293B] data-[state=active]:text-white text-[#94A3B8] hover:bg-[#1E293B]/50 transition-colors"
@@ -205,11 +205,11 @@ export default function DashboardSettings() {
           <div className="flex-1">
             {/* Wallet Settings */}
             <TabsContent value="wallet" className="space-y-4 md:space-y-6 mt-4 md:mt-0">
-              <Card className="border-[#1E293B] bg-[#0A1525]">
+              <Card className="border-[#1E293B] bg-[#1A202885]">
                 <CardHeader className="px-4 py-4 md:px-6 md:py-6">
                   <CardTitle className="text-lg md:text-xl text-white flex items-center gap-3">
                     <div className="p-2 rounded-lg bg-[#1E293B]">
-                      <Wallet className="h-4 w-4 md:h-5 md:w-5 text-[#3B82F6]" />
+                      <Wallet className="h-4 w-4 md:h-5 md:w-5 text-[#1B89A4]" />
                     </div>
                     Wallet Settings
                   </CardTitle>
@@ -299,7 +299,7 @@ export default function DashboardSettings() {
                             >
                               <div className={`h-2 w-2 md:h-3 md:w-3 rounded-full flex-shrink-0 ${network.id === sepolia.id ? 'bg-[#627EEA]' : 'bg-[#8247E5]'}`} />
                               <span className="text-white text-sm md:text-base truncate">{network.name}</span>
-                              {network.id === chain?.id && <Check className="ml-auto h-3 w-3 md:h-4 md:w-4 text-[#3B82F6] flex-shrink-0" />}
+                              {network.id === chain?.id && <Check className="ml-auto h-3 w-3 md:h-4 md:w-4 text-[#1B89A4] flex-shrink-0" />}
                             </button>
                           ))}
                         </div>
@@ -315,7 +315,7 @@ export default function DashboardSettings() {
                         Connect your wallet to manage your settings
                       </p>
                       <Button 
-                        className="bg-[#3B82F6] hover:bg-[#2563EB] text-white"
+                        className="bg-[#1B89A4] hover:bg-[#2563EB] text-white"
                         onClick={() => router.push('/')}
                       >
                         Connect Wallet

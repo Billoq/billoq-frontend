@@ -52,7 +52,7 @@ export function AppSidebar() {
 
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-40 w-64 flex-col border-r border-slate-800 bg-[#111C2F] transition-transform duration-300 ease-in-out ${
+        className={`fixed inset-y-0 left-0 z-40 w-64 flex-col border-r border-slate-800 bg-[#030C0F] transition-transform duration-300 ease-in-out ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         } lg:sticky lg:top-0 lg:translate-x-0 lg:h-screen flex`}
       >
@@ -65,7 +65,7 @@ export function AppSidebar() {
                 alt="Billoq Logo"
                 width={40}
                 height={40}
-                className="w-10 h-10"
+                className="w-8 h-8"
               />
               Billoq
             </div>

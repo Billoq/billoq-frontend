@@ -305,7 +305,7 @@ const DashboardServices = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#0f172a] text-white p-4 md:p-6 lg:p-8">
+    <div className="min-h-screen bg-[#11171F]  text-white p-4 md:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
@@ -346,8 +346,8 @@ const DashboardServices = () => {
         {recentServices.length > 0 && (
           <div className="mb-10">
             <div className="flex items-center mb-6">
-              <div className="h-8 w-8 rounded-lg bg-[#1e293b] flex items-center justify-center mr-3">
-                <Clock className="h-4 w-4 text-[#2563eb]" />
+              <div className="h-8 w-8 rounded-lg bg-[#1A202885] flex items-center justify-center mr-3">
+                <Clock className="h-4 w-4 text-[#38C3D8]" />
               </div>
               <h2 className="text-xl font-semibold text-white">Recent Services</h2>
             </div>
@@ -385,7 +385,7 @@ const DashboardServices = () => {
         )}
 
         {/* Main Content */}
-        <div className="bg-gradient-to-b from-[#111827] to-[#0f172a] rounded-2xl p-6 md:p-8 shadow-xl border border-[#1e293b]">
+        <div className="bg-gradient-to-b from-[#1A202885] to-[#111C2F]/80 rounded-2xl p-6 md:p-8 shadow-xl border border-[#1e293b]">
           {/* Mobile Services Section */}
           <ServiceCategory title="Mobile Services" icon={<Smartphone className="h-5 w-5 text-[#1B89A4]" />}>
             {filterServices("Mobile Recharge") && (
