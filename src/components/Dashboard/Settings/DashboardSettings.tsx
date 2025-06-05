@@ -15,12 +15,12 @@ import { Badge } from "@/components/ui/badge"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { useAccount, useDisconnect, useSwitchChain } from "wagmi"
 import { useRouter } from "next/navigation"
-import { sepolia, liskSepolia, arbitrumSepolia, bscTestnet } from 'wagmi/chains'
+import { liskSepolia, arbitrumSepolia, bscTestnet } from 'wagmi/chains'
 import Image from "next/image"
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
-const supportedChains = [sepolia, liskSepolia, arbitrumSepolia, bscTestnet]
+const supportedChains = [liskSepolia, arbitrumSepolia, bscTestnet]
 
 export default function DashboardSettings() {
   const router = useRouter()
@@ -65,7 +65,17 @@ export default function DashboardSettings() {
   }
 
   const getChainIcon = () => {
-    return <div className={`w-3 h-3 rounded-full ${chain?.id === sepolia.id ? 'bg-green-500' : 'bg-[#8247E5]'}`} />
+    if (!chain) return null
+    if (chain.id === liskSepolia.id) {
+      return <div className="w-3 h-3 rounded-full bg-[#00BFFF]" /> // Lisk Sepolia: blue
+    }
+    if (chain.id === arbitrumSepolia.id) {
+      return <div className="w-3 h-3 rounded-full bg-[#28A0F0]" /> // Arbitrum Sepolia: light blue
+    }
+    if (chain.id === bscTestnet.id) {
+      return <div className="w-3 h-3 rounded-full bg-[#F3BA2F]" /> // BSC Testnet: yellow
+    }
+    return <div className="w-3 h-3 rounded-full bg-gray-400" />
   }
 
   const copyToClipboard = (text: string) => {
@@ -297,7 +307,7 @@ export default function DashboardSettings() {
                               }`}
                               disabled={!switchChain}
                             >
-                              <div className={`h-2 w-2 md:h-3 md:w-3 rounded-full flex-shrink-0 ${network.id === sepolia.id ? 'bg-[#627EEA]' : 'bg-[#8247E5]'}`} />
+                             {getChainIcon()}
                               <span className="text-white text-sm md:text-base truncate">{network.name}</span>
                               {network.id === chain?.id && <Check className="ml-auto h-3 w-3 md:h-4 md:w-4 text-[#1B89A4] flex-shrink-0" />}
                             </button>
