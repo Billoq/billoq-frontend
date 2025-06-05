@@ -199,7 +199,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
         }
       }
 
-      if (!transactionId) {
+      if (transactionId == null) {
         throw new Error("Could not find transactionId in event logs");
       }
 
