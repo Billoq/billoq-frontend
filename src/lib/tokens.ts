@@ -1,7 +1,7 @@
 // src/lib/tokens.ts
 import { readContract } from "@wagmi/core";
 import { wagmiConfig } from "@/config";
-import { sepolia, liskSepolia } from "wagmi/chains";
+import { getContractConfig } from "@/config/contract";
 
 const ERC20_ABI = [
   {
@@ -24,39 +24,28 @@ const ERC20_ABI = [
 
 type TokenType = "USDC" | "USDT";
 
-const CONTRACT_ADDRESSES = {
-  USDC: {
-    [sepolia.id]: process.env.NEXT_PUBLIC_SEPOLIA_USDC_ADDRESS as `0x${string}`,
-    [liskSepolia.id]: process.env.NEXT_PUBLIC_LISK_SEPOLIA_USDC_ADDRESS as `0x${string}`,
-  },
-  USDT: {
-    [sepolia.id]: process.env.NEXT_PUBLIC_SEPOLIA_USDT_ADDRESS as `0x${string}`,
-    [liskSepolia.id]: process.env.NEXT_PUBLIC_LISK_SEPOLIA_USDT_ADDRESS as `0x${string}`,
-  },
-};
-
 export const fetchTokenBalance = async (
   token: TokenType,
   chainId: number,
   address: string
 ) => {
   try {
-    const supportedChainIds = Object.keys(CONTRACT_ADDRESSES.USDC).map(Number);
-    if (!supportedChainIds.includes(chainId)) {
-      throw new Error(`Unsupported chain ID: ${chainId}`);
-    }
+    const config = getContractConfig(chainId);
 
-    const contractAddress = CONTRACT_ADDRESSES[token][chainId as keyof typeof CONTRACT_ADDRESSES.USDC];
+    const tokenAddress = config[token.toLowerCase() as keyof typeof config] as `0x${string}` | undefined;
+    if (!tokenAddress) {
+      throw new Error(`${token} contract not found for chain ID: ${chainId}`);
+    }
 
     const [balance, decimals] = await Promise.all([
       readContract(wagmiConfig, {
-        address: contractAddress,
+        address: tokenAddress as `0x${string}`,
         abi: ERC20_ABI,
         functionName: "balanceOf",
         args: [address as `0x${string}`],
       }),
       readContract(wagmiConfig, {
-        address: contractAddress,
+        address: tokenAddress as `0x${string}`,
         abi: ERC20_ABI,
         functionName: "decimals",
       }),
@@ -66,6 +55,6 @@ export const fetchTokenBalance = async (
     return balanceInUnits.toString();
   } catch (error) {
     console.error(`Error fetching ${token} balance:`, error);
-    throw error; // Let the caller handle the error
+    throw error;
   }
 };

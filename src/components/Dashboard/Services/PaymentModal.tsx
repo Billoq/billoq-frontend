@@ -4,9 +4,9 @@ import { ChevronLeft, Info, X, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useState, useEffect, useCallback } from "react";
-import { useAccount, useWalletClient, useConfig } from "wagmi";
+import { useAccount, useWalletClient, useConfig, useChainId } from "wagmi";
 import { useBilloq } from "@/hooks/useBilloq";
-import { contractConfig } from "@/config/contract";
+import { getContractConfig } from "@/config/contract";
 import { erc20Abi } from "viem";
 import { ethers } from "ethers";
 import { getEthersSigner } from "@/config/adapter";
@@ -43,10 +43,6 @@ const BillType = {
 // Use proper type for BillType
 type BillTypeKey = keyof typeof BillType;
 
-const tokenAddresses: Record<SupportedToken, `0x${string}`> = {
-  USDT: process.env.NEXT_PUBLIC_SEPOLIA_USDT_ADDRESS as `0x${string}`,
-  USDC: process.env.NEXT_PUBLIC_SEPOLIA_USDC_ADDRESS as `0x${string}`,
-};
 
 const PaymentModal: React.FC<PaymentModalProps> = ({
   onClose,
@@ -59,6 +55,26 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
   source,
   quoteId,
 }) => {
+  const chainId = useChainId();
+  const [contractConfig, setContractConfig] = useState(getContractConfig(chainId));
+
+  useEffect(() => {
+    const contracts= getContractConfig(chainId);
+    if (!contracts) {
+      toast.error("Failed to load contract configuration.", {
+        position: "bottom-right",
+        autoClose: 5000,
+        theme: "dark",
+      });
+    }
+    setContractConfig(contracts);
+  }, [chainId]);  
+
+  const tokenAddresses: Record<SupportedToken, `0x${string}`> = {
+    USDT: contractConfig["usdt"] as `0x${string}`,
+    USDC: contractConfig["usdc"] as `0x${string}`,
+  };
+
   // Simulated conversion (replace with real conversion logic if needed)
   const convertedAmount = (parseFloat(amountInNaira || "0") / 1612).toFixed(6);
 
@@ -153,10 +169,9 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
       console.log("Processing bill payment...");
       const tx = await billContract.payBill(
         billType,
-        subscriberId,
+        quoteId,
         BigInt(Math.floor(parseFloat(amountInNaira))),
         tokenAmount,
-        provider,
         paymentToken
       );
       console.log("Bill transaction hash:", tx.hash);
@@ -184,7 +199,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
         }
       }
 
-      if (!transactionId) {
+      if (transactionId == null) {
         throw new Error("Could not find transactionId in event logs");
       }
 

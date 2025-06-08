@@ -121,7 +121,7 @@
 
 import { useState, useEffect, createContext, useContext, useCallback } from "react";
 import { useAccount, useDisconnect, useChainId } from "wagmi";
-import { sepolia, liskSepolia } from "wagmi/chains";
+import { sepolia, liskSepolia, arbitrumSepolia, bscTestnet } from "wagmi/chains";
 import { fetchTokenBalance } from "@/lib/tokens";
 
 interface BalanceContextType {
@@ -153,6 +153,10 @@ export const BalanceProvider = ({ children }: { children: React.ReactNode }) => 
         return "Sepolia";
       case liskSepolia.id:
         return "Lisk Sepolia";
+      case arbitrumSepolia.id:
+        return "Arbitrum Sepolia";
+      case bscTestnet.id:
+        return "BSC Testnet";
       default:
         return `Chain ID ${chainId}`;
     }
@@ -219,11 +223,11 @@ export const BalanceProvider = ({ children }: { children: React.ReactNode }) => 
         toggleBalanceVisibility,
       }}
     >
-      {chainId !== sepolia.id && chainId !== liskSepolia.id && (
+      {/* {chainId !== sepolia.id && chainId !== liskSepolia.id && (
         <div className="warning-banner">
           Unsupported network ({getChainName()}). Please switch to Sepolia or Lisk Sepolia.
         </div>
-      )}
+      )} */}
       {children}
     </BalanceContext.Provider>
   );

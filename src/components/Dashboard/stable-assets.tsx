@@ -11,8 +11,8 @@ import { ChainIcon } from "./chain-icon";
 export function StableAssets() {
   const { usdcBalance, usdtBalance, hideBalances, toggleBalanceVisibility, currentChain } = useBalance();
 
-  const isUnsupportedChain = currentChain !== "Sepolia" && currentChain !== "Lisk Sepolia";
-
+  const isUnsupportedChain =
+    currentChain !== "Sepolia" && currentChain !== "Lisk Sepolia" && currentChain !== "Arbitrum Sepolia" && currentChain !== "BSC Testnet";
   const assets = [
     {
       name: "USD Coin",
