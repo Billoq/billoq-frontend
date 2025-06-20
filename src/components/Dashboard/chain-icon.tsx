@@ -13,6 +13,10 @@ export function ChainIcon({ chain, className }: ChainIconProps) {
         return "bg-green-500";
       case "Lisk Sepolia":
         return "bg-purple-500";
+      case "Arbitrum Sepolia":
+        return "bg-blue-500";
+      case "BSC Testnet":
+        return "bg-yellow-500";
       default:
         return "bg-red-500";
     }

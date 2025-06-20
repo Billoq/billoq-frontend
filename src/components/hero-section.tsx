@@ -3,9 +3,12 @@
 import { Button } from "./ui/button"
 import { Navbar } from "./navbar"
 import Image from "next/image"
+import Link from "next/link"
 import { motion, useAnimation } from "framer-motion"
 import { useInView } from "react-intersection-observer"
 import { useEffect, type ReactNode, useCallback } from "react"
+import { useAppKitAccount, useAppKit } from "@reown/appkit/react"
+import { useRouter } from "next/navigation"
 import { RollingBall } from "./RollingBall"
 
 // Define the AnimatedSection component
@@ -85,6 +88,25 @@ export const AnimatedSection = ({
 }
 
 export function HeroSection() {
+  // Wallet connection hooks
+  const { isConnected } = useAppKitAccount()
+  const { open } = useAppKit()
+  const router = useRouter()
+
+  const handleGetStarted = async () => {
+    if (isConnected) {
+      // If already connected, navigate to dashboard
+      router.push("/dashboard")
+    } else {
+      // If not connected, open wallet connection modal
+      try {
+        await open()
+      } catch (error) {
+        console.error("Connection error:", error)
+      }
+    }
+  }
+
   return (
     <div className="relative min-h-screen w-full overflow-hidden">
       <div className="absolute inset-0 z-0 bg-[url('/herobg.png')] bg-cover bg-center">
@@ -99,20 +121,18 @@ export function HeroSection() {
       </div>
 
       {/* Rolling balls - moved here to be behind the content */}
-    <div className="absolute inset-0 z-15">
-  <RollingBall size={40} color="#1B89A4" duration={7} yPosition="30%" />
-  <RollingBall size={60} color="#5FB3C4" duration={10} delay={2} yPosition="50%" />
-  <RollingBall size={30} color="#8CCCD9" duration={5} delay={1} yPosition="70%" />
-  <RollingBall size={40} color="#156D83" duration={7} yPosition="30%" />
-  <RollingBall size={60} color="#0F4F5E" duration={10} delay={2} yPosition="50%" />
-  <RollingBall size={30} color="#558B97" duration={5} delay={1} yPosition="70%" />
-  <RollingBall size={40} color="#3A6E7F" duration={7} yPosition="30%" />
-  <RollingBall size={60} color="#0B2F36" duration={10} delay={2} yPosition="50%" />
-  <RollingBall size={30} color="#2D5E9C" duration={5} delay={1} yPosition="70%" />
-  <RollingBall size={40} color="#1F6F91" duration={7} yPosition="30%" />
-</div>
-
-
+      <div className="absolute inset-0 z-15">
+        <RollingBall size={40} color="#1B89A4" duration={7} yPosition="30%" />
+        <RollingBall size={60} color="#5FB3C4" duration={10} delay={2} yPosition="50%" />
+        <RollingBall size={30} color="#8CCCD9" duration={5} delay={1} yPosition="70%" />
+        <RollingBall size={40} color="#156D83" duration={7} yPosition="30%" />
+        <RollingBall size={60} color="#0F4F5E" duration={10} delay={2} yPosition="50%" />
+        <RollingBall size={30} color="#558B97" duration={5} delay={1} yPosition="70%" />
+        <RollingBall size={40} color="#3A6E7F" duration={7} yPosition="30%" />
+        <RollingBall size={60} color="#0B2F36" duration={10} delay={2} yPosition="50%" />
+        <RollingBall size={30} color="#2D5E9C" duration={5} delay={1} yPosition="70%" />
+        <RollingBall size={40} color="#1F6F91" duration={7} yPosition="30%" />
+      </div>
 
       {/* Content - now has a higher z-index to be above the balls */}
       <div className="relative z-20 max-w-7xl mx-auto">
@@ -135,24 +155,35 @@ export function HeroSection() {
 
           <AnimatedSection direction="up" delay={0.7}>
             <div className="mt-10 flex flex-col sm:flex-row items-center justify-center mx-6 gap-4">
-              <Button className="bg-[#1B89A4] hover:bg-[#1B89A4]/80 text-white w-[230px] py-6 text-lg cursor-pointer">Get Started</Button>
-              <Button variant="outline" className="bg-transparent text-white hover:bg-gray-800 w-[230px] py-6 text-lg cursor-pointer">
-                Learn more
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="ml-2"
-                >
-                  <path d="M5 12h14" />
-                  <path d="m12 5 7 7-7 7" />
-                </svg>
+              <Button 
+                onClick={handleGetStarted}
+                className="bg-[#1B89A4] hover:bg-[#1B89A4]/80 text-white w-[230px] py-6 text-lg cursor-pointer"
+              >
+                {isConnected ? "Go to Dashboard" : "Get Started"}
+              </Button>
+              <Button 
+                variant="outline" 
+                className="bg-transparent text-white hover:bg-gray-800 w-[230px] py-6 text-lg cursor-pointer"
+                asChild
+              >
+                <Link href="/about">
+                  Learn more
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="ml-2"
+                  >
+                    <path d="M5 12h14" />
+                    <path d="m12 5 7 7-7 7" />
+                  </svg>
+                </Link>
               </Button>
             </div>
           </AnimatedSection>

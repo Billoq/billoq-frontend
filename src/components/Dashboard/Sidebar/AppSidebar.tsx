@@ -67,7 +67,12 @@ export function AppSidebar() {
                 height={40}
                 className="w-8 h-8"
               />
-              Billoq
+              <div className="flex items-center gap-2">
+                Billoq
+                <span className="px-1.5 py-0.5 text-xs font-semibold bg-[#139EBB]/20 text-[#139EBB] rounded-full border border-[#139EBB]/30">
+                  BETA
+                </span>
+              </div>
             </div>
           </Link>
           

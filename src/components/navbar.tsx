@@ -61,14 +61,14 @@ export function Navbar() {
   const getWalletIcon = () => {
     const sanitizeImageUrl = (url: string) => {
       if (!url) return null;
-      
+
       try {
         const trimmedUrl = url.trim();
-        
+
         if (trimmedUrl.startsWith('data:')) {
           return trimmedUrl;
         }
-        
+
         new URL(trimmedUrl);
         return trimmedUrl;
       } catch {
@@ -176,9 +176,12 @@ export function Navbar() {
     <nav className="flex items-center justify-between pt-[16px] px-6 md:px-12 w-full relative">
       <div className="flex items-center">
         <Link href="/" className="flex items-center">
-          <div className="text-[#1B89A4] font-bold text-2xl flex gap-1 items-center">
+          <div className="text-[#1B89A4] font-bold text-2xl flex gap-2 items-center">
             <Image src="/logo.svg" alt="Billoq Logo" width={40} height={40} className="w-10 h-10" />
             Billoq
+            <span className="px-2 py-0.5 text-xs font-semibold bg-[#1B89A4]/20 text-[#1B89A4] rounded-full border border-[#1B89A4]/30">
+              BETA
+            </span>
           </div>
         </Link>
       </div>
@@ -188,9 +191,8 @@ export function Navbar() {
           <Link
             key={item.label}
             href={item.href}
-            className={`transition-colors ${
-              isActive(item.href) ? "text-[#1B89A4] font-medium" : "text-gray-200 hover:text-[#1B89A4]/60"
-            }`}
+            className={`transition-colors ${isActive(item.href) ? "text-[#1B89A4] font-medium" : "text-gray-200 hover:text-[#1B89A4]/60"
+              }`}
           >
             {item.label}
           </Link>
@@ -206,9 +208,8 @@ export function Navbar() {
             <Link
               key={item.label}
               href={item.href}
-              className={`transition-colors ${
-                isActive(item.href) ? "text-[#1B89A4] font-medium" : "text-gray-200 hover:text-[#1B89A4]/60"
-              }`}
+              className={`transition-colors ${isActive(item.href) ? "text-[#1B89A4] font-medium" : "text-gray-200 hover:text-[#1B89A4]/60"
+                }`}
             >
               {item.label}
             </Link>
