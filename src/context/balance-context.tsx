@@ -31,12 +31,14 @@ interface BalanceContextType {
   usdcBalance: string | null;
   usdtBalance: string | null;
   totalBalanceNGN: number | null;
+  baseExchangeRate: number | null; // Raw rate from APIs
+  exchangeRate: number | null; // Rate with service charge
+  serviceChargeNGN: number; // The 100 NGN service charge
   currentChain: string;
   hideBalances: boolean;
   refreshBalances: () => Promise<void>;
   disconnectWallet: () => void;
   toggleBalanceVisibility: () => void;
-  exchangeRate: number | null;
   exchangeRateLoading: boolean;
   exchangeRateError: string | null;
   testAllApis: () => Promise<void>;
@@ -53,10 +55,14 @@ export const BalanceProvider = ({ children }: { children: React.ReactNode }) => 
   const [usdcBalance, setUsdcBalance] = useState<string | null>(null);
   const [usdtBalance, setUsdtBalance] = useState<string | null>(null);
   const [totalBalanceNGN, setTotalBalanceNGN] = useState<number | null>(null);
+  const [baseExchangeRate, setBaseExchangeRate] = useState<number | null>(null); // Raw rate from APIs
+  const [exchangeRate, setExchangeRate] = useState<number | null>(null); // Rate with charges
   const [hideBalances, setHideBalances] = useState(false);
-  const [exchangeRate, setExchangeRate] = useState<number | null>(null);
   const [exchangeRateLoading, setExchangeRateLoading] = useState(false);
   const [exchangeRateError, setExchangeRateError] = useState<string | null>(null);
+
+  // Service charge in NGN (added to exchange rate)
+  const serviceChargeNGN = 100;
 
   // Function to fetch current USD to NGN exchange rate with multiple backup APIs
   const fetchExchangeRate = useCallback(async () => {
@@ -157,8 +163,14 @@ export const BalanceProvider = ({ children }: { children: React.ReactNode }) => 
         console.log(`Attempting API ${i + 1}...`);
         const rate = await apiAttempts[i]();
         
-        console.log(`✅ API ${i + 1} successful - Exchange rate: ${rate} NGN per USD`);
-        setExchangeRate(rate);
+        console.log(`✅ API ${i + 1} successful - Base exchange rate: ${rate} NGN per USD`);
+        setBaseExchangeRate(rate);
+        
+        // Add service charge to the exchange rate
+        const rateWithCharge = rate + serviceChargeNGN;
+        setExchangeRate(rateWithCharge);
+        
+        console.log(`💰 Exchange rate with ₦${serviceChargeNGN} service charge: ${rateWithCharge} NGN per USD`);
         setExchangeRateLoading(false);
         return; // Success! Exit the function
         
@@ -169,8 +181,11 @@ export const BalanceProvider = ({ children }: { children: React.ReactNode }) => 
         if (i === apiAttempts.length - 1) {
           setExchangeRateError(`All APIs failed. Last error: ${error}`);
           // Fallback to a reasonable estimate if all APIs fail
-          console.log("🔄 Using fallback rate of 1500 NGN per USD");
-          setExchangeRate(1500);
+          const fallbackRate = 1500;
+          const fallbackRateWithCharge = fallbackRate + serviceChargeNGN;
+          console.log(`🔄 Using fallback rate of ${fallbackRate} + ₦${serviceChargeNGN} charge = ${fallbackRateWithCharge} NGN per USD`);
+          setBaseExchangeRate(fallbackRate);
+          setExchangeRate(fallbackRateWithCharge);
         }
       }
     }
@@ -245,8 +260,19 @@ export const BalanceProvider = ({ children }: { children: React.ReactNode }) => 
     
     const usdcAmount = parseFloat(usdc) || 0;
     const usdtAmount = parseFloat(usdt) || 0;
-    setTotalBalanceNGN((usdcAmount + usdtAmount) * exchangeRate);
-  }, [exchangeRate]);
+    
+    // Calculate total balance using rate with service charge
+    const totalBalance = (usdcAmount + usdtAmount) * exchangeRate;
+    setTotalBalanceNGN(totalBalance);
+    
+    console.log(`💰 Balance calculation:
+      - Token balance: ${usdcAmount + usdtAmount} USD
+      - Base rate: ₦${baseExchangeRate || 'N/A'} per USD
+      - Service charge: ₦${serviceChargeNGN} per USD
+      - Final rate: ₦${exchangeRate} per USD
+      - Total balance: ₦${totalBalance.toLocaleString()}`);
+      
+  }, [exchangeRate, baseExchangeRate, serviceChargeNGN]);
 
   const fetchBalances = useCallback(async () => {
     if (!address || !isConnected) {
@@ -280,7 +306,7 @@ export const BalanceProvider = ({ children }: { children: React.ReactNode }) => 
       
       const totalUSD = (parseFloat(usdc) || 0) + (parseFloat(usdt) || 0);
       const totalNGN = totalUSD * (exchangeRate || 0);
-      console.log(`📊 Total: ${totalUSD} USD = ₦${totalNGN.toLocaleString()}`);
+      console.log(`📊 Total: ${totalUSD} USD × ₦${exchangeRate} (₦${baseExchangeRate} + ₦${serviceChargeNGN} charge) = ₦${totalNGN.toLocaleString()}`);
       
     } catch (error) {
       console.error("❌ Error fetching balances:", error);
@@ -288,7 +314,7 @@ export const BalanceProvider = ({ children }: { children: React.ReactNode }) => 
       setUsdtBalance(null);
       setTotalBalanceNGN(null);
     }
-  }, [address, isConnected, chainId, updateTotalBalance, exchangeRate, fetchExchangeRate, getChainName]);
+  }, [address, isConnected, chainId, updateTotalBalance, exchangeRate, fetchExchangeRate, getChainName, serviceChargeNGN]);
 
   const toggleBalanceVisibility = () => {
     setHideBalances((prev) => !prev);
@@ -307,7 +333,9 @@ export const BalanceProvider = ({ children }: { children: React.ReactNode }) => 
     console.log(`   - Chain: ${getChainName()} (ID: ${chainId})`);
     console.log("");
     console.log("💱 Exchange Rate:");
-    console.log(`   - Current Rate: ₦${exchangeRate || 'Not loaded'} per USD`);
+    console.log(`   - Base Rate: ₦${baseExchangeRate || 'Not loaded'} per USD`);
+    console.log(`   - Service Charge: ₦${serviceChargeNGN} per USD`);
+    console.log(`   - Final Rate: ₦${exchangeRate || 'Not loaded'} per USD`);
     console.log(`   - Loading: ${exchangeRateLoading}`);
     console.log(`   - Error: ${exchangeRateError || 'None'}`);
     console.log("");
@@ -323,7 +351,7 @@ export const BalanceProvider = ({ children }: { children: React.ReactNode }) => 
     } else {
       console.log("✅ fetchTokenBalance function is available");
     }
-  }, [isConnected, address, chainId, exchangeRate, exchangeRateLoading, exchangeRateError, usdcBalance, usdtBalance, totalBalanceNGN, getChainName]);
+  }, [isConnected, address, chainId, exchangeRate, baseExchangeRate, exchangeRateLoading, exchangeRateError, usdcBalance, usdtBalance, totalBalanceNGN, serviceChargeNGN, getChainName]);
 
   const refreshBalances = async () => {
     console.log("🔄 Manual refresh triggered...");
@@ -366,12 +394,14 @@ export const BalanceProvider = ({ children }: { children: React.ReactNode }) => 
     usdcBalance,
     usdtBalance,
     totalBalanceNGN,
+    baseExchangeRate,
+    exchangeRate,
+    serviceChargeNGN,
     currentChain: getChainName(),
     hideBalances,
     refreshBalances,
     disconnectWallet,
     toggleBalanceVisibility,
-    exchangeRate,
     exchangeRateLoading,
     exchangeRateError,
     testAllApis,

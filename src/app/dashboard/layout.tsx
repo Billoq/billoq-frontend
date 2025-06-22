@@ -41,6 +41,7 @@ import { Menu } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useSidebar } from "@/context/sidebar-context"
 import type React from "react"
+import { BalanceProvider } from "@/context/balance-context"
 
 // Mobile toggle component extracted for better organization
 function MobileToggle() {
@@ -77,7 +78,11 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
           
           {/* Content container */}
           <TransactionProvider>
-            {children}
+            <BalanceProvider>
+                 {children}
+
+            </BalanceProvider>
+         
           </TransactionProvider>
         </div>
       </div>
