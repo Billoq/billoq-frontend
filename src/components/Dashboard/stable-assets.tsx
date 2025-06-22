@@ -56,11 +56,11 @@ export function StableAssets() {
             Stable Assets
           </CardTitle>
           {/* Optional: Show current exchange rate in header */}
-          {exchangeRate && (
-            <span className="text-xs text-blue-400 ml-2">
-              @₦{exchangeRate.toFixed(0)}
-            </span>
-          )}
+          {/* {exchangeRate && (
+            // <span className="text-xs text-blue-400 ml-2">
+            //   @₦{exchangeRate.toFixed(0)}
+            // </span>
+          )} */}
         </div>
         <Button
           variant="ghost"
