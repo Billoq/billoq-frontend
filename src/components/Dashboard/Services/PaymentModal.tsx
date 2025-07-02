@@ -22,6 +22,7 @@ interface PaymentModalProps {
   token: string;
   source: "airtime" | "data" | "electricity" | "cable";
   quoteId: string;
+  customerName?: string;
 }
 
 interface TransactionResult {
@@ -54,6 +55,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
   token,
   source,
   quoteId,
+  customerName,
 }) => {
   const chainId = useChainId();
   const [contractConfig, setContractConfig] = useState(getContractConfig(chainId));
@@ -395,6 +397,13 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
 
                 <div className="text-gray-400">Subscriber ID</div>
                 <div className="text-white text-right">{subscriberId}</div>
+
+                {customerName && (source === "electricity" || source === "cable") && (
+                  <>
+                    <div className="text-gray-400">Customer Name</div>
+                    <div className="text-white text-right">{customerName}</div>
+                  </>
+                )}
 
                 <div className="text-gray-400">Total Amount in Naira</div>
                 <div className="text-white text-right">₦{amountInNaira}</div>
