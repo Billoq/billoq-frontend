@@ -26,6 +26,7 @@ interface ElectricityModalProps {
     token: string;
     source: "airtime" | "data" | "electricity" | "cable";
     quoteId: string;
+    customerName?: string;
   }) => void;
   state: {
     provider: string;
@@ -66,7 +67,7 @@ const ElectricityModal: React.FC<ElectricityModalProps> = ({
   const [isLoadingBillers, setIsLoadingBillers] = useState(false);
   const [isLoadingBillItems, setIsLoadingBillItems] = useState(false);
   const [isLoadingPayment, setIsLoadingPayment] = useState(false);
-  const { getBillersByCategory, getBillItems, getQuote } = useBilloq();
+  const { getBillersByCategory, getBillItems, getQuote, validateCustomerDetails } = useBilloq();
 
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) {
@@ -228,6 +229,16 @@ const ElectricityModal: React.FC<ElectricityModalProps> = ({
         });
       }, 10000); // 10-second timeout
 
+      // Validate customer details first
+      const validation = await validateCustomerDetails(billItem.item_code, state.accountNumber);
+      console.log("Validation response:", validation);
+
+      if (validation?.status !== 'success') {
+        throw new Error(validation?.message || "Customer validation failed");
+      }
+
+      const customerName = validation?.data?.name;
+
       const quote = await getQuote({
         amount: parseFloat(state.amount),
         item_code: billItem.item_code,
@@ -250,6 +261,7 @@ const ElectricityModal: React.FC<ElectricityModalProps> = ({
         token: state.paymentOption,
         source: "electricity",
         quoteId: quoteId,
+        customerName: customerName,
       });
 
       clearTimeout(timeout);
