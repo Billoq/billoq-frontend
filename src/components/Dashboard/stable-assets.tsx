@@ -9,17 +9,28 @@ import { cn } from "@/lib/utils";
 import { ChainIcon } from "./chain-icon";
 
 export function StableAssets() {
-  const { usdcBalance, usdtBalance, hideBalances, toggleBalanceVisibility, currentChain } = useBalance();
+  const { 
+    usdcBalance, 
+    usdtBalance, 
+    hideBalances, 
+    toggleBalanceVisibility, 
+    currentChain,
+    exchangeRate // 🎯 Get exchange rate from context instead of hardcoding
+  } = useBalance();
 
   const isUnsupportedChain =
     currentChain !== "Sepolia" && currentChain !== "Lisk Sepolia" && currentChain !== "Arbitrum Sepolia" && currentChain !== "BSC Testnet";
+  
+  // Use the live exchange rate from context (fallback to 1500 if not loaded yet)
+  const currentRate = exchangeRate || 1500;
+  
   const assets = [
     {
       name: "USD Coin",
       symbol: "USDC",
       value: usdcBalance ? `$${parseFloat(usdcBalance).toFixed(2)}` : "$0.00",
       localValue: usdcBalance
-        ? `₦${(parseFloat(usdcBalance) * 1500).toLocaleString()}`
+        ? `₦${(parseFloat(usdcBalance) * currentRate).toLocaleString()}`
         : "₦0",
       icon: "/usdc-icon.svg",
       color: "bg-blue-500/10 border-blue-500/30",
@@ -29,7 +40,7 @@ export function StableAssets() {
       symbol: "USDT",
       value: usdtBalance ? `$${parseFloat(usdtBalance).toFixed(2)}` : "$0.00",
       localValue: usdtBalance
-        ? `₦${(parseFloat(usdtBalance) * 1500).toLocaleString()}`
+        ? `₦${(parseFloat(usdtBalance) * currentRate).toLocaleString()}`
         : "₦0",
       icon: "/usdt-icon.svg",
       color: "bg-green-500/10 border-green-500/30",
@@ -44,6 +55,12 @@ export function StableAssets() {
           <CardTitle className="text-lg font-semibold text-white">
             Stable Assets
           </CardTitle>
+          {/* Optional: Show current exchange rate in header */}
+          {/* {exchangeRate && (
+            // <span className="text-xs text-blue-400 ml-2">
+            //   @₦{exchangeRate.toFixed(0)}
+            // </span>
+          )} */}
         </div>
         <Button
           variant="ghost"

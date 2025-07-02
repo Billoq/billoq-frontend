@@ -48,18 +48,27 @@ const mapToDisplayFormat = (tx: Transaction): TransactionDisplay => ({
 })
 
 // Map TransactionDisplay to TransactionSuccessCard format
-const mapToSuccessCardFormat = (tx: TransactionDisplay, originalTx: Transaction) => ({
-  id: tx.transactionId, // Use the full transaction hash as ID
-  billType: originalTx.billType || "Utility Bill",
-  amountInNaira: originalTx.amountInNaira,
-  amountInUSDT: originalTx.amountInCrypto || 0,
-  paymentMethod: originalTx.paymentMethod || "USDC/USDT",
-  date: tx.date,
-  hash: tx.transactionId, // Use the full transaction hash
-  gasFee: "2999Gwei",
-  explorerUrl: tx.explorerUrl,
-})
-
+const mapToSuccessCardFormat = (tx: TransactionDisplay, originalTx: Transaction) => {
+  console.log("🔍 Debug transaction mapping:", {
+    txExplorerUrl: tx.explorerUrl,
+    originalTxExplorerUrl: originalTx.explorerUrl,
+    transactionHash: tx.transactionId,
+    originalTxHash: originalTx.hash
+  });
+  
+  return {
+    id: tx.transactionId, // Use the full transaction hash as ID
+    billType: originalTx.billType || "Utility Bill",
+    amountInNaira: originalTx.amountInNaira,
+    amountInUSDT: originalTx.amountInCrypto || 0,
+    paymentMethod: originalTx.paymentMethod || "USDC/USDT",
+    date: tx.date,
+    hash: tx.transactionId, // Use the full transaction hash
+    gasFee: "2999Gwei",
+    explorerUrl: originalTx.explorerUrl || tx.explorerUrl, // Use original transaction's explorerUrl first
+    status: originalTx.status, // Pass the actual transaction status
+  };
+};
 const truncateTransactionId = (id: string): string => {
   if (id.length <= 10) return id
   return `${id.slice(0, 6)}...${id.slice(-4)}`

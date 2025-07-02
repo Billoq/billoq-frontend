@@ -1,16 +1,18 @@
 "use client";
 
-import { ChevronLeft, Info, X, Loader2 } from "lucide-react";
+import { ChevronLeft, Info, X, Loader2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useAccount, useWalletClient, useConfig, useChainId } from "wagmi";
 import { useBilloq } from "@/hooks/useBilloq";
+import { useBalance } from "@/context/balance-context";
 import { getContractConfig } from "@/config/contract";
 import { erc20Abi } from "viem";
 import { ethers } from "ethers";
 import { getEthersSigner } from "@/config/adapter";
 import { toast } from "react-toastify";
+import { sepolia, liskSepolia, arbitrumSepolia, bscTestnet, mainnet, bsc, arbitrum } from "wagmi/chains";
 
 interface PaymentModalProps {
   onClose: () => void;
@@ -44,7 +46,6 @@ const BillType = {
 // Use proper type for BillType
 type BillTypeKey = keyof typeof BillType;
 
-
 const PaymentModal: React.FC<PaymentModalProps> = ({
   onClose,
   onBack,
@@ -60,8 +61,53 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
   const chainId = useChainId();
   const [contractConfig, setContractConfig] = useState(getContractConfig(chainId));
 
+  // Balance context for real exchange rates
+  const { 
+    exchangeRate, 
+    exchangeRateLoading, 
+    exchangeRateError, 
+    refreshBalances 
+  } = useBalance();
+
+  // Calculate converted amount using real exchange rate
+  const convertedAmount = useMemo(() => {
+    if (!exchangeRate || exchangeRateLoading) {
+      return "0.000000";
+    }
+    
+    const nairAmount = parseFloat(amountInNaira || "0");
+    const usdAmount = nairAmount / exchangeRate;
+    return usdAmount.toFixed(6);
+  }, [amountInNaira, exchangeRate, exchangeRateLoading]);
+
+  // Check if conversion is ready
+  const isConversionReady = Boolean(exchangeRate && !exchangeRateLoading && !exchangeRateError);
+
+  const getExplorerUrl = (chainId: number, txHash: string): string => {
+  const baseUrls: Record<number, string> = {
+    // Testnets
+    [sepolia.id]: "https://sepolia.etherscan.io/tx/",
+    [bscTestnet.id]: "https://testnet.bscscan.com/tx/",
+    [arbitrumSepolia.id]: "https://sepolia.arbiscan.io/tx/",
+    [liskSepolia.id]: "https://sepolia-blockscout.lisk.com/tx/",
+    
+    // Mainnets
+    [mainnet.id]: "https://etherscan.io/tx/",
+    [bsc.id]: "https://bscscan.com/tx/",
+    [arbitrum.id]: "https://arbiscan.io/tx/",
+    1135: "https://blockscout.lisk.com/tx/", // Lisk mainnet
+  }
+  
+  const baseUrl = baseUrls[chainId]
+  if (!baseUrl) {
+    console.warn(`Unknown chain ID: ${chainId}, falling back to Etherscan`)
+    return `https://etherscan.io/tx/${txHash}`
+  }
+  
+  return `${baseUrl}${txHash}`
+}
   useEffect(() => {
-    const contracts= getContractConfig(chainId);
+    const contracts = getContractConfig(chainId);
     if (!contracts) {
       toast.error("Failed to load contract configuration.", {
         position: "bottom-right",
@@ -70,15 +116,12 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
       });
     }
     setContractConfig(contracts);
-  }, [chainId]);  
+  }, [chainId]);
 
   const tokenAddresses: Record<SupportedToken, `0x${string}`> = {
     USDT: contractConfig["usdt"] as `0x${string}`,
     USDC: contractConfig["usdc"] as `0x${string}`,
   };
-
-  // Simulated conversion (replace with real conversion logic if needed)
-  const convertedAmount = (parseFloat(amountInNaira || "0") / 1612).toFixed(6);
 
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [paymentToken] = useState<`0x${string}`>(
@@ -95,11 +138,15 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
   const { initiatePayment } = useBilloq();
   const config = useConfig();
 
-  const tokenAmount = BigInt(Math.floor(parseFloat(convertedAmount) * 1e18));
+  const tokenAmount = useMemo(() => {
+    if (!isConversionReady) return BigInt(0);
+    return BigInt(Math.floor(parseFloat(convertedAmount) * 1e18));
+  }, [convertedAmount, isConversionReady]);
+
   const billContractInterface = new ethers.Interface(contractConfig.abi);
 
   // Check if contracts are ready
-  const areContractsReady = Boolean(billContract && tokenContract);
+  const areContractsReady = Boolean(billContract && tokenContract && isConversionReady);
 
   const initializeContracts = useCallback(async () => {
     if (!walletClient || !address) {
@@ -138,6 +185,24 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
   useEffect(() => {
     initializeContracts();
   }, [initializeContracts]);
+
+  const handleRefreshExchangeRate = async () => {
+    try {
+      await refreshBalances();
+      toast.success("Exchange rate updated!", {
+        position: "bottom-right",
+        autoClose: 2000,
+        theme: "dark",
+      });
+    } catch (error) {
+      toast.error("Failed to refresh exchange rate", {
+        position: "bottom-right",
+        autoClose: 3000,
+        theme: "dark",
+      });
+      console.log(error)
+    }
+  };
 
   const approveToken = async (): Promise<ethers.TransactionReceipt> => {
     if (!tokenContract) {
@@ -242,8 +307,8 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
   };
 
   const handlePayBill = async () => {
-    if (!provider || !subscriberId || !amountInNaira || !billContract || !tokenContract) {
-      toast.error("Missing required payment details or contracts not initialized!", {
+    if (!provider || !subscriberId || !amountInNaira || !billContract || !tokenContract || !isConversionReady) {
+      toast.error("Missing required payment details, contracts not initialized, or exchange rate unavailable!", {
         position: "bottom-right",
         autoClose: 5000,
         theme: "dark",
@@ -269,24 +334,23 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
       if (receipt.status === 1) {
         await notifyBackend(receipt.hash, transactionId, receipt.from);
 
-        toast.dismiss(processingToast); // Dismiss the processing toast
+        toast.dismiss(processingToast);
         toast.success("Payment completed successfully!", {
           position: "bottom-right",
           autoClose: 5000,
           theme: "dark",
         });
 
-        // Small delay to allow the success message to be seen
         setTimeout(() => {
           setIsProcessing(false);
-          onClose(); // Close modal on success
+          onClose();
         }, 1500);
       } else {
         throw new Error("Transaction failed with status code: " + receipt.status);
       }
     } catch (error) {
       console.error("Payment process failed:", error);
-      toast.dismiss(processingToast); // Dismiss the processing toast
+      toast.dismiss(processingToast);
       
       let errorMessage = "Failed to process payment. Please try again.";
       
@@ -360,7 +424,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
         className="fixed inset-0 flex items-center justify-center bg-slate-800/80 p-4 z-50"
         onClick={handleOverlayClick}
       >
-          <Card className="w-full max-w-md mx-auto overflow-hidden bg-transparent border-0 text-[#38C3D8]">
+        <Card className="w-full max-w-md mx-auto overflow-hidden bg-transparent border-0 text-[#38C3D8]">
           <Card className="bg-gray-900 border-0 shadow-xl">
             <div className="flex items-center justify-between p-4 border-b border-gray-800">
               <Button
@@ -409,19 +473,59 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                 <div className="text-white text-right">₦{amountInNaira}</div>
 
                 <div className="text-gray-400">Total Amount in USD</div>
-                <div className="text-white text-right">${convertedAmount}</div>
+                <div className="text-white text-right flex items-center justify-end gap-2">
+                  {exchangeRateLoading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <span>Loading...</span>
+                    </>
+                  ) : exchangeRateError ? (
+                    <span className="text-red-400">Rate Error</span>
+                  ) : (
+                    <span>${convertedAmount}</span>
+                  )}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 text-gray-400 hover:text-white"
+                    onClick={handleRefreshExchangeRate}
+                    disabled={exchangeRateLoading || isProcessing}
+                    title="Refresh exchange rate"
+                  >
+                    <RefreshCw className={`h-3 w-3 ${exchangeRateLoading ? 'animate-spin' : ''}`} />
+                  </Button>
+                </div>
 
                 <div className="text-gray-400">Payment Token</div>
                 <div className="text-white text-right">
                   <p>{token}</p>
                 </div>
+
+                {exchangeRate && (
+                  <>
+                    <div className="text-gray-400">Exchange Rate</div>
+                    <div className="text-white text-right text-sm">
+                      ₦{exchangeRate.toLocaleString()} per USD
+                    </div>
+                  </>
+                )}
               </div>
+
+              {exchangeRateError && (
+                <div className="flex items-start gap-2 text-xs text-red-400 bg-red-900/20 p-3 rounded border border-red-900/50">
+                  <Info className="h-4 w-4 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-semibold">Exchange Rate Error</p>
+                    <p>Using fallback rate. Please refresh or try again later.</p>
+                  </div>
+                </div>
+              )}
 
               <div className="flex items-start gap-2 text-xs text-gray-400 bg-gray-800/50 p-3 rounded">
                 <Info className="h-4 w-4 flex-shrink-0 mt-0.5" />
                 <p>
                   All payments are routed through secure smart contracts, and will be recorded onchain.
-                  Total amounts include fees for electricity and TV payments.
+                  Total amounts include fees for electricity and TV payments. Exchange rates are updated in real-time.
                 </p>
               </div>
 
@@ -436,14 +540,20 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                   onClick={handlePayBill}
                   disabled={!areContractsReady}
                 >
-                  {!areContractsReady ? "Connecting to Wallet..." : "Confirm Payment"}
+                  {!isConversionReady ? (
+                    exchangeRateLoading ? "Loading Exchange Rate..." : "Exchange Rate Unavailable"
+                  ) : !areContractsReady ? (
+                    "Connecting to Wallet..."
+                  ) : (
+                    "Confirm Payment"
+                  )}
                 </Button>
               )}
 
               {txHash && (
                 <div className="text-center text-sm">
                   <a 
-                    href={`https://sepolia.etherscan.io/tx/${txHash}`} 
+                    href={getExplorerUrl(chainId, txHash)}
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="text-[#1B89A4] hover:underline"
