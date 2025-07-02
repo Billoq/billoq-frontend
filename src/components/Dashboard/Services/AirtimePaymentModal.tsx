@@ -53,7 +53,7 @@ const AirtimePaymentModal = ({ onClose, onShowPayment, state, onStateChange }: A
   const [isLoadingBillers, setIsLoadingBillers] = useState(false);
   const [isLoadingBillItems, setIsLoadingBillItems] = useState(false);
   const [isLoadingPayment, setIsLoadingPayment] = useState(false);
-  const { getBillersByCategory, getBillItems, getQuote } = useBilloq();
+  const { getBillersByCategory, getBillItems, getQuote, validateCustomerDetails } = useBilloq();
 
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) {
@@ -216,6 +216,14 @@ const AirtimePaymentModal = ({ onClose, onShowPayment, state, onStateChange }: A
           theme: "dark",
         });
       }, 10000); // 10-second timeout
+
+      // Validate customer details first
+      const validation = await validateCustomerDetails(billItem.item_code, state.phoneNumber);
+      console.log("Validation response:", validation);
+
+      if (validation?.status !== 'success') {
+        throw new Error(validation?.message || "Customer validation failed");
+      }
 
       const quote = await getQuote({
         amount: parseFloat(state.amount),
