@@ -14,6 +14,9 @@ export interface Transaction {
   blockchain_transaction_id: string;
   subscriberId: string;
   explorerUrl: string;
+  notes?: string; // Prepaid electricity token/meter number
+  customerName?: string; // Customer name from quote
+  customerId?: string; // Customer ID from quote
   rawData?: ApiTransaction; // Keep original data for reference
 }
 
@@ -47,4 +50,5 @@ export interface ApiTransaction {
     createdAt: string;
     updatedAt: string;
     __v: number;
+    notes?: string; // Prepaid electricity token/meter number
 }
