@@ -163,8 +163,8 @@ export const TransactionProvider = ({
         subscriberId: tx.customer_id,
         explorerUrl: getExplorerUrlFromTransaction(tx), // ✅ DYNAMIC EXPLORER URL
         notes: tx.notes, // Map notes field for prepaid electricity tokens
-        customerName: tx.quote?.customerName, // Map customer name from quote
-        customerId: tx.quote?.customerId, // Map customer ID from quote
+        customerName: tx.quote?.customerName || undefined, // Map customer name from quote, convert null to undefined
+        customerId: tx.quote?.customerId || undefined, // Map customer ID from quote, convert null to undefined
         rawData: tx,
       };
     };

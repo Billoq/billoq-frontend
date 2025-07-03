@@ -23,9 +23,12 @@ export interface Transaction {
 export interface TransactionQuote {
     _id: string;
     billerCode: string;
+    billType?: string; // e.g., "Electricity/Utility Bills"
+    provider?: string; // e.g., "IKEJA DISCO ELECTRICITY BILLS"
+    description?: string; // e.g., "IKEDC  PREPAID"
     itemCode: string;
-    customerName: string | null;
-    customerId: string;
+    customerName?: string | null; // Make optional and allow null
+    customerId?: string; // Make optional since it might not always be present
     amount: number;
     fee: number;
     vatOnFee: number;
