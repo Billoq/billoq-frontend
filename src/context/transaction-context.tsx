@@ -104,8 +104,11 @@ export const TransactionProvider = ({
     return (tx: ApiTransaction): Transaction => {
       const billTypeMap: Record<string, BillType> = {
         AIRTIME: "Airtime",
+        MOBILEDATA: "Data",
         MOBILE: "Data",
+        CABLEBILLS: "Cable TV",
         CABLE: "Cable TV",
+        UTILITYBILLS: "Electricity",
         ELECTRICITY: "Electricity",
         OTHERS: "Others",
       };
@@ -117,11 +120,33 @@ export const TransactionProvider = ({
       );
 
       // Determine category from biller or fallback to transaction data
-      const categoryCode =
-        biller?.category_code ||
-        (tx.biller_code.startsWith("BIL")
+      let categoryCode = biller?.category_code;
+      
+      // If no biller data available, try to infer from quote data
+      if (!categoryCode && tx.quote) {
+        const billType = tx.quote.billType?.toLowerCase();
+        const provider = tx.quote.provider?.toLowerCase();
+        const description = tx.quote.description?.toLowerCase();
+        
+        if (billType?.includes('electricity') || billType?.includes('utility') || 
+            provider?.includes('disco') || provider?.includes('electric') ||
+            description?.includes('prepaid') || description?.includes('postpaid')) {
+          categoryCode = "UTILITYBILLS";
+        } else if (billType?.includes('cable') || provider?.includes('cable') || provider?.includes('tv')) {
+          categoryCode = "CABLEBILLS";
+        } else if (billType?.includes('data') || description?.includes('data')) {
+          categoryCode = "MOBILEDATA";
+        } else if (billType?.includes('airtime') || description?.includes('airtime')) {
+          categoryCode = "AIRTIME";
+        }
+      }
+      
+      // Final fallback to extracting from biller code
+      if (!categoryCode) {
+        categoryCode = tx.biller_code.startsWith("BIL")
           ? tx.biller_code.replace("BIL", "")
-          : "OTHERS");
+          : "OTHERS";
+      }
 
       return {
         id: tx._id,
@@ -137,6 +162,9 @@ export const TransactionProvider = ({
         blockchain_transaction_id: tx.blockchain_transaction_id,
         subscriberId: tx.customer_id,
         explorerUrl: getExplorerUrlFromTransaction(tx), // ✅ DYNAMIC EXPLORER URL
+        notes: tx.notes, // Map notes field for prepaid electricity tokens
+        customerName: tx.quote?.customerName || undefined, // Map customer name from quote, convert null to undefined
+        customerId: tx.quote?.customerId || undefined, // Map customer ID from quote, convert null to undefined
         rawData: tx,
       };
     };

@@ -36,6 +36,7 @@ interface PaymentData {
   token: string;
   source: "airtime" | "data" | "electricity" | "cable";
   quoteId: string;
+  customerName?: string;
 }
 
 interface ServiceItemProps {
@@ -164,6 +165,7 @@ const DashboardServices = () => {
     token: "",
     source: "airtime",
     quoteId: "",
+    customerName: undefined,
   });
 
   const updateRecentServices = (service: string) => {
@@ -257,6 +259,7 @@ const DashboardServices = () => {
       token: "",
       source: "airtime",
       quoteId: "",
+      customerName: undefined,
     });
   };
 
@@ -529,6 +532,7 @@ const DashboardServices = () => {
           token={paymentData.token}
           source={paymentData.source}
           quoteId={paymentData.quoteId}
+          customerName={paymentData.customerName}
         />
       )}
     </div>

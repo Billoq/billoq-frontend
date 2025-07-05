@@ -53,7 +53,10 @@ const mapToSuccessCardFormat = (tx: TransactionDisplay, originalTx: Transaction)
     txExplorerUrl: tx.explorerUrl,
     originalTxExplorerUrl: originalTx.explorerUrl,
     transactionHash: tx.transactionId,
-    originalTxHash: originalTx.hash
+    originalTxHash: originalTx.hash,
+    notes: originalTx.notes,
+    customerName: originalTx.customerName,
+    customerId: originalTx.customerId
   });
   
   return {
@@ -67,6 +70,9 @@ const mapToSuccessCardFormat = (tx: TransactionDisplay, originalTx: Transaction)
     gasFee: "2999Gwei",
     explorerUrl: originalTx.explorerUrl || tx.explorerUrl, // Use original transaction's explorerUrl first
     status: originalTx.status, // Pass the actual transaction status
+    notes: originalTx.notes, // Map notes field for prepaid electricity tokens
+    customerName: originalTx.customerName, // Map customer name
+    customerId: originalTx.customerId, // Map customer ID
   };
 };
 const truncateTransactionId = (id: string): string => {

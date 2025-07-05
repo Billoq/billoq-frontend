@@ -16,6 +16,9 @@ interface TransactionSuccessCardProps {
     gasFee: string
     explorerUrl: string
     status: "completed" | "pending" | "failed"
+    notes?: string
+    customerName?: string
+    customerId?: string
   }
   onDownload?: () => void
   onReturn?: () => void
@@ -83,7 +86,7 @@ export function TransactionSuccessCard({
     paymentMethod: "USDC/USDT",
     date: "25/04/2025",
     hash: "0x98a7f3c2BE98d4b9",
-    gasFee: "2999Gwei",
+    gasFee: "999Gwei",
     status: "completed",
     explorerUrl: "https://etherscan.io/tx/0x98a7f3c2BE98d4b9"
   },
@@ -127,7 +130,7 @@ export function TransactionSuccessCard({
 
       // Set canvas size - made more compact
       canvas.width = 450
-      canvas.height = 600
+      canvas.height = 650
 
       // Load the actual logo
       const logo = new Image()
@@ -263,7 +266,7 @@ export function TransactionSuccessCard({
 
           // Transaction Details Section - more compact
           ctx.fillStyle = "#0f172a"
-          drawRoundedRect(ctx, 25, y - 10, canvas.width - 50, 160, 8)
+          drawRoundedRect(ctx, 25, y - 10, canvas.width - 50, 200, 8)
           ctx.fill()
 
           y += 5
@@ -294,6 +297,15 @@ export function TransactionSuccessCard({
           drawRow("Method:", transaction.paymentMethod)
           drawRow("Status:", statusConfig.statusText)
           drawRow("Date:", transaction.date)
+          if (transaction.customerName) {
+            drawRow("Customer:", transaction.customerName)
+          }
+          if (transaction.customerId) {
+            drawRow("Customer ID:", transaction.customerId)
+          }
+          if (transaction.billType === "Electricity" && transaction.notes) {
+            drawRow("Token:", transaction.notes)
+          }
 
           y += 15
 
@@ -501,7 +513,7 @@ export function TransactionSuccessCard({
 
         // Transaction Details
         doc.setFillColor(darkBg[0], darkBg[1], darkBg[2])
-        doc.roundedRect(30, y - 5, 150, 60, 3, 3, 'F')
+        doc.roundedRect(30, y - 5, 150, 80, 3, 3, 'F')
 
         y += 5
 
@@ -530,6 +542,15 @@ export function TransactionSuccessCard({
         addRow('Method:', transaction.paymentMethod)
         addRow('Status:', statusConfig.statusText)
         addRow('Date:', transaction.date)
+        if (transaction.customerName) {
+          addRow('Customer:', transaction.customerName)
+        }
+        if (transaction.customerId) {
+          addRow('Customer ID:', transaction.customerId)
+        }
+        if (transaction.billType === "Electricity" && transaction.notes) {
+          addRow('Token:', transaction.notes)
+        }
 
         y += 10
 
@@ -702,6 +723,33 @@ export function TransactionSuccessCard({
                 {statusConfig.statusText}
               </span>
             </div>
+            {transaction.customerName && (
+              <div className="flex justify-between">
+                <span className="text-gray-400">Customer</span>
+                <span className="text-right font-medium">{transaction.customerName}</span>
+              </div>
+            )}
+            {transaction.customerId && (
+              <div className="flex justify-between">
+                <span className="text-gray-400">Customer ID</span>
+                <span className="text-right font-medium">{transaction.customerId}</span>
+              </div>
+            )}
+            {transaction.billType === "Electricity" && transaction.notes && (
+              <div className="flex justify-between">
+                <span className="text-gray-400">Token</span>
+                <div className="flex items-center">
+                  <span className="font-mono text-xs text-right break-all max-w-32">{transaction.notes}</span>
+                  <button
+                    onClick={() => copyToClipboard(transaction.notes!, "notes")}
+                    className="p-1 rounded hover:bg-gray-700 ml-1 transition-colors"
+                    aria-label="Copy token"
+                  >
+                    {copied === "notes" ? <Check className="h-2.5 w-2.5 text-green-500" /> : <Copy className="h-2.5 w-2.5" />}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 

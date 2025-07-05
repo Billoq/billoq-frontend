@@ -1,0 +1,54 @@
+
+> billoq@0.1.0 build
+> next build
+
+   ▲ Next.js 15.3.1
+   - Environments: .env.local
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully in 16.0s
+   Linting and checking validity of types ...
+
+./src/components/Dashboard/Services/AirtimePaymentModal.tsx
+105:6  Warning: React Hook useEffect has a missing dependency: 'getBillersByCategory'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+161:6  Warning: React Hook useEffect has missing dependencies: 'getBillItems', 'onStateChange', and 'state'. Either include them or remove the dependency array. If 'onStateChange' changes too often, find the parent component that defines it and wrap that definition in useCallback.  react-hooks/exhaustive-deps
+
+./src/components/Dashboard/Services/CableModal.tsx
+120:6  Warning: React Hook useEffect has a missing dependency: 'getBillersByCategory'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+174:6  Warning: React Hook useEffect has a missing dependency: 'getBillItems'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+183:6  Warning: React Hook useEffect has missing dependencies: 'onStateChange' and 'state'. Either include them or remove the dependency array. If 'onStateChange' changes too often, find the parent component that defines it and wrap that definition in useCallback.  react-hooks/exhaustive-deps
+
+./src/components/Dashboard/Services/DataModal.tsx
+103:6  Warning: React Hook useEffect has a missing dependency: 'getBillersByCategory'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+155:6  Warning: React Hook useEffect has a missing dependency: 'getBillItems'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+162:6  Warning: React Hook useEffect has missing dependencies: 'onStateChange' and 'state'. Either include them or remove the dependency array. If 'onStateChange' changes too often, find the parent component that defines it and wrap that definition in useCallback.  react-hooks/exhaustive-deps
+
+./src/components/Dashboard/Services/ElectricityModal.tsx
+119:6  Warning: React Hook useEffect has a missing dependency: 'getBillersByCategory'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+173:6  Warning: React Hook useEffect has a missing dependency: 'getBillItems'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/components/Dashboard/Services/PaymentModal.tsx
+183:6  Warning: React Hook useCallback has missing dependencies: 'contractConfig.abi' and 'contractConfig.address'. Either include them or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/context/balance-context.tsx
+243:9  Warning: The 'getChainName' function makes the dependencies of useCallback Hook (at line 354) change on every render. To fix this, wrap the definition of 'getChainName' in its own useCallback() Hook.  react-hooks/exhaustive-deps
+317:6  Warning: React Hook useCallback has a missing dependency: 'baseExchangeRate'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/hooks/useBillData.ts
+115:6  Warning: React Hook useEffect has a missing dependency: 'fetchAllData'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/app/api-reference/config/eslint#disabling-rules
+Failed to compile.
+
+./src/context/transaction-context.tsx:166:9
+Type error: Type 'string | null' is not assignable to type 'string | undefined'.
+  Type 'null' is not assignable to type 'string | undefined'.
+
+[0m [90m 164 |[39m         explorerUrl[33m:[39m getExplorerUrlFromTransaction(tx)[33m,[39m [90m// ✅ DYNAMIC EXPLORER URL[39m[0m
+[0m [90m 165 |[39m         notes[33m:[39m tx[33m.[39mnotes[33m,[39m [90m// Map notes field for prepaid electricity tokens[39m[0m
+[0m[31m[1m>[22m[39m[90m 166 |[39m         customerName[33m:[39m tx[33m.[39mquote[33m?[39m[33m.[39mcustomerName[33m,[39m [90m// Map customer name from quote[39m[0m
+[0m [90m     |[39m         [31m[1m^[22m[39m[0m
+[0m [90m 167 |[39m         customerId[33m:[39m tx[33m.[39mquote[33m?[39m[33m.[39mcustomerId[33m,[39m [90m// Map customer ID from quote[39m[0m
+[0m [90m 168 |[39m         rawData[33m:[39m tx[33m,[39m[0m
+[0m [90m 169 |[39m       }[33m;[39m[0m
+Next.js build worker exited with code: 1 and signal: null

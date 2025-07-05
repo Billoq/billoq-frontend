@@ -14,15 +14,21 @@ export interface Transaction {
   blockchain_transaction_id: string;
   subscriberId: string;
   explorerUrl: string;
+  notes?: string; // Prepaid electricity token/meter number
+  customerName?: string; // Customer name from quote
+  customerId?: string; // Customer ID from quote
   rawData?: ApiTransaction; // Keep original data for reference
 }
 
 export interface TransactionQuote {
     _id: string;
     billerCode: string;
+    billType?: string; // e.g., "Electricity/Utility Bills"
+    provider?: string; // e.g., "IKEJA DISCO ELECTRICITY BILLS"
+    description?: string; // e.g., "IKEDC  PREPAID"
     itemCode: string;
-    customerName: string | null;
-    customerId: string;
+    customerName?: string | null; // Make optional and allow null
+    customerId?: string; // Make optional since it might not always be present
     amount: number;
     fee: number;
     vatOnFee: number;
@@ -47,4 +53,5 @@ export interface ApiTransaction {
     createdAt: string;
     updatedAt: string;
     __v: number;
+    notes?: string; // Prepaid electricity token/meter number
 }
