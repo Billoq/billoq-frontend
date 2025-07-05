@@ -15,12 +15,23 @@ import { Badge } from "@/components/ui/badge"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { useAccount, useDisconnect, useSwitchChain } from "wagmi"
 import { useRouter } from "next/navigation"
-import { liskSepolia, arbitrumSepolia, bscTestnet } from 'wagmi/chains'
+import { sepolia, liskSepolia, arbitrumSepolia, bscTestnet, lisk, arbitrum, base, bsc } from 'wagmi/chains'
+import type { Chain } from 'wagmi/chains'
 import Image from "next/image"
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
+import { getChainColor } from "@/lib/chain-colors"
+import { ChainDot } from "@/components/chain-dot"
 
-const supportedChains = [liskSepolia, arbitrumSepolia, bscTestnet]
+// Environment detection
+const isMainnet = process.env.NEXT_PUBLIC_ENVIRONMENT === 'mainnet'
+
+// Chain configurations based on environment
+const mainnetChains = [lisk, arbitrum, base, bsc]
+const testnetChains = [sepolia, liskSepolia, arbitrumSepolia, bscTestnet]
+
+// Use appropriate chains based on environment
+const supportedChains = isMainnet ? mainnetChains : testnetChains
 
 export default function DashboardSettings() {
   const router = useRouter()
@@ -30,20 +41,6 @@ export default function DashboardSettings() {
   
   // State
   const [copied, setCopied] = useState(false)
-  // const [, setIsSaving] = useState(false)
-  // const [isDropdownOpen, setIsDropdownOpen] = useState(false)
-  // const [showWalletInfo, setShowWalletInfo] = useState(false)
-  
-  // Settings
-  // const [notifications, setNotifications] = useState({
-  //   transactions: true,
-  //   security: true,
-  //   promotions: false
-  // })
-  // const [security, setSecurity] = useState({
-  //   twoFactor: false,
-  //   activityTracking: true
-  // })
 
   const truncateAddress = (addr: string | undefined) => 
     addr ? `${addr.slice(0, 6)}...${addr.slice(-4)}` : ""
@@ -64,18 +61,24 @@ export default function DashboardSettings() {
     return <Wallet className="w-6 h-6 text-[#1B89A4]" />
   }
 
-  const getChainIcon = () => {
-    if (!chain) return null
-    if (chain.id === liskSepolia.id) {
-      return <div className="w-3 h-3 rounded-full bg-[#00BFFF]" /> // Lisk Sepolia: blue
+  const getNetworkDisplayName = (network: Chain) => {
+    if (isMainnet) {
+      return network.name
+    } else {
+      // For testnets, show cleaner names
+      switch (network.id) {
+        case sepolia.id:
+          return "Ethereum Testnet"
+        case liskSepolia.id:
+          return "Lisk Testnet"
+        case arbitrumSepolia.id:
+          return "Arbitrum Testnet"
+        case bscTestnet.id:
+          return "BSC Testnet"
+        default:
+          return network.name
+      }
     }
-    if (chain.id === arbitrumSepolia.id) {
-      return <div className="w-3 h-3 rounded-full bg-[#28A0F0]" /> // Arbitrum Sepolia: light blue
-    }
-    if (chain.id === bscTestnet.id) {
-      return <div className="w-3 h-3 rounded-full bg-[#F3BA2F]" /> // BSC Testnet: yellow
-    }
-    return <div className="w-3 h-3 rounded-full bg-gray-400" />
   }
 
   const copyToClipboard = (text: string) => {
@@ -112,7 +115,9 @@ export default function DashboardSettings() {
   const handleSwitchChain = async (chainId: number) => {
     try {
       await switchChain({ chainId })
-      toast.success(`Switched to ${supportedChains.find(c => c.id === chainId)?.name} network`, {
+      const chainName = supportedChains.find(c => c.id === chainId)?.name
+      const chainColors = getChainColor(chainId)
+      toast.success(`Switched to ${chainName} network`, {
         position: "bottom-right",
         autoClose: 3000,
         hideProgressBar: false,
@@ -121,6 +126,9 @@ export default function DashboardSettings() {
         draggable: true,
         progress: undefined,
         theme: "dark",
+        style: {
+          borderLeft: `4px solid ${chainColors.hex}`,
+        }
       })
     } catch (error) {
       console.error("Error switching chain:", error)
@@ -137,22 +145,8 @@ export default function DashboardSettings() {
     }
   }
 
-  // const handleSave = () => {
-  //   setIsSaving(true)
-  //   setTimeout(() => {
-  //     setIsSaving(false)
-  //     toast.success("Settings saved successfully!", {
-  //       position: "bottom-right",
-  //       autoClose: 3000,
-  //       hideProgressBar: false,
-  //       closeOnClick: true,
-  //       pauseOnHover: true,
-  //       draggable: true,
-  //       progress: undefined,
-  //       theme: "dark",
-  //     })
-  //   }, 1000)
-  // }
+  // Get current chain colors
+  const currentChainColors = getChainColor(chain?.id)
 
   return (
     <div className="p-4 md:p-6 h-full max-w-6xl mx-auto overflow-y-auto">
@@ -179,7 +173,12 @@ export default function DashboardSettings() {
         <h1 className="text-2xl md:text-3xl font-bold text-white">
           <span className="text-[#1B89A4]">Settings</span>
         </h1>
-        <p className="text-[#94A3B8]">Manage your wallet and account preferences</p>
+        <p className="text-[#94A3B8]">
+          Manage your wallet and account preferences
+          <span className="ml-2 text-xs bg-[#1E293B] px-2 py-1 rounded-md">
+            {isMainnet ? 'Mainnet' : 'Testnet'} Mode
+          </span>
+        </p>
       </div>
 
       <Tabs defaultValue="wallet" className="space-y-6">
@@ -196,14 +195,14 @@ export default function DashboardSettings() {
               </TabsTrigger>
               <TabsTrigger
                 value="notifications"
-                className="flex items-center  cursor-pointer justify-start w-full px-3 md:px-4 py-2 md:py-3 gap-2 md:gap-3 data-[state=active]:bg-[#1E293B] data-[state=active]:text-white text-[#94A3B8] hover:bg-[#1E293B]/50 transition-colors"
+                className="flex items-center cursor-pointer justify-start w-full px-3 md:px-4 py-2 md:py-3 gap-2 md:gap-3 data-[state=active]:bg-[#1E293B] data-[state=active]:text-white text-[#94A3B8] hover:bg-[#1E293B]/50 transition-colors"
               >
                 <Bell className="h-4 w-4 md:h-5 md:w-5 flex-shrink-0" />
                 <span className="truncate">Notifications</span>
               </TabsTrigger>
               <TabsTrigger
                 value="security"
-                className="flex items-center  cursor-pointer justify-start w-full px-3 md:px-4 py-2 md:py-3 gap-2 md:gap-3 data-[state=active]:bg-[#1E293B] data-[state=active]:text-white text-[#94A3B8] hover:bg-[#1E293B]/50 transition-colors"
+                className="flex items-center cursor-pointer justify-start w-full px-3 md:px-4 py-2 md:py-3 gap-2 md:gap-3 data-[state=active]:bg-[#1E293B] data-[state=active]:text-white text-[#94A3B8] hover:bg-[#1E293B]/50 transition-colors"
               >
                 <Shield className="h-4 w-4 md:h-5 md:w-5 flex-shrink-0" />
                 <span className="truncate">Security</span>
@@ -227,23 +226,28 @@ export default function DashboardSettings() {
                 <CardContent className="space-y-4 md:space-y-6 px-4 md:px-6">
                   {isConnected ? (
                     <>
-                      <div className="bg-[#111C2F] border border-[#1E293B] rounded-lg p-4 md:p-6 relative overflow-hidden">
-                        <div className="absolute -top-20 -right-20 w-40 h-40 bg-[#3B82F6]/10 rounded-full blur-3xl"></div>
+                      <div className={`bg-[#111C2F] border rounded-lg p-4 md:p-6 relative overflow-hidden ${currentChainColors.border}`}>
+                        <div className="absolute -top-20 -right-20 w-40 h-40 opacity-10 rounded-full blur-3xl" style={{ backgroundColor: currentChainColors.hex }}></div>
                         
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative">
                           <div className="flex items-center gap-3 md:gap-4">
                             <div className="relative">
                               {getWalletIcon()}
                               <div className="absolute -bottom-1 -right-1">
-                                {getChainIcon()}
+                                <ChainDot chainId={chain?.id} className="w-3 h-3" />
                               </div>
                             </div>
                             <div>
                               <div className="flex items-center gap-2">
                                 <h3 className="font-medium text-sm md:text-base text-white">{chain?.name || "Unknown Network"}</h3>
-                                <Badge className="bg-green-900/20 text-green-400 border-green-800 text-xs">
+                                <Badge className={`${currentChainColors.bg} ${currentChainColors.text} ${currentChainColors.border} text-xs border`}>
                                   Connected
                                 </Badge>
+                                {!isMainnet && (
+                                  <Badge className="bg-orange-900/20 text-orange-400 border-orange-800 text-xs">
+                                    Testnet
+                                  </Badge>
+                                )}
                               </div>
                               <div className="flex items-center gap-2 mt-1">
                                 <p className="text-xs md:text-sm text-[#94A3B8] font-mono">
@@ -274,7 +278,7 @@ export default function DashboardSettings() {
                               <Button
                                 variant="outline"
                                 size="sm"
-                                className="border-[#1E293B] bg-[#111C2F]  cursor-pointer  text-white text-xs md:text-sm py-1 px-2 md:px-3 h-8"
+                                className={`border-[#1E293B] bg-[#111C2F] cursor-pointer text-white text-xs md:text-sm py-1 px-2 md:px-3 h-8 hover:${currentChainColors.border}`}
                                 onClick={() => chain?.blockExplorers?.default?.url && window.open(`${chain.blockExplorers.default.url}/address/${address}`, "_blank")}
                               >
                                 <ExternalLink className="mr-1 md:mr-2 h-3 w-3 md:h-4 md:w-4" />
@@ -294,24 +298,52 @@ export default function DashboardSettings() {
                       </div>
 
                       <div className="space-y-3 md:space-y-4">
-                        <h3 className="text-base md:text-lg font-medium text-white">Default Network</h3>
-                        <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 md:gap-3 w-full">
-                          {supportedChains.map(network => (
-                            <button
-                              key={network.id}
-                              onClick={() => handleSwitchChain(network.id)}
-                              className={`flex items-center gap-2 md:gap-3 p-2 md:p-3 rounded-lg border transition-all w-full  cursor-pointer ${
-                                network.id === chain?.id
-                                  ? "bg-[#1E293B] border-[#3B82F6] shadow-[0_0_0_1px_#3B82F6]"
-                                  : "bg-[#111C2F] border-[#1E293B] hover:border-[#3B82F6]/50"
-                              }`}
-                              disabled={!switchChain}
-                            >
-                             {getChainIcon()}
-                              <span className="text-white text-sm md:text-base truncate">{network.name}</span>
-                              {network.id === chain?.id && <Check className="ml-auto h-3 w-3 md:h-4 md:w-4 text-[#1B89A4] flex-shrink-0" />}
-                            </button>
-                          ))}
+                        <h3 className="text-base md:text-lg font-medium text-white">
+                          Available Networks
+                          <span className="text-sm font-normal text-[#94A3B8] ml-2">
+                            ({isMainnet ? 'Mainnet' : 'Testnet'})
+                          </span>
+                        </h3>
+                        <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-3 w-full">
+                          {supportedChains.map(network => {
+                            const networkColors = getChainColor(network.id)
+                            const isActive = network.id === chain?.id
+                            
+                            return (
+                              <button
+                                key={network.id}
+                                onClick={() => handleSwitchChain(network.id)}
+                                className={`flex items-center gap-2 md:gap-3 p-2 md:p-3 rounded-lg border transition-all w-full cursor-pointer ${
+                                  isActive
+                                    ? `${networkColors.bg} ${networkColors.border} shadow-[0_0_0_1px_${networkColors.hex}]`
+                                    : `bg-[#111C2F] border-[#1E293B] hover:${networkColors.border} hover:${networkColors.bg}`
+                                }`}
+                                disabled={!switchChain}
+                              >
+                                <ChainDot chainId={network.id} className="w-3 h-3" />
+                                <span className="text-white text-sm md:text-base truncate">
+                                  {getNetworkDisplayName(network)}
+                                </span>
+                                {isActive && <Check className={`ml-auto h-3 w-3 md:h-4 md:w-4 ${networkColors.text} flex-shrink-0`} />}
+                              </button>
+                            )
+                          })}
+                        </div>
+                        
+                        {/* Environment info */}
+                        <div className={`mt-4 p-3 bg-[#111C2F] border rounded-lg ${currentChainColors.border}`}>
+                          <div className="flex items-center gap-2 text-sm text-[#94A3B8]">
+                            <ChainDot chainId={chain?.id} className="w-2 h-2" />
+                            <span>
+                              Currently using <strong className="text-white">{isMainnet ? 'Mainnet' : 'Testnet'}</strong> configuration on <strong className={currentChainColors.text}>{chain?.name}</strong>
+                            </span>
+                          </div>
+                          <p className="text-xs text-[#64748B] mt-1">
+                            {isMainnet 
+                              ? 'Real transactions with actual value. Use with caution.'
+                              : 'Test environment for development. No real value.'
+                            }
+                          </p>
                         </div>
                       </div>
                     </>
@@ -324,6 +356,15 @@ export default function DashboardSettings() {
                       <p className="text-sm md:text-base text-[#94A3B8] mb-4 md:mb-6 max-w-md mx-auto">
                         Connect your wallet to manage your settings
                       </p>
+                      <div className="mb-4">
+                        <span className={`inline-block px-3 py-1 rounded-full text-xs ${
+                          isMainnet 
+                            ? 'bg-green-900/20 text-green-400 border border-green-800'
+                            : 'bg-orange-900/20 text-orange-400 border border-orange-800'
+                        }`}>
+                          {isMainnet ? 'Mainnet Mode' : 'Testnet Mode'}
+                        </span>
+                      </div>
                       <Button 
                         className="bg-[#1B89A4] hover:bg-[#2563EB] text-white"
                         onClick={() => router.push('/')}
@@ -338,12 +379,40 @@ export default function DashboardSettings() {
 
             {/* Notification Settings */}
             <TabsContent value="notifications" className="space-y-6">
-              {/* ... existing notification settings ... */}
+              <Card className="border-[#1E293B] bg-[#1A202885]">
+                <CardHeader className="px-4 py-4 md:px-6 md:py-6">
+                  <CardTitle className="text-lg md:text-xl text-white flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-[#1E293B]">
+                      <Bell className="h-4 w-4 md:h-5 md:w-5 text-[#1B89A4]" />
+                    </div>
+                    Notification Settings
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="px-4 md:px-6">
+                  <div className="text-center py-8">
+                    <p className="text-[#94A3B8]">Notification settings coming soon...</p>
+                  </div>
+                </CardContent>
+              </Card>
             </TabsContent>
 
             {/* Security Settings */}
             <TabsContent value="security" className="space-y-6">
-              {/* ... existing security settings ... */}
+              <Card className="border-[#1E293B] bg-[#1A202885]">
+                <CardHeader className="px-4 py-4 md:px-6 md:py-6">
+                  <CardTitle className="text-lg md:text-xl text-white flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-[#1E293B]">
+                      <Shield className="h-4 w-4 md:h-5 md:w-5 text-[#1B89A4]" />
+                    </div>
+                    Security Settings
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="px-4 md:px-6">
+                  <div className="text-center py-8">
+                    <p className="text-[#94A3B8]">Security settings coming soon...</p>
+                  </div>
+                </CardContent>
+              </Card>
             </TabsContent>
           </div>
         </div>

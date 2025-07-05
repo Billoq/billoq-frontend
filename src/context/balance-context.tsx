@@ -2,8 +2,11 @@
 
 import { useState, useEffect, createContext, useContext, useCallback } from "react";
 import { useAccount, useDisconnect, useChainId } from "wagmi";
-import { sepolia, liskSepolia, arbitrumSepolia, bscTestnet } from "wagmi/chains";
+import { sepolia, liskSepolia, arbitrumSepolia, bscTestnet, lisk, arbitrum, base, bsc } from "wagmi/chains";
 import { fetchTokenBalance } from "@/lib/tokens";
+
+// Environment detection
+const isMainnet = process.env.NEXT_PUBLIC_ENVIRONMENT === 'mainnet'
 
 // Type definitions for API responses
 interface CoinGeckoResponse {
@@ -36,6 +39,7 @@ interface BalanceContextType {
   serviceChargeNGN: number; // The 100 NGN service charge
   currentChain: string;
   hideBalances: boolean;
+  isMainnet: boolean; // Add environment info
   refreshBalances: () => Promise<void>;
   disconnectWallet: () => void;
   toggleBalanceVisibility: () => void;
@@ -63,6 +67,37 @@ export const BalanceProvider = ({ children }: { children: React.ReactNode }) => 
 
   // Service charge in NGN (added to exchange rate)
   const serviceChargeNGN = 100;
+
+  // Function to get chain name based on environment
+  const getChainName = useCallback(() => {
+    if (isMainnet) {
+      switch (chainId) {
+        case lisk.id:
+          return "Lisk";
+        case arbitrum.id:
+          return "Arbitrum";
+        case base.id:
+          return "Base";
+        case bsc.id:
+          return "BSC";
+        default:
+          return `Chain ID ${chainId}`;
+      }
+    } else {
+      switch (chainId) {
+        case sepolia.id:
+          return "Ethereum Sepolia";
+        case liskSepolia.id:
+          return "Lisk Sepolia";
+        case arbitrumSepolia.id:
+          return "Arbitrum Sepolia";
+        case bscTestnet.id:
+          return "BSC Testnet";
+        default:
+          return `Chain ID ${chainId}`;
+      }
+    }
+  }, [chainId]);
 
   // Function to fetch current USD to NGN exchange rate with multiple backup APIs
   const fetchExchangeRate = useCallback(async () => {
@@ -240,21 +275,6 @@ export const BalanceProvider = ({ children }: { children: React.ReactNode }) => 
     }
   }, []);
 
-  const getChainName = () => {
-    switch (chainId) {
-      case sepolia.id:
-        return "Sepolia";
-      case liskSepolia.id:
-        return "Lisk Sepolia";
-      case arbitrumSepolia.id:
-        return "Arbitrum Sepolia";
-      case bscTestnet.id:
-        return "BSC Testnet";
-      default:
-        return `Chain ID ${chainId}`;
-    }
-  };
-
   const updateTotalBalance = useCallback((usdc: string, usdt: string) => {
     if (!exchangeRate) return;
     
@@ -265,7 +285,7 @@ export const BalanceProvider = ({ children }: { children: React.ReactNode }) => 
     const totalBalance = (usdcAmount + usdtAmount) * exchangeRate;
     setTotalBalanceNGN(totalBalance);
     
-    console.log(`💰 Balance calculation:
+    console.log(`💰 Balance calculation (${isMainnet ? 'Mainnet' : 'Testnet'}):
       - Token balance: ${usdcAmount + usdtAmount} USD
       - Base rate: ₦${baseExchangeRate || 'N/A'} per USD
       - Service charge: ₦${serviceChargeNGN} per USD
@@ -283,7 +303,7 @@ export const BalanceProvider = ({ children }: { children: React.ReactNode }) => 
       return;
     }
 
-    console.log(`🔄 Fetching balances for ${address} on ${getChainName()}...`);
+    console.log(`🔄 Fetching balances for ${address} on ${getChainName()} (${isMainnet ? 'Mainnet' : 'Testnet'})...`);
     
     try {
       // First ensure we have the latest exchange rate
@@ -327,6 +347,10 @@ export const BalanceProvider = ({ children }: { children: React.ReactNode }) => 
   // Debug function to check what's working
   const debugInfo = useCallback(() => {
     console.log("🔍 === BALANCE PROVIDER DEBUG INFO ===");
+    console.log("🌍 Environment:");
+    console.log(`   - Mode: ${isMainnet ? 'Mainnet' : 'Testnet'}`);
+    console.log(`   - Environment Variable: ${process.env.NEXT_PUBLIC_ENVIRONMENT}`);
+    console.log("");
     console.log("📱 Wallet Status:");
     console.log(`   - Connected: ${isConnected}`);
     console.log(`   - Address: ${address || 'Not connected'}`);
@@ -354,7 +378,7 @@ export const BalanceProvider = ({ children }: { children: React.ReactNode }) => 
   }, [isConnected, address, chainId, exchangeRate, baseExchangeRate, exchangeRateLoading, exchangeRateError, usdcBalance, usdtBalance, totalBalanceNGN, serviceChargeNGN, getChainName]);
 
   const refreshBalances = async () => {
-    console.log("🔄 Manual refresh triggered...");
+    console.log(`🔄 Manual refresh triggered (${isMainnet ? 'Mainnet' : 'Testnet'})...`);
     await fetchExchangeRate();
     await fetchBalances();
   };
@@ -371,13 +395,13 @@ export const BalanceProvider = ({ children }: { children: React.ReactNode }) => 
 
   useEffect(() => {
     if (isConnected) {
-      console.log(`🔗 Wallet connected! Starting balance monitoring...`);
+      console.log(`🔗 Wallet connected on ${isMainnet ? 'Mainnet' : 'Testnet'}! Starting balance monitoring...`);
       fetchBalances();
-      // Update balances every 10 seconds for real-time updates
+      // Update balances every 30 seconds (reduced from 10 seconds to be less aggressive)
       const balanceInterval = setInterval(() => {
         console.log("⏰ Auto-refreshing balances...");
         fetchBalances();
-      }, 10000);
+      }, 30000);
       return () => {
         console.log("🔌 Wallet disconnected, stopping balance monitoring");
         clearInterval(balanceInterval);
@@ -399,6 +423,7 @@ export const BalanceProvider = ({ children }: { children: React.ReactNode }) => 
     serviceChargeNGN,
     currentChain: getChainName(),
     hideBalances,
+    isMainnet, // Expose environment info
     refreshBalances,
     disconnectWallet,
     toggleBalanceVisibility,
