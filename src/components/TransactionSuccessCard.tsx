@@ -397,9 +397,8 @@ export function TransactionSuccessCard({
   const downloadAsPDF = async () => {
     setIsDownloadingPDF(true)
     try {
-      // Import jsPDF
-      const jsPDFModule = await import('jspdf')
-      const jsPDF = jsPDFModule.jsPDF
+      // Import jsPDF correctly - use default export
+      const { default: jsPDF } = await import('jspdf')
 
       if (!jsPDF) {
         throw new Error("jsPDF not available")
