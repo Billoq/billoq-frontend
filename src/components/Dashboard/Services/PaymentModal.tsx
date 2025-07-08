@@ -281,31 +281,33 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
     }
   };
 
-  const notifyBackend = async (
-    txHash: string,
-    transactionId: string,
-    userAddress: string
-  ): Promise<void> => {
-    setProcessingStep("Finalizing payment...");
+const notifyBackend = async (
+  txHash: string,
+  transactionId: string,
+  userAddress: string
+): Promise<void> => {
+  setProcessingStep("Finalizing payment...");
+  
+  try {
+    console.log("Initiating backend payment...");
+    console.log("🔗 Current Chain ID:", chainId); // Debug log
     
-    try {
-      console.log("Initiating backend payment...");
-      await initiatePayment({
-        quoteId: quoteId,
-        transaction_hash: txHash,
-        transactionid: transactionId,
-        userAddress: userAddress,
-        cryptocurrency: token,
-        cryptoAmount: convertedAmount,
-      });
-      console.log("Backend payment initiated successfully");
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Unknown error";
-      console.error("Error notifying backend:", errorMessage);
-      throw new Error(`Backend notification failed: ${errorMessage}`);
-    }
-  };
-
+    await initiatePayment({
+      quoteId: quoteId,
+      transaction_hash: txHash,
+      transactionid: transactionId,
+      userAddress: userAddress,
+      cryptocurrency: token,
+      cryptoAmount: convertedAmount,
+      chainId: chainId.toString(), // 🎯 ADD THIS LINE - Pass current chain ID
+    });
+    console.log("Backend payment initiated successfully");
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    console.error("Error notifying backend:", errorMessage);
+    throw new Error(`Backend notification failed: ${errorMessage}`);
+  }
+};
   const handlePayBill = async () => {
     if (!provider || !subscriberId || !amountInNaira || !billContract || !tokenContract || !isConversionReady) {
       toast.error("Missing required payment details, contracts not initialized, or exchange rate unavailable!", {

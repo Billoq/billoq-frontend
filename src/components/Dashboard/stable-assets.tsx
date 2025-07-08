@@ -69,21 +69,21 @@ export function StableAssets() {
             Stable Assets
           </CardTitle>
           {/* Environment indicator */}
-          <span className={`text-xs px-2 py-1 rounded-full ${
+          {/* <span className={`text-xs px-2 py-1 rounded-full ${
             isMainnet 
               ? 'bg-green-900/30 text-green-400 border border-green-800/30' 
               : 'bg-orange-900/30 text-orange-400 border border-orange-800/30'
           }`}>
             {isMainnet ? 'Live' : 'Test'}
-          </span>
+          </span> */}
           {/* Chain status indicator */}
-          <span className={`text-xs px-2 py-1 rounded-full border ${
+          {/* <span className={`text-xs px-2 py-1 rounded-full border ${
             isUnsupportedChain 
               ? 'bg-red-900/30 text-red-400 border-red-800/30'
               : `${chainColors.bg} ${chainColors.text} ${chainColors.border}`
           }`}>
             {isUnsupportedChain ? 'Unsupported' : 'Active'}
-          </span>
+          </span> */}
           {/* Exchange rate display */}
           {/* {exchangeRate && !isUnsupportedChain && (
             <span className={`text-xs ml-1 ${chainColors.text}/70`}>
@@ -171,16 +171,16 @@ export function StableAssets() {
         ))}
         
         {/* Network info footer */}
-        <div className={`flex items-center justify-between pt-2 border-t ${
+        {/* <div className={`flex items-center justify-between pt-2 border-t ${
           isUnsupportedChain ? 'border-red-500/20' : `${chainColors.border}`
         }`}>
           <div className="flex items-center gap-2">
             <ChainDot chainName={currentChain} className={`w-2 h-2 ${isUnsupportedChain ? 'opacity-50' : ''}`} />
             <span className="text-xs text-white/60">
               {currentChain}
-            </span>
+            </span> */}
             {/* Connection status */}
-            <span className={`text-xs px-1 py-0.5 rounded ${
+            {/* <span className={`text-xs px-1 py-0.5 rounded ${
               isUnsupportedChain 
                 ? 'bg-red-900/30 text-red-400'
                 : `${chainColors.bg} ${chainColors.text}`
@@ -191,7 +191,7 @@ export function StableAssets() {
           <div className="text-xs text-white/40">
             {isMainnet ? 'Real Value' : 'Test Mode'}
           </div>
-        </div>
+        </div> */}
 
         {/* Chain color preview (optional - shows all available chains) */}
         {!isUnsupportedChain && (
