@@ -16,12 +16,6 @@ interface InitiatePaymentParams {
   chainId?: string; // Add optional chainId parameter
 }
 
-// Simple interface for transaction items in arrays - only what we need for the forEach loops
-interface TransactionItem {
-  chainId?: unknown;
-  [key: string]: unknown;
-}
-
 export const billoqService = {
   // Biller Categories
   async getAllCategories() {
@@ -122,7 +116,7 @@ export const billoqService = {
       });
     } else if (data.transactions && Array.isArray(data.transactions)) {
       console.log(`📊 Found ${data.transactions.length} transactions in data.transactions`);
-      data.transactions.forEach((tx: TransactionItem, index: number) => {
+      data.transactions.forEach((tx: any, index: number) => {
         if (tx.chainId) {
           console.log(`⛓️ Transaction ${index + 1} - Chain ID: ${tx.chainId}`);
         } else {
@@ -132,7 +126,7 @@ export const billoqService = {
       });
     } else if (data.data && Array.isArray(data.data)) {
       console.log(`📊 Found ${data.data.length} transactions in data.data`);
-      data.data.forEach((tx: TransactionItem, index: number) => {
+      data.data.forEach((tx: any, index: number) => {
         if (tx.chainId) {
           console.log(`⛓️ Transaction ${index + 1} - Chain ID: ${tx.chainId}`);
         } else {
