@@ -523,13 +523,7 @@ const notifyBackend = async (
                 </div>
               )}
 
-              <div className="flex items-start gap-2 text-xs text-gray-400 bg-gray-800/50 p-3 rounded">
-                <Info className="h-4 w-4 flex-shrink-0 mt-0.5" />
-                <p>
-                  All payments are routed through secure smart contracts, and will be recorded onchain.
-                  Total amounts include fees for electricity and TV payments. Exchange rates are updated in real-time.
-                </p>
-              </div>
+              
 
               {isProcessing ? (
                 <div className="w-full bg-[#38C3D8]/50 text-white py-5 flex items-center justify-center gap-2 rounded">
