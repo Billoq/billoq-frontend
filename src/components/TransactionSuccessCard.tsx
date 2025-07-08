@@ -14,14 +14,68 @@ interface TransactionSuccessCardProps {
     date: string
     hash: string
     gasFee: string
-    explorerUrl: string
+    explorerUrl?: string
     status: "completed" | "pending" | "failed"
     notes?: string
     customerName?: string
     customerId?: string
+    chainId?: string // Added chainId support
   }
   onDownload?: () => void
   onReturn?: () => void
+}
+
+// Network configuration mapping
+const NETWORK_CONFIG = {
+  // Mainnet networks
+  "1135": {
+    name: "Lisk",
+    explorer: "https://blockscout.lisk.com"
+  },
+  "42161": {
+    name: "Arbitrum One",
+    explorer: "https://arbiscan.io"
+  },
+  "8453": {
+    name: "Base",
+    explorer: "https://basescan.org"
+  },
+  "56": {
+    name: "BNB Smart Chain",
+    explorer: "https://bscscan.com"
+  },
+  // Testnet networks
+  "11155111": {
+    name: "Sepolia",
+    explorer: "https://sepolia.etherscan.io"
+  },
+  "4202": {
+    name: "Lisk Sepolia",
+    explorer: "https://sepolia-blockscout.lisk.com"
+  },
+  "421614": {
+    name: "Arbitrum Sepolia",
+    explorer: "https://sepolia.arbiscan.io"
+  },
+  "97": {
+    name: "BSC Testnet",
+    explorer: "https://testnet.bscscan.com"
+  }
+} as const
+
+// Function to get network info from chain ID
+const getNetworkInfo = (chainId?: string) => {
+  if (!chainId) {
+    return {
+      name: "Unknown Network",
+      explorer: "https://etherscan.io"
+    }
+  }
+  
+  return NETWORK_CONFIG[chainId as keyof typeof NETWORK_CONFIG] || {
+    name: `Chain ${chainId}`,
+    explorer: "https://etherscan.io"
+  }
 }
 
 // Function to get status configuration
@@ -88,7 +142,7 @@ export function TransactionSuccessCard({
     hash: "0x98a7f3c2BE98d4b9",
     gasFee: "999Gwei",
     status: "completed",
-    explorerUrl: "https://etherscan.io/tx/0x98a7f3c2BE98d4b9"
+    chainId: "4202"
   },
   onDownload = () => console.log("Download receipt"),
   onReturn = () => console.log("Return to dashboard"),
@@ -99,8 +153,10 @@ export function TransactionSuccessCard({
 
   const statusConfig = getStatusConfig(transaction.status)
   const StatusIcon = statusConfig.icon
+  const networkInfo = getNetworkInfo(transaction.chainId)
   
-  const explorerUrl = transaction.explorerUrl || `https://etherscan.io/tx/${transaction.hash}`
+  // Use network-specific explorer URL
+  const explorerUrl = transaction.explorerUrl || `${networkInfo.explorer}/tx/${transaction.hash}`
 
   // Helper function to truncate transaction IDs
   const truncateId = (id: string): string => {
@@ -130,7 +186,7 @@ export function TransactionSuccessCard({
 
       // Set canvas size - made more compact
       canvas.width = 450
-      canvas.height = 650
+      canvas.height = 680 // Increased height for network info
 
       // Load the actual logo
       const logo = new Image()
@@ -266,7 +322,7 @@ export function TransactionSuccessCard({
 
           // Transaction Details Section - more compact
           ctx.fillStyle = "#0f172a"
-          drawRoundedRect(ctx, 25, y - 10, canvas.width - 50, 200, 8)
+          drawRoundedRect(ctx, 25, y - 10, canvas.width - 50, 220, 8)
           ctx.fill()
 
           y += 5
@@ -311,7 +367,7 @@ export function TransactionSuccessCard({
 
           // Blockchain Information Section - more compact
           ctx.fillStyle = "#0f172a"
-          drawRoundedRect(ctx, 25, y - 10, canvas.width - 50, 80, 8)
+          drawRoundedRect(ctx, 25, y - 10, canvas.width - 50, 100, 8)
           ctx.fill()
 
           y += 5
@@ -322,6 +378,7 @@ export function TransactionSuccessCard({
           y += 20
 
           ctx.font = "11px Arial, sans-serif"
+          drawRow("Network:", networkInfo.name)
           drawRow("Hash:", truncateId(transaction.hash))
           drawRow("Gas Fee:", transaction.gasFee)
 
@@ -428,12 +485,12 @@ export function TransactionSuccessCard({
 
       // Card background
       doc.setFillColor(cardBg[0], cardBg[1], cardBg[2])
-      doc.roundedRect(20, 20, 170, 200, 5, 5, 'F')
+      doc.roundedRect(20, 20, 170, 220, 5, 5, 'F')
 
       // Card border
       doc.setDrawColor(55, 65, 81)
       doc.setLineWidth(0.3)
-      doc.roundedRect(20, 20, 170, 200, 5, 5, 'S')
+      doc.roundedRect(20, 20, 170, 220, 5, 5, 'S')
 
       // Function to generate PDF content
       const generatePDFContent = (logoDataUrl?: string) => {
@@ -512,7 +569,7 @@ export function TransactionSuccessCard({
 
         // Transaction Details
         doc.setFillColor(darkBg[0], darkBg[1], darkBg[2])
-        doc.roundedRect(30, y - 5, 150, 80, 3, 3, 'F')
+        doc.roundedRect(30, y - 5, 150, 90, 3, 3, 'F')
 
         y += 5
 
@@ -555,7 +612,7 @@ export function TransactionSuccessCard({
 
         // Blockchain Information
         doc.setFillColor(darkBg[0], darkBg[1], darkBg[2])
-        doc.roundedRect(30, y - 5, 150, 25, 3, 3, 'F')
+        doc.roundedRect(30, y - 5, 150, 30, 3, 3, 'F')
 
         y += 5
 
@@ -568,6 +625,7 @@ export function TransactionSuccessCard({
         doc.setFontSize(9)
         doc.setFont('helvetica', 'normal')
 
+        addRow('Network:', networkInfo.name)
         addRow('Hash:', truncateId(transaction.hash))
         addRow('Gas Fee:', transaction.gasFee)
 
@@ -756,6 +814,10 @@ export function TransactionSuccessCard({
         <div className="bg-[#0f172a] rounded-lg p-3 mb-3 border border-gray-700">
           <h3 className="text-sm font-semibold mb-2 text-[#1B89A4]">Blockchain Information</h3>
           <div className="space-y-2 text-xs">
+            <div className="flex justify-between">
+              <span className="text-gray-400">Network</span>
+              <span className="font-medium text-[#1B89A4]">{networkInfo.name}</span>
+            </div>
             <div className="flex justify-between items-center">
               <span className="text-gray-400">Transaction Hash</span>
               <div className="flex items-center">

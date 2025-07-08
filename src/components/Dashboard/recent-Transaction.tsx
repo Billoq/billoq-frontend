@@ -41,15 +41,22 @@ const mapToRecentDisplayFormat = (tx: Transaction): RecentTransactionDisplay => 
 
 // Map RecentTransactionDisplay to TransactionSuccessCard format
 const mapToSuccessCardFormat = (tx: RecentTransactionDisplay, originalTx: Transaction) => {
-  console.log("🔍 Debug recent transaction mapping:", {
+  console.log("🔍 Debug transaction mapping:", {
     txExplorerUrl: tx.explorerUrl,
     originalTxExplorerUrl: originalTx.explorerUrl,
     transactionHash: tx.transactionId,
     originalTxHash: originalTx.hash,
     notes: originalTx.notes,
     customerName: originalTx.customerName,
-    customerId: originalTx.customerId
+    customerId: originalTx.customerId,
+    chainId: originalTx.chainId,
+    backendChainId: originalTx.rawData?.chainId || originalTx.rawData?.chain_id // Check if backend actually provided chainId
   });
+
+  // Only include chainId if it actually came from the backend
+  const backendChainId = originalTx.rawData?.chainId || originalTx.rawData?.chain_id;
+  
+  console.log(`🔗 Transaction ${tx.transactionId} backend chainId:`, backendChainId || 'NOT PROVIDED');
   
   return {
     id: tx.transactionId, // Use the full transaction hash as ID
@@ -65,9 +72,10 @@ const mapToSuccessCardFormat = (tx: RecentTransactionDisplay, originalTx: Transa
     notes: originalTx.notes, // Map notes field for prepaid electricity tokens
     customerName: originalTx.customerName, // Map customer name
     customerId: originalTx.customerId, // Map customer ID
+    // Only include chainId if backend provided it, otherwise omit completely
+    ...(backendChainId && { chainId: String(backendChainId) })
   };
 };
-
 export function RecentTransactions({ searchQuery = "" }: RecentTransactionsProps) {
   const { transactions, loading, error, refetch } = useTransactions();
 

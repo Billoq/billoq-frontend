@@ -86,11 +86,11 @@ export function BalanceCard() {
                   Unsupported
                 </span>
               )}
-              {!isUnsupportedChain && (
+              {/* {!isUnsupportedChain && (
                 <span className={`text-xs px-2 py-1 rounded-full border ${chainColors.bg} ${chainColors.text} ${chainColors.border}`}>
                   Active
                 </span>
-              )}
+              )} */}
             </div>
           </div>
         </CardHeader>
