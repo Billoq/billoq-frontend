@@ -16,7 +16,7 @@ interface InitiatePaymentParams {
 }
 
 export const billoqService = {
-  // Biller Categories
+  // Biller Categories done
   async getAllCategories() {
     const response = await fetch(`${API_BASE_URL}/categories`);
     return await response.json();
