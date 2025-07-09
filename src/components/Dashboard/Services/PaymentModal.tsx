@@ -140,7 +140,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
 
   const tokenAmount = useMemo(() => {
     if (!isConversionReady) return BigInt(0);
-    return BigInt(Math.floor(parseFloat(convertedAmount) * 1e18));
+    return BigInt(Math.floor(parseFloat(convertedAmount) * 1e6));
   }, [convertedAmount, isConversionReady]);
 
   const billContractInterface = new ethers.Interface(contractConfig.abi);
