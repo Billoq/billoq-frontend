@@ -69,16 +69,33 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
     refreshBalances 
   } = useBalance();
 
+  const getTokenDecimals = (chainId: number): number => {
+  // BSC chains use 18 decimals
+  if (chainId === bscTestnet.id || chainId === bsc.id) {
+    return 18;
+  }
+  
+  // Most other chains use 6 decimals for USDT/USDC
+  // Add specific overrides if needed for other chains
+  return 6;
+};
+
   // Calculate converted amount using real exchange rate
   const convertedAmount = useMemo(() => {
-    if (!exchangeRate || exchangeRateLoading) {
-      return "0.000000";
-    }
-    
-    const nairAmount = parseFloat(amountInNaira || "0");
-    const usdAmount = nairAmount / exchangeRate;
-    return usdAmount.toFixed(6);
-  }, [amountInNaira, exchangeRate, exchangeRateLoading]);
+  if (!exchangeRate || exchangeRateLoading) {
+    return "0.000000";
+  }
+  
+  const nairAmount = parseFloat(amountInNaira || "0");
+  const usdAmount = nairAmount / exchangeRate;
+  
+  // Show more precision for 18 decimal tokens, less for 6 decimal tokens
+  const decimals = getTokenDecimals(chainId);
+
+  const displayDecimals = decimals === 18 ? 8 : 6;
+  
+  return usdAmount.toFixed(displayDecimals);
+}, [amountInNaira, exchangeRate, exchangeRateLoading, chainId]);
 
   // Check if conversion is ready
   const isConversionReady = Boolean(exchangeRate && !exchangeRateLoading && !exchangeRateError);
@@ -138,10 +155,30 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
   const { initiatePayment } = useBilloq();
   const config = useConfig();
 
-  const tokenAmount = useMemo(() => {
-    if (!isConversionReady) return BigInt(0);
-    return BigInt(Math.floor(parseFloat(convertedAmount) * 1e6));
-  }, [convertedAmount, isConversionReady]);
+  
+const tokenAmount = useMemo(() => {
+  if (!isConversionReady) return BigInt(0);
+  
+  const decimals = getTokenDecimals(chainId);
+  const multiplier = Math.pow(10, decimals);
+  
+  return BigInt(Math.floor(parseFloat(convertedAmount) * multiplier));
+}, [convertedAmount, isConversionReady, chainId, token]);
+
+useEffect(() => {
+  const decimals = getTokenDecimals(chainId);
+  console.log('🔍 Debug Info:', {
+    chainId,
+    token,
+    decimals,
+    convertedAmount,
+    tokenAmount: tokenAmount.toString(),
+    chainName: chainId === bsc.id ? 'BSC Mainnet' : 
+               chainId === bscTestnet.id ? 'BSC Testnet' : 
+               'Other Chain'
+  });
+}, [chainId, token, convertedAmount, tokenAmount]);
+
 
   const billContractInterface = new ethers.Interface(contractConfig.abi);
 
@@ -419,6 +456,8 @@ const notifyBackend = async (
     }
     return "Electricity";
   };
+
+
 
   return (
     <>
