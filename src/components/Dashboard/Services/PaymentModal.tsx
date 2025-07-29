@@ -69,7 +69,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
     refreshBalances 
   } = useBalance();
 
-  const getTokenDecimals = (chainId: number, token: string): number => {
+  const getTokenDecimals = (chainId: number): number => {
   // BSC chains use 18 decimals
   if (chainId === bscTestnet.id || chainId === bsc.id) {
     return 18;
@@ -90,12 +90,12 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
   const usdAmount = nairAmount / exchangeRate;
   
   // Show more precision for 18 decimal tokens, less for 6 decimal tokens
-  const decimals = getTokenDecimals(chainId, token);
+  const decimals = getTokenDecimals(chainId);
 
   const displayDecimals = decimals === 18 ? 8 : 6;
   
   return usdAmount.toFixed(displayDecimals);
-}, [amountInNaira, exchangeRate, exchangeRateLoading, chainId, token]);
+}, [amountInNaira, exchangeRate, exchangeRateLoading, chainId]);
 
   // Check if conversion is ready
   const isConversionReady = Boolean(exchangeRate && !exchangeRateLoading && !exchangeRateError);
@@ -159,14 +159,14 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
 const tokenAmount = useMemo(() => {
   if (!isConversionReady) return BigInt(0);
   
-  const decimals = getTokenDecimals(chainId, token);
+  const decimals = getTokenDecimals(chainId);
   const multiplier = Math.pow(10, decimals);
   
   return BigInt(Math.floor(parseFloat(convertedAmount) * multiplier));
 }, [convertedAmount, isConversionReady, chainId, token]);
 
 useEffect(() => {
-  const decimals = getTokenDecimals(chainId, token);
+  const decimals = getTokenDecimals(chainId);
   console.log('🔍 Debug Info:', {
     chainId,
     token,
