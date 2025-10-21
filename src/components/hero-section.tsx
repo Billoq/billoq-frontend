@@ -139,6 +139,13 @@ export function HeroSection() {
         <Navbar />
 
         <div className="container mx-auto px-6 pt-16 md:pt-24 pb-20 text-center">
+          <AnimatedSection direction="down" delay={0.1}>
+            <div className="inline-flex items-center gap-2 bg-[#1B89A4]/20 text-[#1B89A4] px-4 py-2 rounded-full text-sm font-medium border border-[#1B89A4]/30 mb-8">
+              <span>🚀</span>
+              <span>Billoq V2 Coming Soon - Multi-Crypto Payments</span>
+            </div>
+          </AnimatedSection>
+          
           <AnimatedSection direction="down" delay={0.3}>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white max-w-4xl mx-auto leading-tight">
               A Comprehensive <span className="text-[#1B89A4]">Web3 Payment</span>, Designed To Ease Your Subscription{" "}
@@ -166,8 +173,8 @@ export function HeroSection() {
                 className="bg-transparent text-white hover:bg-gray-800 w-[230px] py-6 text-lg cursor-pointer"
                 asChild
               >
-                <Link href="/about">
-                  Learn more
+                <Link href="/#waitlist">
+                  Join V2 Waitlist
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="20"
@@ -187,6 +194,7 @@ export function HeroSection() {
               </Button>
             </div>
           </AnimatedSection>
+
 
           <div className="mt-16 px-6 grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl">
             <AnimatedSection direction="left" delay={0.9}>
