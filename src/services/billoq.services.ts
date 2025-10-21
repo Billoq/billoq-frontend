@@ -72,5 +72,17 @@ export const billoqService = {
   async getTransactionById(transactionId: string) {
     const response = await fetch(`${API_BASE_URL}/transaction/${transactionId}`);
     return await response.json();
+  },
+
+  // Waitlist
+  async joinWaitlist(email: string) {
+    const response = await fetch(`${API_BASE_URL}/waitlist/join`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email }),
+    });
+    return await response.json();
   }
 };
