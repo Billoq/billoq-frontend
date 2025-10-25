@@ -135,10 +135,10 @@ export function AboutSection() {
   }, [isMounted]);
 
   return (
-    <section className="relative bg-[#010028] py-8 md:py-16 overflow-hidden">
+    <section className="relative bg-[#01161F] py-8 md:py-16 overflow-hidden">
       <div className="container max-w-7xl mx-auto px-4 sm:px-6 md:px-12">
         <AnimatedSection direction="down" delay={0.2}>
-          <span className="inline-block text-[#60A5FA] text-sm sm:text-[18px] leading-[100%] font-semibold uppercase tracking-wide px-2 py-1.5 rounded-l-full rounded-r-full bg-[#1D4ED840]">
+          <span className="inline-block text-[#1B89A4] text-sm sm:text-[18px] leading-[100%] font-semibold uppercase tracking-wide px-2 py-1.5 rounded-l-full rounded-r-full bg-[#0E99BC26]">
             ABOUT BILLOQ
           </span>
         </AnimatedSection>
@@ -149,7 +149,7 @@ export function AboutSection() {
             <AnimatedSection direction="up" delay={0.3}>
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-semibold text-white mt-2 leading-tight">
                 Revolutionizing Bills Payment With {" "}
-                <span className="text-blue-500">Blockchain</span>
+                <span className="text-[#1B89A4]">Blockchain</span>
               </h2>
             </AnimatedSection>
             <AnimatedSection direction="up" delay={0.4}>
@@ -170,7 +170,7 @@ export function AboutSection() {
               }}
             >
               <Image
-                src="/blockchain-cube.png"
+                src="/blockchain-cube.svg"
                 alt="Blockchain Cube"
                 width={630}
                 height={420}

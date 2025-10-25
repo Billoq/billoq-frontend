@@ -7,7 +7,7 @@ interface FeatureBadgeProps {
   iconColor?: string
 }
 
-export function FeatureBadge({ icon: Icon, title, description, iconColor = "text-green-500" }: FeatureBadgeProps) {
+export function FeatureBadge({ icon: Icon, title, description, iconColor = "text-[#1B89A4]" }: FeatureBadgeProps) {
   return (
     <div className="flex items-center space-x-3">
       <div className={`${iconColor} p-1 rounded-full`}>

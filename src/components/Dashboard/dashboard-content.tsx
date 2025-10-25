@@ -4,7 +4,11 @@ import { OverviewChart } from "./overview-chart/overview-chart";
 import { RecentTransactions } from "./recent-Transaction";
 import { StableAssets } from "./stable-assets";
 
-export function DashboardContent() {
+interface DashboardContentProps {
+  searchQuery?: string;
+}
+
+export function DashboardContent({ searchQuery = "" }: DashboardContentProps) {
   return (
     <div className="p-4 md:p-6 space-y-6">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -13,12 +17,12 @@ export function DashboardContent() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <RecentTransactions />
+        <RecentTransactions searchQuery={searchQuery} />
         <div className="space-y-6">
-          <OverviewChart/>
-          <GiftCard/>
+          <OverviewChart />
+          <GiftCard />
         </div>
       </div>
     </div>
-  )
+  );
 }

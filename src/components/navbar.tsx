@@ -1,4 +1,5 @@
-// components/Navbar.tsx
+
+
 "use client";
 
 import Link from "next/link";
@@ -21,6 +22,7 @@ const navItems: NavItem[] = [
   { label: "Services", href: "/services" },
   { label: "Features", href: "/features" },
   { label: "About Us", href: "/about" },
+  { label: "V2 Waitlist", href: "/#waitlist" },
   { label: "FAQs", href: "/faqs" },
 ];
 
@@ -31,7 +33,7 @@ export function Navbar() {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
-  const router = useRouter(); // Add router for navigation
+  const router = useRouter();
 
   // AppKit hooks
   const { address: appkitAddress, isConnected: appkitIsConnected } = useAppKitAccount();
@@ -46,7 +48,6 @@ export function Navbar() {
   const address = appkitAddress || wagmiAddress;
   const isConnected = appkitIsConnected || wagmiIsConnected;
 
-  // Redirect to dashboard on wallet connection
   useEffect(() => {
     if (isConnected && pathname !== "/dashboard") {
       router.push("/dashboard");
@@ -59,33 +60,65 @@ export function Navbar() {
     addr ? `${addr.slice(0, 6)}...${addr.slice(-4)}` : "";
 
   const getWalletIcon = () => {
+    const sanitizeImageUrl = (url: string) => {
+      if (!url) return null;
+
+      try {
+        const trimmedUrl = url.trim();
+
+        if (trimmedUrl.startsWith('data:')) {
+          return trimmedUrl;
+        }
+
+        new URL(trimmedUrl);
+        return trimmedUrl;
+      } catch {
+        console.warn('Invalid wallet icon URL:', url);
+        return null;
+      }
+    };
+
     if (walletInfo?.icon) {
-      return (
-        <Image
-          src={walletInfo.icon}
-          alt={walletInfo.name || "Wallet"}
-          width={24}
-          height={24}
-          className="w-6 h-6 rounded-full"
-          onError={(e) => (e.currentTarget.style.display = "none")}
-          unoptimized
-        />
-      );
+      const sanitizedUrl = sanitizeImageUrl(walletInfo.icon);
+      if (sanitizedUrl) {
+        return (
+          <Image
+            src={sanitizedUrl}
+            alt={walletInfo.name || "Wallet"}
+            width={24}
+            height={24}
+            className="w-6 h-6 rounded-full"
+            onError={(e) => {
+              (e.currentTarget.style.display = "none");
+              console.warn('Failed to load wallet icon:', sanitizedUrl);
+            }}
+            unoptimized
+          />
+        );
+      }
     }
+
     if (connector?.icon) {
-      return (
-        <Image
-          src={connector.icon}
-          alt={connector.name || "Wallet"}
-          width={24}
-          height={24}
-          className="w-6 h-6 rounded-full"
-          onError={(e) => (e.currentTarget.style.display = "none")}
-          unoptimized
-        />
-      );
+      const sanitizedUrl = sanitizeImageUrl(connector.icon);
+      if (sanitizedUrl) {
+        return (
+          <Image
+            src={sanitizedUrl}
+            alt={connector.name || "Wallet"}
+            width={24}
+            height={24}
+            className="w-6 h-6 rounded-full"
+            onError={(e) => {
+              (e.currentTarget.style.display = "none");
+              console.warn('Failed to load connector icon:', sanitizedUrl);
+            }}
+            unoptimized
+          />
+        );
+      }
     }
-    return <Wallet className="w-6 h-6 text-blue-500" />;
+
+    return <Wallet className="w-6 h-6 text-[#1B89A4" />;
   };
 
   const getWalletName = () => walletInfo?.name || connector?.name || "Connected Wallet";
@@ -93,8 +126,8 @@ export function Navbar() {
   const handleConnect = async () => {
     try {
       await open();
-    } catch (error) {
-      console.error("Connection error:", error);
+    } catch (error: unknown) {
+      console.error("Connection error:", error instanceof Error ? error.message : String(error));
     }
   };
 
@@ -111,9 +144,9 @@ export function Navbar() {
         wagmiDisconnect();
       }
       close();
-      router.push("/"); // Redirect to home after disconnect
-    } catch (error) {
-      console.error("Disconnect error:", error);
+      router.push("/");
+    } catch (error: unknown) {
+      console.error("Disconnect error:", error instanceof Error ? error.message : String(error));
     }
   };
 
@@ -144,9 +177,12 @@ export function Navbar() {
     <nav className="flex items-center justify-between pt-[16px] px-6 md:px-12 w-full relative">
       <div className="flex items-center">
         <Link href="/" className="flex items-center">
-          <div className="text-blue-500 font-bold text-2xl flex gap-2 items-center">
-            <Image src="/logo.png" alt="Billoq Logo" width={40} height={40} className="w-10 h-10" />
+          <div className="text-[#1B89A4] font-bold text-2xl flex gap-2 items-center">
+            <Image src="/logo.svg" alt="Billoq Logo" width={40} height={40} className="w-10 h-10" />
             Billoq
+            <span className="px-2 py-0.5 text-xs font-semibold bg-[#1B89A4]/20 text-[#1B89A4] rounded-full border border-[#1B89A4]/30">
+              BETA
+            </span>
           </div>
         </Link>
       </div>
@@ -156,9 +192,8 @@ export function Navbar() {
           <Link
             key={item.label}
             href={item.href}
-            className={`transition-colors ${
-              isActive(item.href) ? "text-blue-500 font-medium" : "text-gray-200 hover:text-blue-400"
-            }`}
+            className={`transition-colors ${isActive(item.href) ? "text-[#1B89A4] font-medium" : "text-gray-200 hover:text-[#1B89A4]/60"
+              }`}
           >
             {item.label}
           </Link>
@@ -174,9 +209,8 @@ export function Navbar() {
             <Link
               key={item.label}
               href={item.href}
-              className={`transition-colors ${
-                isActive(item.href) ? "text-blue-500 font-medium" : "text-gray-200 hover:text-blue-400"
-              }`}
+              className={`transition-colors ${isActive(item.href) ? "text-[#1B89A4] font-medium" : "text-gray-200 hover:text-[#1B89A4]/60"
+                }`}
             >
               {item.label}
             </Link>
@@ -186,7 +220,7 @@ export function Navbar() {
 
       <div className="flex items-center gap-2">
         {!mounted ? (
-          <button className="bg-blue-600 text-white py-2 px-4 md:py-3 md:px-10 rounded-md text-sm md:text-base">
+          <button className="bg-[#1B89A4] text-white py-2 px-4 md:py-3 md:px-10 rounded-md text-sm md:text-base cursor-pointer">
             Connect Wallet
           </button>
         ) : isConnected ? (
@@ -240,7 +274,7 @@ export function Navbar() {
         ) : (
           <button
             onClick={handleConnect}
-            className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 md:py-3 md:px-10 rounded-md transition-colors text-sm md:text-base"
+            className="bg-[#1B89A4] hover:bg-[#1B89A4]/80 text-white py-2 px-4 md:py-3 md:px-10 rounded-md transition-colors text-sm md:text-base cursor-pointer"
           >
             Connect Wallet
           </button>

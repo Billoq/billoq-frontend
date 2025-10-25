@@ -32,7 +32,7 @@ export function FeatureCard({
         border 
         transition-all 
         duration-500
-        ${isActive ? 'border-blue-500 shadow-lg shadow-blue-500/20' : 'border-[#396294]'}
+        ${isActive ? 'border-[#1B89A4] shadow-lg shadow-[#1B89A4]/20' : 'border-[#396294]'}
         ${className}
       `}
     >
@@ -63,7 +63,7 @@ export function FeatureCard({
           leading-tight
           transition-colors
           duration-500
-          ${isActive ? 'text-blue-400' : 'text-white'}
+          ${isActive ? 'text-[#1B89A4]' : 'text-white'}
         `}>
           {title}
         </h3>

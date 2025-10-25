@@ -68,10 +68,10 @@ export function AboutCard({ iconSrc, title, description, className = "", index =
       ref={cardRef}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      className={`bg-[#00185D33] backdrop-blur-md rounded-lg p-5 sm:p-6 flex flex-col items-start gap-3 sm:gap-4 w-full border transition-all duration-300 ${finalHoverState ? 'border-blue-500 shadow-md shadow-blue-900/30 transform scale-[1.02]' : 'border-[#2A3B5A66]'} ${className}`}
+      className={`bg-[#00185D33] backdrop-blur-md rounded-lg p-5 sm:p-6 flex flex-col items-start gap-3 sm:gap-4 w-full border transition-all duration-300 ${finalHoverState ? 'border-[#38C3D8] shadow-md shadow-[#38C3D8]/30 transform scale-[1.02]' : 'border-[#2A3B5A66]'} ${className}`}
     >
       {/* Icon Container */}
-      <div className={`mt-2 sm:mt-3 md:mt-5 mb-3 sm:mb-4 md:mb-5 p-2 rounded-full transition-colors duration-300 ${finalHoverState ? 'bg-blue-500/30' : 'bg-[#1D4ED820]'}`}>
+      <div className={`mt-2 sm:mt-3 md:mt-5 mb-3 sm:mb-4 md:mb-5 p-2 rounded-full transition-colors duration-300 ${finalHoverState ? 'bg-[#38C3D8]/30' : 'bg-[#1D4ED820]'}`}>
         <Image 
           src={iconSrc} 
           alt={title} 
@@ -83,7 +83,7 @@ export function AboutCard({ iconSrc, title, description, className = "", index =
       
       {/* Content */}
       <div className="w-full">
-        <h3 className={`text-white text-base sm:text-lg font-semibold uppercase tracking-wide transition-colors duration-300 ${finalHoverState ? 'text-blue-400' : ''}`}>
+        <h3 className={`text-white text-base sm:text-lg font-semibold uppercase tracking-wide transition-colors duration-300 ${finalHoverState ? 'text-[#38C3D8]' : ''}`}>
           {title}
         </h3>
         <p className="text-gray-400 text-xs sm:text-sm mt-2 sm:mt-3 md:mt-4 leading-relaxed">

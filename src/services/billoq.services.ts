@@ -16,7 +16,7 @@ interface InitiatePaymentParams {
 }
 
 export const billoqService = {
-  // Biller Categories
+  // Biller Categories done
   async getAllCategories() {
     const response = await fetch(`${API_BASE_URL}/categories`);
     return await response.json();
@@ -63,4 +63,26 @@ export const billoqService = {
     });
     return await response.json();
   },
+
+  async getUserTransactions(userAddress: string) {
+    const response = await fetch(`${API_BASE_URL}/transactions/${userAddress}`);
+    return await response.json();
+  },
+
+  async getTransactionById(transactionId: string) {
+    const response = await fetch(`${API_BASE_URL}/transaction/${transactionId}`);
+    return await response.json();
+  },
+
+  // Waitlist
+  async joinWaitlist(email: string) {
+    const response = await fetch(`${API_BASE_URL}/waitlist/join`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email }),
+    });
+    return await response.json();
+  }
 };
