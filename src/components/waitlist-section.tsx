@@ -86,6 +86,17 @@ const AnimatedSection = ({
   )
 }
 
+/**
+ * WaitlistSection Component
+ * 
+ * A component that allows users to join the Billoq V2 waitlist by entering their email.
+ * Features include:
+ * - Email validation and submission
+ * - Loading states during submission
+ * - Success state with confirmation message
+ * - Animated sections for better UX
+ * - Toast notifications for user feedback
+ */
 export function WaitlistSection() {
   const [email, setEmail] = useState("")
   const [isLoading, setIsLoading] = useState(false)
