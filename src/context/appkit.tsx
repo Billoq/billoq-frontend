@@ -17,7 +17,7 @@ const testnetNetworks: [AppKitNetwork, ...AppKitNetwork[]] = [sepolia, liskSepol
 const supportedNetworks = isMainnet ? mainnetNetworks : testnetNetworks
 
 // 1. Get projectId at https://cloud.reown.com
-const projectId = "8387f0bbb57a265cd4dd96c3e658ac55"; // Replace with your actual project ID
+const projectId = "a9fbadc760baa309220363ec867b732e"; // Replace with your actual project ID
 
 // 2. Create a metadata object
 const metadata = {
