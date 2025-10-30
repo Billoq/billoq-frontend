@@ -39,7 +39,17 @@ createAppKit({
   projectId,
   features: {
     analytics: true,
+    email: true, // Enable email login
+    socials: [ "google",
+      "x",
+      "github",
+      "discord",
+      "apple",
+      "facebook",
+      "farcaster"], // Enable Gmail/Google sign-in
+    emailShowWallets: false, // Show email/social first, then wallets on separate screen
   },
+  allWallets: 'SHOW', // Display all wallets
   // Optional: Add environment-specific features
   ...(isMainnet ? {
     // Mainnet specific configurations

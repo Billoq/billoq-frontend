@@ -518,7 +518,7 @@ export function DashboardHeader({
             onClick={() => router.push('/')}
             className="bg-[#1B89A4] hover:bg-[#1B89A4]/60 text-white py-2 px-4 rounded-md transition-colors"
           >
-            Connect Wallet
+            Sign In
           </button>
         )}
 
