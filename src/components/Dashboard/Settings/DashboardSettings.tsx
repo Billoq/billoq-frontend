@@ -369,7 +369,7 @@ export default function DashboardSettings() {
                         className="bg-[#1B89A4] hover:bg-[#2563EB] text-white"
                         onClick={() => router.push('/')}
                       >
-                        Connect Wallet
+                        Sign In
                       </Button>
                     </div>
                   )}

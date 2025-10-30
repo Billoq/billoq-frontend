@@ -3,10 +3,10 @@ import Link from "next/link";
 
 export function Footer() {
   const socialIcons = [
-    { name: "Twitter", icon: "/twitter.png" },
-    { name: "Github", icon: "/github.png" },
-    { name: "Linkedin", icon: "/linkedin.png" },
-    { name: "Mail", icon: "/mail.png" },
+    { name: "Twitter", icon: "/twitter.png", link: "https://x.com/Billoqpay" },
+    { name: "Telegram", icon: "/telegram.svg", link: "https://t.me/billoqpay" },
+    { name: "Linkedin", icon: "/linkedin.png", link: "#" },
+    { name: "Mail", icon: "/mail.png", link: "#" },
   ];
 
   return (
@@ -31,9 +31,11 @@ export function Footer() {
               {socialIcons.map((social) => (
                 <Link
                   key={social.name}
-                  href="#"
+                  href={social.link}
                   className="hover:opacity-75 transition-opacity"
                   aria-label={social.name}
+                  target="_blank"
+                  rel="noopener noreferrer"
                 >
                   <Image
                     src={social.icon}

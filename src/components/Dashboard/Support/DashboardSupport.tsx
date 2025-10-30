@@ -84,7 +84,7 @@ const communityLinks = [
   // },
   {
     title: "Follow on Twitter",
-    link: "https://x.com/Billoqapp?t=Rz3dhYlGmWo0K7Lv5eHwqQ&s=09",
+    link: "https://x.com/Billoqpay",
     icon: <ExternalLink className="h-5 w-5" />,
   },
   {
