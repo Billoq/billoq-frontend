@@ -1,6 +1,7 @@
 
 import { Button } from "./ui/button";
 import  GlassATMCard  from "./GlassATMCard"; // Import the component
+import Link from "next/link";
 
 export function CommunitySection() {
   return (
@@ -32,9 +33,11 @@ export function CommunitySection() {
             <p className="text-gray-400 text-lg mb-10">
               Join thousands of users who are already enjoying the benefits of blockchain- {" "} <br/> <span>powered bill payments.</span>
             </p>
-            <Button className="bg-[#1B89A4] hover:bg-[#38C3D8]/30 text-white px-6 sm:px-12 md:px-16 py-4 md:py-6 text-base md:text-lg cursor-pointer">
-              Get Started
-            </Button>
+            <Link href="https://t.me/billoqpay" target="_blank" rel="noopener noreferrer">
+              <Button className="bg-[#1B89A4] hover:bg-[#38C3D8]/30 text-white px-6 sm:px-12 md:px-16 py-4 md:py-6 text-base md:text-lg cursor-pointer">
+                Get Started
+              </Button>
+            </Link>
           </div>
           
           {/* Right column - ATM Card */}

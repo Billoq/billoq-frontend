@@ -221,7 +221,7 @@ export function Navbar() {
       <div className="flex items-center gap-2">
         {!mounted ? (
           <button className="bg-[#1B89A4] text-white py-2 px-4 md:py-3 md:px-10 rounded-md text-sm md:text-base cursor-pointer">
-            Connect Wallet
+            Sign In
           </button>
         ) : isConnected ? (
           <div className="relative" ref={dropdownRef}>
@@ -276,7 +276,7 @@ export function Navbar() {
             onClick={handleConnect}
             className="bg-[#1B89A4] hover:bg-[#1B89A4]/80 text-white py-2 px-4 md:py-3 md:px-10 rounded-md transition-colors text-sm md:text-base cursor-pointer"
           >
-            Connect Wallet
+            Sign In
           </button>
         )}
 

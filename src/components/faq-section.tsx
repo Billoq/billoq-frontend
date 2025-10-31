@@ -13,8 +13,8 @@ export function FAQSection() {
       answer: "Currently we support USDC and our native token BLLQ. We plan to add more stablecoins and major cryptocurrencies in future updates."
     },
     {
-      question: "How do I connect my wallet?",
-      answer: "Simply click the 'Connect Wallet' button and select your preferred wallet provider (MetaMask, WalletConnect, etc.). Follow the prompts to securely connect your wallet to our platform."
+      question: "How do I sign in?",
+      answer: "Simply click the 'Sign In' button. You can sign in with your Gmail account, email address, or connect your preferred wallet (MetaMask, WalletConnect, etc.). Follow the prompts to securely access our platform."
     },
     {
       question: "How long do payments take to process?",

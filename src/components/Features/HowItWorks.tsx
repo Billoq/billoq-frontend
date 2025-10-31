@@ -212,10 +212,10 @@ export function HowItWorks() {
   const cardItems = [
     {
       image: "./cw.svg",
-      alt: "Connect Wallet",
-      title: "Connect Wallet",
+      alt: "Sign In",
+      title: "Sign In",
       description:
-        "To interact with our decentralized platform, you'll securely connect your Web3 wallet (e.g. MetaMask, Trust Wallet, WalletConnect, compatible wallets).",
+        "Start by signing in with your Gmail account, email address, or by connecting your Web3 wallet (e.g. MetaMask, Trust Wallet, WalletConnect, compatible wallets).",
     },
     {
       image: "./explore.svg",
