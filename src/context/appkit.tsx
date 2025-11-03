@@ -1,8 +1,7 @@
 // context/appkit.tsx
 "use client";
 import { createAppKit } from "@reown/appkit/react";
-import { EthersAdapter } from "@reown/appkit-adapter-ethers";
-import { sepolia, liskSepolia, arbitrumSepolia, bscTestnet, lisk, arbitrum, base, bsc } from "@reown/appkit/networks";
+import { wagmiAdapter, projectId, networks } from "@/config/index";
 import type { AppKitNetwork } from "@reown/appkit/networks";
 import { ReactNode } from "react";
 
@@ -29,13 +28,13 @@ const metadata = {
 
 // Log environment info for debugging
 console.log(`🌍 AppKit Environment: ${isMainnet ? 'Mainnet' : 'Testnet'}`);
-console.log(`📡 Supported Networks:`, supportedNetworks.map(n => n.name));
+console.log(`📡 Supported Networks:`, networks.map((n: AppKitNetwork) => n.name));
 
 // 3. Create the AppKit instance
 createAppKit({
-  adapters: [new EthersAdapter()],
+  adapters: [wagmiAdapter],
   metadata,
-  networks: supportedNetworks,
+  networks,
   projectId,
   features: {
     analytics: true,
