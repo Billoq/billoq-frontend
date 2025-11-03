@@ -2,7 +2,7 @@
 "use client";
 import { createAppKit } from "@reown/appkit/react";
 import { EthersAdapter } from "@reown/appkit-adapter-ethers";
-import { sepolia, liskSepolia, arbitrumSepolia, bscTestnet, lisk, arbitrum, base, bsc } from "@reown/appkit/networks";
+import { sepolia, liskSepolia, arbitrumSepolia, bscTestnet, lisk, arbitrum, base, bsc, baseSepolia } from "@reown/appkit/networks";
 import type { AppKitNetwork } from "@reown/appkit/networks";
 import { ReactNode } from "react";
 
@@ -11,7 +11,7 @@ const isMainnet = process.env.NEXT_PUBLIC_ENVIRONMENT === 'mainnet'
 
 // Dynamic network configuration based on environment
 const mainnetNetworks: [AppKitNetwork, ...AppKitNetwork[]] = [lisk, arbitrum, base, bsc]
-const testnetNetworks: [AppKitNetwork, ...AppKitNetwork[]] = [sepolia, liskSepolia, arbitrumSepolia, bscTestnet]
+const testnetNetworks: [AppKitNetwork, ...AppKitNetwork[]] = [sepolia, liskSepolia, arbitrumSepolia, bscTestnet, baseSepolia]
 
 // Use appropriate networks based on environment (always ensure at least one network)
 const supportedNetworks = isMainnet ? mainnetNetworks : testnetNetworks
