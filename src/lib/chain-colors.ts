@@ -1,5 +1,14 @@
 // lib/chain-colors.ts
-import { sepolia, liskSepolia, arbitrumSepolia, bscTestnet, lisk, arbitrum, base, bsc } from 'wagmi/chains'
+import {
+  arbitrum,
+  arbitrumSepolia,
+  base,
+  baseSepolia,
+  bsc,
+  bscTestnet,
+  sepolia,
+} from "thirdweb/chains";
+import { lisk, liskSepolia } from "@/lib/thirdwebChains";
 
 export interface ChainColorConfig {
   bg: string;
@@ -76,14 +85,14 @@ export const CHAIN_COLORS: Record<number, ChainColorConfig> = {
 export const getChainColor = (chainId: number | undefined): ChainColorConfig => {
   if (!chainId || !CHAIN_COLORS[chainId]) {
     return {
-      bg: 'bg-gray-500/10',
-      border: 'border-gray-500/30',
-      text: 'text-gray-400',
-      dot: 'bg-gray-500',
-      hex: '#6B7280'
-    }
+      bg: "bg-gray-500/10",
+      border: "border-gray-500/30",
+      text: "text-gray-400",
+      dot: "bg-gray-500",
+      hex: "#6B7280",
+    };
   }
-  return CHAIN_COLORS[chainId]
+  return CHAIN_COLORS[chainId];
 }
 
 export const getChainColorByName = (chainName: string): ChainColorConfig => {
@@ -102,7 +111,8 @@ export const getChainColorByName = (chainName: string): ChainColorConfig => {
     'Arbitrum Sepolia': CHAIN_COLORS[arbitrumSepolia.id],
     'Arbitrum Testnet': CHAIN_COLORS[arbitrumSepolia.id],
     'BSC Testnet': CHAIN_COLORS[bscTestnet.id],
-  }
+    'Base Sepolia': CHAIN_COLORS[baseSepolia.id],
+  };
   
   return colorMap[chainName] || {
     bg: 'bg-gray-500/10',

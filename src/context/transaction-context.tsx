@@ -8,7 +8,8 @@ import React, {
   useMemo,
   useCallback,
 } from "react";
-import { useAccount, useChainId } from "wagmi"; 
+import { useActiveAccount, useActiveWalletChain } from "thirdweb/react";
+import { defaultChain } from "@/lib/thirdwebChains";
 import { billoqService } from "../services/billoq.services";
 import { Transaction, ApiTransaction as OriginalApiTransaction, BillType } from "@/types/transaction";
 import { useBillData } from "@/hooks/useBillData";
@@ -143,8 +144,10 @@ export const TransactionProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const { address } = useAccount();
-  const currentChainId = useChainId(); // 🎯 Get current chain ID
+  const account = useActiveAccount();
+  const activeChain = useActiveWalletChain();
+  const address = account?.address;
+  const currentChainId = activeChain?.id ?? defaultChain.id;
   const { allBillers, allBillItems, loading: billDataLoading } = useBillData();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(false);
