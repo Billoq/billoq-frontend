@@ -60,13 +60,13 @@ export const liskSepolia = defineChain({
 
 const isMainnet = process.env.NEXT_PUBLIC_ENVIRONMENT === "mainnet";
 
-export const mainnetChains: ThirdwebChain[] = [lisk, arbitrum, base, bsc];
+export const mainnetChains: ThirdwebChain[] = [ base, arbitrum,lisk, bsc];
 export const testnetChains: ThirdwebChain[] = [
-  sepolia,
+  baseSepolia,
   liskSepolia,
   arbitrumSepolia,
   bscTestnet,
-  baseSepolia,
+  sepolia,
 ];
 
 export const supportedChains = (isMainnet ? mainnetChains : testnetChains) as ThirdwebChain[];

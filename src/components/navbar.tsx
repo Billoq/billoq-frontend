@@ -106,7 +106,12 @@ export function Navbar() {
         client: thirdwebClient,
         chain: activeChain ?? defaultChain,
         chains: supportedChains,
+        size: "compact",
+        titleIcon: "https://www.billoqpay.com/logo.svg",
+        title: "Billoq",
+      
       });
+    
     } catch (error) {
       console.error("Connection error:", error);
     }

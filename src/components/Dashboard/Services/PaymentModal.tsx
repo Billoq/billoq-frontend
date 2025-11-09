@@ -277,7 +277,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
   const billContractInterface = new ethers.Interface(contractConfig.abi);
 
   // Check if contracts are ready
-  const minimumNativeBalance = BigInt(1e9); // (~0.0000001 native token)
+  const minimumNativeBalance = BigInt(1e12); // (~0.0000001 native token)
 
   const hasSufficientNativeBalance =
     nativeBalance === null || nativeBalance >= minimumNativeBalance;

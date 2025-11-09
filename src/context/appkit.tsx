@@ -26,11 +26,6 @@ export function AppKit({ children }: AppKitProps) {
 
   return (
     <ThirdwebProvider
-      client={thirdwebClient}
-      activeChain={defaultChain}
-      supportedChains={chains}
-      appMetadata={appMetadata}
-      locale="en-US"
     >
       <AutoConnect client={thirdwebClient} timeout={1500} />
       {children}

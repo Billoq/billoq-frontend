@@ -106,6 +106,17 @@ export function HeroSection() {
           client: thirdwebClient,
           chain: defaultChain,
           chains: supportedChains,
+          size: "compact",
+          titleIcon: "https://www.billoqpay.com/logo.png",
+          welcomeScreen: {
+            title: "Welcome to Billoq",
+            subtitle: "Connect your wallet to get started",
+            img: {
+              src: "https://www.billoqpay.com/logo.png",
+              width: 96,
+              height: 96,
+            },
+          },
         })
       } catch (error) {
         console.error("Connection error:", error)

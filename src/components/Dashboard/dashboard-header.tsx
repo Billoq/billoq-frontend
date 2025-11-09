@@ -97,6 +97,17 @@ export function DashboardHeader({
         client: thirdwebClient,
         chain: activeChain ?? defaultChain,
         chains: supportedChains,
+        size: "compact",
+        titleIcon: "https://www.billoqpay.com/logo.png",
+        welcomeScreen: {
+          title: "Welcome to Billoq",
+          subtitle: "Connect your wallet to continue managing payments.",
+          img: {
+            src: "https://www.billoqpay.com/logo.png",
+            width: 96,
+            height: 96,
+          },
+        },
       });
     } catch (err) {
       console.error("Connection error:", err);
