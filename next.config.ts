@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import path from "path";
 
 const nextConfig: NextConfig = {
   /* config options here */
@@ -8,10 +9,11 @@ const nextConfig: NextConfig = {
     config.resolve = config.resolve || {};
     config.resolve.alias = {
       ...(config.resolve.alias || {}),
-      "@reown/appkit-wallet": require.resolve("./src/stubs/noop"),
-      "@reown/appkit-ui": require.resolve("./src/stubs/noop"),
-      "@reown/appkit-utils": require.resolve("./src/stubs/noop"),
-      "@reown/appkit-pay": require.resolve("./src/stubs/noop"),
+      "@reown/appkit-wallet": path.resolve(__dirname, "./src/stubs/noop.ts"),
+      "@reown/appkit-ui": path.resolve(__dirname, "./src/stubs/noop.ts"),
+      "@reown/appkit-utils": path.resolve(__dirname, "./src/stubs/noop.ts"),
+      "@reown/appkit-pay": path.resolve(__dirname, "./src/stubs/noop.ts"),
+      "viem/actions": path.resolve(__dirname, "./src/stubs/viemActions.ts"),
     };
 
     return config;
