@@ -17,7 +17,7 @@ import {
   WalletProvider,
 } from "thirdweb/react";
 import { thirdwebClient } from "@/lib/thirdwebClient";
-import { defaultChain, supportedChains } from "@/lib/thirdwebChains";
+import { supportedChains } from "@/lib/thirdwebChains";
 
 interface DashboardHeaderProps {
   username?: string;
@@ -95,7 +95,6 @@ export function DashboardHeader({
     try {
       await connect({
         client: thirdwebClient,
-        chain: activeChain ?? defaultChain,
         chains: supportedChains,
         size: "compact",
         titleIcon: "https://www.billoqpay.com/logo.png",

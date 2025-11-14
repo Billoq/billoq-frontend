@@ -15,10 +15,7 @@ import {
   WalletProvider,
 } from "thirdweb/react";
 import { thirdwebClient } from "@/lib/thirdwebClient";
-import {
-  defaultChain,
-  supportedChains,
-} from "@/lib/thirdwebChains";
+import { supportedChains } from "@/lib/thirdwebChains";
 
 interface NavItem {
   label: string;
@@ -104,14 +101,14 @@ export function Navbar() {
     try {
       await connect({
         client: thirdwebClient,
-        chain: activeChain ?? defaultChain,
         chains: supportedChains,
         size: "compact",
         titleIcon: "https://www.billoqpay.com/logo.svg",
-        title: "Billoq",
-      
+        welcomeScreen: {
+          title: "Welcome to Billoq",
+          subtitle: "Connect your wallet to get started with secure payments.",
+        },
       });
-    
     } catch (error) {
       console.error("Connection error:", error);
     }

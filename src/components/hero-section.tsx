@@ -9,7 +9,7 @@ import { useInView } from "react-intersection-observer"
 import { useEffect, type ReactNode, useCallback } from "react"
 import { useConnectModal, useActiveAccount } from "thirdweb/react"
 import { thirdwebClient } from "@/lib/thirdwebClient"
-import { defaultChain, supportedChains } from "@/lib/thirdwebChains"
+import { supportedChains } from "@/lib/thirdwebChains"
 import { useRouter } from "next/navigation"
 import { RollingBall } from "./RollingBall"
 
@@ -104,7 +104,6 @@ export function HeroSection() {
       try {
         await connect({
           client: thirdwebClient,
-          chain: defaultChain,
           chains: supportedChains,
           size: "compact",
           titleIcon: "https://www.billoqpay.com/logo.png",

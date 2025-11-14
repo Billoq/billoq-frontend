@@ -37,10 +37,7 @@ interface PaymentModalProps {
   customerName?: string;
 }
 
-interface TransactionResult {
-  receipt: ethers.TransactionReceipt;
-  transactionId: string;
-}
+
 
 // Define proper types for token addresses
 type SupportedToken = "USDT" | "USDC";
@@ -181,7 +178,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
   const [tokenContract, setTokenContract] = useState<ethers.Contract | null>(null);
   const { initiatePayment } = useBilloq();
 
-  const logGasDetails = useCallback((label: string, receipt: any) => {
+  const logGasDetails = useCallback((label: string, receipt: Record<string, unknown>) => {
     try {
       const toBigIntSafe = (value: unknown): bigint | null => {
         if (typeof value === "bigint") return value;
@@ -225,7 +222,6 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
 
   const [nativeBalance, setNativeBalance] = useState<bigint | null>(null);
   const [nativeBalanceLoading, setNativeBalanceLoading] = useState(false);
-  const [nativeBalanceError, setNativeBalanceError] = useState<string | null>(null);
 
   useEffect(() => {
     const decimals = getTokenDecimals(chainId);
@@ -252,7 +248,6 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
       }
 
       setNativeBalanceLoading(true);
-      setNativeBalanceError(null);
 
       try {
         const balanceResult = await fetchBalance(wagmiConfig, {
@@ -264,7 +259,6 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
       } catch (error) {
         console.error("Failed to fetch native balance:", error);
         setNativeBalance(null);
-        setNativeBalanceError("Unable to determine native balance. Please ensure you have funds for gas.");
       } finally {
         setNativeBalanceLoading(false);
       }
@@ -367,7 +361,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
       console.log("Approval transaction hash:", tx.hash);
       const receipt = await tx.wait();
       console.log("Approval transaction confirmed:", receipt.hash);
-      if (receipt.status !== 1n && receipt.status !== 1) {
+      if (receipt.status !== BigInt(1) && receipt.status !== 1) {
         throw new Error("Approval transaction failed");
       }
       logGasDetails("Wagmi approval", receipt);
@@ -544,7 +538,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
       transactionHash: payResult.transactionHash,
       transactionId,
       from: activeAccount.address,
-      status: receipt.status,
+      status: receipt.status === "success" ? 1 : 0,
     };
   };
 
@@ -622,9 +616,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
       const isSuccessful =
         status === undefined ||
         status === 1 ||
-        status === 1n ||
-        status === "success" ||
-        status === true;
+        status === BigInt(1);
 
       if (isSuccessful) {
         await notifyBackend(result.transactionHash, result.transactionId, result.from);
