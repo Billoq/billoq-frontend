@@ -6,12 +6,15 @@ import {
   useActiveWallet,
   useActiveWalletChain,
   useDisconnect,
+  useSwitchActiveWalletChain,
 } from "thirdweb/react";
 import { fetchTokenBalance } from "@/lib/tokens";
 import {
   defaultChain,
   getChainById,
   isMainnetEnvironment,
+  mainnetChains,
+  testnetChains,
 } from "@/lib/thirdwebChains";
 
 // Environment detection
@@ -65,10 +68,19 @@ export const BalanceProvider = ({ children }: { children: React.ReactNode }) => 
   const wallet = useActiveWallet();
   const activeChain = useActiveWalletChain();
   const { disconnect } = useDisconnect();
+  const switchChain = useSwitchActiveWalletChain();
 
   const address = account?.address;
   const isConnected = Boolean(address);
-  const chainId = activeChain?.id ?? defaultChain.id;
+  
+  // Get supported chains based on environment
+  const supportedChains = isMainnet ? mainnetChains : testnetChains;
+  const supportedChainIds = supportedChains.map(chain => chain.id);
+  
+  // Check if current chain is supported, if not use defaultChain (Base)
+  const currentChainId = activeChain?.id;
+  const isChainSupported = currentChainId ? supportedChainIds.includes(currentChainId) : false;
+  const chainId = isChainSupported ? (currentChainId ?? defaultChain.id) : defaultChain.id;
 
   const [usdcBalance, setUsdcBalance] = useState<string | null>(null);
   const [usdtBalance, setUsdtBalance] = useState<string | null>(null);
@@ -403,6 +415,20 @@ export const BalanceProvider = ({ children }: { children: React.ReactNode }) => 
     
     return () => clearInterval(exchangeRateInterval);
   }, [fetchExchangeRate]);
+
+  // Auto-switch to Base chain if unsupported chain detected (for in-app wallets/social login)
+  useEffect(() => {
+    // Auto-switch for thirdweb wallets (in-app wallets and social logins)
+    // If activeAccount exists, it means we're using a thirdweb wallet
+    const isThirdwebWallet = Boolean(account?.address);
+    if (isConnected && isThirdwebWallet && currentChainId && !isChainSupported) {
+      console.log(`⚠️ Unsupported chain detected (${currentChainId}). Auto-switching to Base chain...`);
+      const targetChain = defaultChain;
+      switchChain(targetChain).catch((error) => {
+        console.error("Failed to auto-switch to Base chain:", error);
+      });
+    }
+  }, [isConnected, account, currentChainId, isChainSupported, switchChain]);
 
   useEffect(() => {
     if (isConnected) {

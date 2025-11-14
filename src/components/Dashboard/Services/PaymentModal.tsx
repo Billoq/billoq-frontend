@@ -22,7 +22,7 @@ import { getContract, prepareContractCall, sendTransaction, waitForReceipt } fro
 import { fetchBalance } from "@wagmi/core";
 import { wagmiConfig } from "@/config";
 import { thirdwebClient } from "@/lib/thirdwebClient";
-import { getChainById } from "@/lib/thirdwebChains";
+import { getChainById, defaultChain } from "@/lib/thirdwebChains";
 
 interface PaymentModalProps {
   onClose: () => void;
@@ -76,8 +76,10 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
   const activeAccount = useActiveAccount();
   const activeWallet = useActiveWallet();
   const activeWalletChain = useActiveWalletChain();
-  const isInAppWallet = activeWallet?.id === "inApp";
-  const chainId = activeWalletChain?.id ?? wagmiChainId;
+  // Use thirdweb signing if activeAccount exists (covers in-app wallets and social logins)
+  const shouldUseThirdwebSigning = Boolean(activeAccount?.address);
+  // Default to Base chain when using in-app wallet (social login)
+  const chainId = activeWalletChain?.id ?? wagmiChainId ?? defaultChain.id;
 
   const { address: wagmiAddress } = useAccount();
   const connectedAddress = activeAccount?.address ?? wagmiAddress;
@@ -271,12 +273,12 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
   const billContractInterface = new ethers.Interface(contractConfig.abi);
 
   // Check if contracts are ready
-  const minimumNativeBalance = BigInt(1e12); // (~0.0000001 native token)
+  const minimumNativeBalance = BigInt(1e9); // (~0.001 native token)
 
   const hasSufficientNativeBalance =
     nativeBalance === null || nativeBalance >= minimumNativeBalance;
 
-  const areContractsReady = isInAppWallet
+  const areContractsReady = shouldUseThirdwebSigning
     ? Boolean(activeAccount?.address && chainId && isConversionReady && hasSufficientNativeBalance)
     : Boolean(
         billContract &&
@@ -287,7 +289,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
       );
 
   const initializeContracts = useCallback(async () => {
-    if (isInAppWallet) {
+    if (shouldUseThirdwebSigning) {
       setBillContract(null);
       setTokenContract(null);
       return;
@@ -324,11 +326,11 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
         theme: "dark",
       });
     }
-  }, [walletClient, wagmiAddress, config, paymentToken, isInAppWallet, contractConfig.address, contractConfig.abi]);
+  }, [walletClient, wagmiAddress, config, paymentToken, shouldUseThirdwebSigning, contractConfig.address, contractConfig.abi]);
 
   useEffect(() => {
     initializeContracts();
-  }, [initializeContracts, isInAppWallet]);
+  }, [initializeContracts, shouldUseThirdwebSigning]);
 
   const handleRefreshExchangeRate = async () => {
     try {
@@ -450,7 +452,8 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
       throw new Error("Wallet not connected");
     }
 
-    const chain = activeWalletChain ?? getChainById(chainId);
+    // Default to Base chain when using in-app wallet (social login)
+    const chain = activeWalletChain ?? getChainById(chainId) ?? defaultChain;
     if (!chain) {
       throw new Error("Unsupported chain");
     }
@@ -468,78 +471,86 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
     });
 
     setProcessingStep("Approving token transfer...");
-    const approveTx = prepareContractCall({
-      contract: erc20Contract,
-      method: "function approve(address spender, uint256 amount)",
-      params: [coreAddress, tokenAmount],
-    });
+    try {
+      const approveTx = prepareContractCall({
+        contract: erc20Contract,
+        method: "function approve(address spender, uint256 amount)",
+        params: [coreAddress, tokenAmount],
+      });
 
-    const approveResult = await sendTransaction({
-      account: activeAccount,
-      transaction: approveTx,
-    });
+      const approveResult = await sendTransaction({
+        account: activeAccount,
+        transaction: approveTx,
+      });
 
-    const approveReceipt = await waitForReceipt({
-      client: thirdwebClient,
-      chain,
-      transactionHash: approveResult.transactionHash,
-    });
+      const approveReceipt = await waitForReceipt({
+        client: thirdwebClient,
+        chain,
+        transactionHash: approveResult.transactionHash,
+      });
 
-    logGasDetails("In-app approval", approveReceipt);
+      logGasDetails("In-app approval", approveReceipt);
+    } catch (error) {
+      throw error; // Re-throw to be caught by outer handler
+    }
 
     setProcessingStep("Processing bill payment...");
-    const payTx = prepareContractCall({
-      contract: coreContract,
-      method: "function payBill(uint8,string,uint256,uint256,address)",
-      params: [
-        billType,
-        quoteId,
-        BigInt(Math.floor(parseFloat(amountInNaira))),
-        tokenAmount,
-        paymentToken,
-      ],
-    });
+    try {
+      const payTx = prepareContractCall({
+        contract: coreContract,
+        method: "function payBill(uint8,string,uint256,uint256,address)",
+        params: [
+          billType,
+          quoteId,
+          BigInt(Math.floor(parseFloat(amountInNaira))),
+          tokenAmount,
+          paymentToken,
+        ],
+      });
 
-    const payResult = await sendTransaction({
-      account: activeAccount,
-      transaction: payTx,
-    });
+      const payResult = await sendTransaction({
+        account: activeAccount,
+        transaction: payTx,
+      });
 
-    const receipt = await waitForReceipt({
-      client: thirdwebClient,
-      chain,
-      transactionHash: payResult.transactionHash,
-    });
+      const receipt = await waitForReceipt({
+        client: thirdwebClient,
+        chain,
+        transactionHash: payResult.transactionHash,
+      });
 
-    logGasDetails("In-app payBill", receipt);
+      logGasDetails("In-app payBill", receipt);
 
-    let transactionId: string | null = null;
-    for (const log of receipt.logs ?? []) {
-      try {
-        const parsedLog = billContractInterface.parseLog({
-          topics: log.topics as string[],
-          data: log.data,
-        });
+      let transactionId: string | null = null;
+      for (const log of receipt.logs ?? []) {
+        try {
+          const parsedLog = billContractInterface.parseLog({
+            topics: log.topics as string[],
+            data: log.data,
+          });
 
-        if (parsedLog && parsedLog.name === "BillPaid") {
-          transactionId = parsedLog.args[0].toString();
-          break;
+          if (parsedLog && parsedLog.name === "BillPaid") {
+            transactionId = parsedLog.args[0].toString();
+            break;
+          }
+        } catch (error) {
+          console.error("Error parsing log:", error);
         }
-      } catch (error) {
-        console.error("Error parsing log:", error);
       }
-    }
 
-    if (!transactionId) {
-      throw new Error("Could not find transactionId in event logs");
-    }
+      if (!transactionId) {
+        throw new Error("Could not find transactionId in event logs");
+      }
 
-    return {
-      transactionHash: payResult.transactionHash,
-      transactionId,
-      from: activeAccount.address,
-      status: receipt.status === "success" ? 1 : 0,
-    };
+      return {
+        transactionHash: payResult.transactionHash,
+        transactionId,
+        from: activeAccount.address,
+        status: receipt.status === "success" ? 1 : 0,
+      };
+    } catch (error) {
+      throw error; // Re-throw to be caught by outer handler
+    }
   };
 
   const notifyBackend = async (
@@ -589,7 +600,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
       return;
     }
 
-    if (!isInAppWallet && (!billContract || !tokenContract)) {
+    if (!shouldUseThirdwebSigning && (!billContract || !tokenContract)) {
       toast.error("Contracts not initialized. Please reconnect your wallet.", {
         position: "bottom-right",
         autoClose: 5000,
@@ -606,7 +617,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
     });
 
     try {
-      const result = isInAppWallet
+      const result = shouldUseThirdwebSigning
         ? await executePaymentWithInApp()
         : await executePaymentWithWagmi();
 
@@ -662,41 +673,50 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
 
       const rawMessage = extractMessage(error);
 
+      // Check if it's a gas-related error
+      const lowerMessage = rawMessage?.toLowerCase() || "";
+      const isGasError = 
+        lowerMessage.includes("insufficient funds for gas") ||
+        lowerMessage.includes("insufficient balance") ||
+        lowerMessage.includes("insufficient gas") ||
+        lowerMessage.includes("tx cost") ||
+        lowerMessage.includes("overshot") ||
+        (lowerMessage.includes("have") && lowerMessage.includes("want"));
+
       let errorMessage = "Failed to process payment. Please try again.";
-      if (rawMessage) {
-        const lower = rawMessage.toLowerCase();
-        if (error && typeof error === "object" && "code" in (error as Record<string, unknown>)) {
-          const codeValue = String((error as Record<string, unknown>).code);
-          if (codeValue === "-32000" || codeValue === "-32003") {
-            toast.error("Insufficient funds to cover gas fees. Please add more native token.", {
-              position: "bottom-right",
-              autoClose: 5000,
-              theme: "dark",
-            });
-            setIsProcessing(false);
-            setProcessingStep("");
-            return;
+      
+      if (isGasError) {
+        // Show user-friendly gas error message
+        const chainName = getChainById(chainId)?.name ?? `Chain ${chainId}`;
+        errorMessage = `Insufficient gas balance! You need more native tokens (e.g., ETH) on ${chainName} to cover transaction fees. Please add gas funds and try again.`;
+        toast.error(errorMessage, {
+          position: "bottom-right",
+          autoClose: 7000,
+          theme: "dark",
+        });
+      } else {
+        // Handle other errors
+        if (rawMessage) {
+          const lower = rawMessage.toLowerCase();
+
+          if (lower.includes("contracts not initialized")) {
+            errorMessage = "Contracts not initialized. Please reconnect your wallet.";
+          } else if (lower.includes("failed to retrieve transaction id")) {
+            errorMessage = "Failed to retrieve transaction ID. Please try again.";
+          } else if (lower.includes("user rejected transaction")) {
+            errorMessage = "Transaction was rejected. Please try again.";
+          } else {
+            errorMessage = rawMessage;
           }
         }
 
-        if (lower.includes("contracts not initialized")) {
-          errorMessage = "Contracts not initialized. Please reconnect your wallet.";
-        } else if (lower.includes("failed to retrieve transaction id")) {
-          errorMessage = "Failed to retrieve transaction ID. Please try again.";
-        } else if (lower.includes("user rejected transaction")) {
-          errorMessage = "Transaction was rejected. Please try again.";
-        } else if (lower.includes("insufficient funds for gas")) {
-          errorMessage = "Insufficient funds to cover gas fees. Please add more native token.";
-        } else {
-          errorMessage = rawMessage;
-        }
+        toast.error(errorMessage, {
+          position: "bottom-right",
+          autoClose: 5000,
+          theme: "dark",
+        });
       }
-
-      toast.error(errorMessage, {
-        position: "bottom-right",
-        autoClose: 5000,
-        theme: "dark",
-      });
+      
       setIsProcessing(false);
     } finally {
       setProcessingStep("");
