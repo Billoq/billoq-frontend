@@ -1,33 +1,25 @@
 // context/appkit.tsx
 "use client";
-
-import { ReactNode, useMemo } from "react";
-import { AutoConnect, ThirdwebProvider } from "thirdweb/react";
-import { thirdwebClient } from "@/lib/thirdwebClient";
+import { ThirdwebProvider } from "thirdweb/react";
 import {
   defaultChain,
   isMainnetEnvironment,
   supportedChains,
 } from "@/lib/thirdwebChains";
+import { ReactNode } from "react";
+
+// Log environment info for debugging
+console.log(`🌍 Environment: ${isMainnetEnvironment ? 'Mainnet' : 'Testnet'}`);
+console.log(`📡 Supported Networks:`, supportedChains.map(chain => chain.name));
+console.log(`🔧 Default Chain:`, defaultChain.name);
 
 interface AppKitProps {
   children: ReactNode;
 }
 
-const appMetadata = {
-  name: "Billoq",
-  url: "https://www.billoqpay.com",
-  description: `Billoq application - ${isMainnetEnvironment ? "Mainnet" : "Testnet"} Mode`,
-  logoUrl: "https://www.billoqpay.com/logo.png",
-};
-
 export function AppKit({ children }: AppKitProps) {
-  const chains = useMemo(() => supportedChains, []);
-
   return (
-    <ThirdwebProvider
-    >
-      <AutoConnect client={thirdwebClient} timeout={1500} />
+    <ThirdwebProvider>
       {children}
     </ThirdwebProvider>
   );
