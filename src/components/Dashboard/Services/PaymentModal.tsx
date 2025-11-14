@@ -15,7 +15,6 @@ import { ethers } from "ethers";
 import { getEthersSigner } from "@/config/adapter";
 import {
   useActiveAccount,
-  useActiveWallet,
   useActiveWalletChain,
 } from "thirdweb/react";
 import { getContract, prepareContractCall, sendTransaction, waitForReceipt } from "thirdweb";
@@ -74,7 +73,6 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
 }) => {
   const wagmiChainId = useChainId();
   const activeAccount = useActiveAccount();
-  const activeWallet = useActiveWallet();
   const activeWalletChain = useActiveWalletChain();
   // Use thirdweb signing if activeAccount exists (covers in-app wallets and social logins)
   const shouldUseThirdwebSigning = Boolean(activeAccount?.address);
