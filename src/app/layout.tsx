@@ -6,6 +6,7 @@ import ClientInitializer from "@/components/ClientInitializer";
 import { AppKit } from "../context/appkit";
 import { Providers } from "../context/providers";
 import { ToastContainer } from "react-toastify";
+import { ConnectionGuard } from "@/components/ConnectionGuard";
 
 export const metadata: Metadata = {
   title: "BilloqPay",
@@ -23,6 +24,7 @@ export default function RootLayout({
         <ClientInitializer>
           <AppKit>
             <Providers>
+              <ConnectionGuard />
               {children}
               <ToastContainer
                 position="bottom-right"

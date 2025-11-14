@@ -1,28 +1,19 @@
-// src/lib/tokens.ts
-import { readContract } from "@wagmi/core";
-import { wagmiConfig } from "@/config";
+import { getContract, readContract } from "thirdweb";
+import { thirdwebClient } from "@/lib/thirdwebClient";
+import { getChainById } from "@/lib/thirdwebChains";
 import { getContractConfig } from "@/config/contract";
 
-const ERC20_ABI = [
-  {
-    constant: true,
-    inputs: [{ name: "_owner", type: "address" }],
-    name: "balanceOf",
-    outputs: [{ name: "balance", type: "uint256" }],
-    type: "function",
-    stateMutability: "view",
-  },
-  {
-    constant: true,
-    inputs: [],
-    name: "decimals",
-    outputs: [{ name: "", type: "uint8" }],
-    type: "function",
-    stateMutability: "view",
-  },
-] as const;
-
 type TokenType = "USDC" | "USDT";
+
+const getKnownTokenDecimals = (token: TokenType, chainId: number): number => {
+  // BSC (mainnet & testnet) stablecoins use 18 decimals
+  if (chainId === 56 || chainId === 97) {
+    return 18;
+  }
+
+  // Default to 6 decimals for USDC/USDT on other supported chains
+  return 6;
+};
 
 export const fetchTokenBalance = async (
   token: TokenType,
@@ -31,26 +22,32 @@ export const fetchTokenBalance = async (
 ) => {
   try {
     const config = getContractConfig(chainId);
+    const chain = getChainById(chainId);
 
-    const tokenAddress = config[token.toLowerCase() as keyof typeof config] as `0x${string}` | undefined;
+    if (!chain) {
+      throw new Error(`Unsupported chain ID: ${chainId}`);
+    }
+
+    const tokenAddress =
+      (config[token.toLowerCase() as keyof typeof config] as `0x${string}` | undefined);
+
     if (!tokenAddress) {
       throw new Error(`${token} contract not found for chain ID: ${chainId}`);
     }
 
-    const [balance, decimals] = await Promise.all([
-      readContract(wagmiConfig, {
-        address: tokenAddress as `0x${string}`,
-        abi: ERC20_ABI,
-        functionName: "balanceOf",
-        args: [address as `0x${string}`],
-      }),
-      readContract(wagmiConfig, {
-        address: tokenAddress as `0x${string}`,
-        abi: ERC20_ABI,
-        functionName: "decimals",
-      }),
-    ]);
+    const contract = getContract({
+      address: tokenAddress,
+      client: thirdwebClient,
+      chain,
+    });
 
+    const balance = await readContract({
+      contract,
+      method: "function balanceOf(address) view returns (uint256)",
+      params: [address],
+    });
+
+    const decimals = getKnownTokenDecimals(token, chainId);
     const balanceInUnits = Number(balance) / 10 ** decimals;
     return balanceInUnits.toString();
   } catch (error) {

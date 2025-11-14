@@ -61,10 +61,34 @@ createAppKit({
   })
 });
 
+import { ReactNode, useMemo } from "react";
+import { AutoConnect, ThirdwebProvider } from "thirdweb/react";
+import { thirdwebClient } from "@/lib/thirdwebClient";
+import {
+  defaultChain,
+  isMainnetEnvironment,
+  supportedChains,
+} from "@/lib/thirdwebChains";
+
 interface AppKitProps {
   children: ReactNode;
 }
 
+const appMetadata = {
+  name: "Billoq",
+  url: "https://www.billoqpay.com",
+  description: `Billoq application - ${isMainnetEnvironment ? "Mainnet" : "Testnet"} Mode`,
+  logoUrl: "https://www.billoqpay.com/logo.png",
+};
+
 export function AppKit({ children }: AppKitProps) {
-  return <>{children}</>;
+  const chains = useMemo(() => supportedChains, []);
+
+  return (
+    <ThirdwebProvider
+    >
+      <AutoConnect client={thirdwebClient} timeout={1500} />
+      {children}
+    </ThirdwebProvider>
+  );
 }
