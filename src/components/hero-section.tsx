@@ -7,7 +7,9 @@ import Link from "next/link"
 import { motion, useAnimation } from "framer-motion"
 import { useInView } from "react-intersection-observer"
 import { useEffect, type ReactNode, useCallback } from "react"
-import { useAppKitAccount, useAppKit } from "@reown/appkit/react"
+import { useConnectModal, useActiveAccount } from "thirdweb/react"
+import { thirdwebClient } from "@/lib/thirdwebClient"
+import { supportedChains } from "@/lib/thirdwebChains"
 import { useRouter } from "next/navigation"
 import { RollingBall } from "./RollingBall"
 
@@ -89,18 +91,32 @@ export const AnimatedSection = ({
 
 export function HeroSection() {
   // Wallet connection hooks
-  const { isConnected } = useAppKitAccount()
-  const { open } = useAppKit()
+  const account = useActiveAccount()
+  const { connect, isConnecting } = useConnectModal()
   const router = useRouter()
 
   const handleGetStarted = async () => {
-    if (isConnected) {
+    if (account?.address) {
       // If already connected, navigate to dashboard
       router.push("/dashboard")
     } else {
       // If not connected, open wallet connection modal
       try {
-        await open()
+        await connect({
+          client: thirdwebClient,
+          chains: supportedChains,
+          size: "compact",
+          titleIcon: "https://www.billoqpay.com/logo.png",
+          welcomeScreen: {
+            title: "Welcome to Billoq",
+            subtitle: "Connect your wallet to get started",
+            img: {
+              src: "https://www.billoqpay.com/logo.png",
+              width: 96,
+              height: 96,
+            },
+          },
+        })
       } catch (error) {
         console.error("Connection error:", error)
       }
@@ -164,9 +180,10 @@ export function HeroSection() {
             <div className="mt-10 flex flex-col sm:flex-row items-center justify-center mx-6 gap-4">
               <Button 
                 onClick={handleGetStarted}
-                className="bg-[#1B89A4] hover:bg-[#1B89A4]/80 text-white w-[230px] py-6 text-lg cursor-pointer"
+                disabled={isConnecting}
+                className="bg-[#1B89A4] hover:bg-[#1B89A4]/80 disabled:opacity-60 disabled:cursor-not-allowed text-white w-[230px] py-6 text-lg cursor-pointer"
               >
-                {isConnected ? "Go to Dashboard" : "Get Started"}
+                {account?.address ? "Go to Dashboard" : isConnecting ? "Connecting..." : "Get Started"}
               </Button>
               <Button 
                 variant="outline" 

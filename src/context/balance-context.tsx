@@ -1,12 +1,24 @@
 "use client";
 
 import { useState, useEffect, createContext, useContext, useCallback } from "react";
-import { useAccount, useDisconnect, useChainId } from "wagmi";
-import { sepolia, liskSepolia, arbitrumSepolia, bscTestnet, lisk, arbitrum, base, bsc } from "wagmi/chains";
+import {
+  useActiveAccount,
+  useActiveWallet,
+  useActiveWalletChain,
+  useDisconnect,
+  useSwitchActiveWalletChain,
+} from "thirdweb/react";
 import { fetchTokenBalance } from "@/lib/tokens";
+import {
+  defaultChain,
+  getChainById,
+  isMainnetEnvironment,
+  mainnetChains,
+  testnetChains,
+} from "@/lib/thirdwebChains";
 
 // Environment detection
-const isMainnet = process.env.NEXT_PUBLIC_ENVIRONMENT === 'mainnet'
+const isMainnet = isMainnetEnvironment;
 
 // Type definitions for API responses
 interface CoinGeckoResponse {
@@ -52,9 +64,23 @@ interface BalanceContextType {
 const BalanceContext = createContext<BalanceContextType | undefined>(undefined);
 
 export const BalanceProvider = ({ children }: { children: React.ReactNode }) => {
-  const { address, isConnected } = useAccount();
-  const chainId = useChainId();
+  const account = useActiveAccount();
+  const wallet = useActiveWallet();
+  const activeChain = useActiveWalletChain();
   const { disconnect } = useDisconnect();
+  const switchChain = useSwitchActiveWalletChain();
+
+  const address = account?.address;
+  const isConnected = Boolean(address);
+  
+  // Get supported chains based on environment
+  const supportedChains = isMainnet ? mainnetChains : testnetChains;
+  const supportedChainIds = supportedChains.map(chain => chain.id);
+  
+  // Check if current chain is supported, if not use defaultChain (Base)
+  const currentChainId = activeChain?.id;
+  const isChainSupported = currentChainId ? supportedChainIds.includes(currentChainId) : false;
+  const chainId = isChainSupported ? (currentChainId ?? defaultChain.id) : defaultChain.id;
 
   const [usdcBalance, setUsdcBalance] = useState<string | null>(null);
   const [usdtBalance, setUsdtBalance] = useState<string | null>(null);
@@ -70,32 +96,27 @@ export const BalanceProvider = ({ children }: { children: React.ReactNode }) => 
 
   // Function to get chain name based on environment
   const getChainName = useCallback(() => {
+    const chain = getChainById(chainId);
+    if (!chain) {
+      return `Chain ID ${chainId}`;
+    }
     if (isMainnet) {
-      switch (chainId) {
-        case lisk.id:
-          return "Lisk";
-        case arbitrum.id:
-          return "Arbitrum";
-        case base.id:
-          return "Base";
-        case bsc.id:
-          return "BSC";
-        default:
-          return `Chain ID ${chainId}`;
-      }
-    } else {
-      switch (chainId) {
-        case sepolia.id:
-          return "Ethereum Sepolia";
-        case liskSepolia.id:
-          return "Lisk Sepolia";
-        case arbitrumSepolia.id:
-          return "Arbitrum Sepolia";
-        case bscTestnet.id:
-          return "BSC Testnet";
-        default:
-          return `Chain ID ${chainId}`;
-      }
+      return chain.name ?? `Chain ID ${chainId}`;
+    }
+    // Normalize common testnet names for UX parity
+    switch (chain.id) {
+      case 11155111:
+        return "Ethereum Sepolia";
+      case 4202:
+        return "Lisk Sepolia";
+      case 421614:
+        return "Arbitrum Sepolia";
+      case 97:
+        return "BSC Testnet";
+      case 84532:
+        return "Base Sepolia";
+      default:
+        return chain.name ?? `Chain ID ${chain.id}`;
     }
   }, [chainId]);
 
@@ -341,7 +362,9 @@ export const BalanceProvider = ({ children }: { children: React.ReactNode }) => 
   };
 
   const disconnectWallet = () => {
-    disconnect();
+    if (wallet) {
+      disconnect(wallet);
+    }
   };
 
   // Debug function to check what's working
@@ -392,6 +415,20 @@ export const BalanceProvider = ({ children }: { children: React.ReactNode }) => 
     
     return () => clearInterval(exchangeRateInterval);
   }, [fetchExchangeRate]);
+
+  // Auto-switch to Base chain if unsupported chain detected (for in-app wallets/social login)
+  useEffect(() => {
+    // Auto-switch for thirdweb wallets (in-app wallets and social logins)
+    // If activeAccount exists, it means we're using a thirdweb wallet
+    const isThirdwebWallet = Boolean(account?.address);
+    if (isConnected && isThirdwebWallet && currentChainId && !isChainSupported) {
+      console.log(`⚠️ Unsupported chain detected (${currentChainId}). Auto-switching to Base chain...`);
+      const targetChain = defaultChain;
+      switchChain(targetChain).catch((error) => {
+        console.error("Failed to auto-switch to Base chain:", error);
+      });
+    }
+  }, [isConnected, account, currentChainId, isChainSupported, switchChain]);
 
   useEffect(() => {
     if (isConnected) {
