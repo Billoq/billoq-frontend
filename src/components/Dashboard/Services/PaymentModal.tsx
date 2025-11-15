@@ -357,7 +357,12 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
     
     try {
       console.log("Approving token transfer...");
-      const tx = await tokenContract.approve(contractConfig.address, tokenAmount);
+      // Add a small buffer (1% or minimum 1000 units) to ensure allowance is always sufficient
+      const bufferAmount = tokenAmount / BigInt(100); // 1% buffer
+      const minBuffer = BigInt(1000); // Minimum buffer
+      const approvalAmount = tokenAmount + (bufferAmount > minBuffer ? bufferAmount : minBuffer);
+      
+      const tx = await tokenContract.approve(contractConfig.address, approvalAmount);
       console.log("Approval transaction hash:", tx.hash);
       const receipt = await tx.wait();
       console.log("Approval transaction confirmed:", receipt.hash);
@@ -470,10 +475,15 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
 
     setProcessingStep("Approving token transfer...");
     try {
+      // Add a small buffer (1% or minimum 1000 units) to ensure allowance is always sufficient
+      const bufferAmount = tokenAmount / BigInt(100); // 1% buffer
+      const minBuffer = BigInt(1000); // Minimum buffer
+      const approvalAmount = tokenAmount + (bufferAmount > minBuffer ? bufferAmount : minBuffer);
+      
       const approveTx = prepareContractCall({
         contract: erc20Contract,
         method: "function approve(address spender, uint256 amount)",
-        params: [coreAddress, tokenAmount],
+        params: [coreAddress, approvalAmount],
       });
 
       const approveResult = await sendTransaction({
